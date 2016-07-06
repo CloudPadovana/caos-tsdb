@@ -9,15 +9,12 @@ defmodule ApiStorage.Project do
     timestamps()
   end
 
-  @required_fields ~w(project_id)
-  @optional_fields ~w(name)
-
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, [:project_id, :name])
     |> validate_required(:project_id)
   end
 end
