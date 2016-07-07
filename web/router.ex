@@ -8,6 +8,6 @@ defmodule ApiStorage.Router do
   scope "/api", ApiStorage do
     pipe_through :api
 
-    resources "/projects", ProjectController, except: [:new, :edit]
+    resources "/projects", ProjectController, except: [:new, :edit, :delete]
   end
 end

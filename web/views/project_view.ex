@@ -10,7 +10,7 @@ defmodule ApiStorage.ProjectView do
   end
 
   def render("project.json", %{project: project}) do
-    %{project_id: project.project_id,
+    %{id: project.id,
       name: project.name}
   end
 end

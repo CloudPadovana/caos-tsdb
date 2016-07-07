@@ -24,13 +24,13 @@ defmodule ApiStorage.ProjectController do
     end
   end
 
-  def show(conn, %{"id" => project_id}) do
-    project = Repo.get!(Project, project_id)
+  def show(conn, %{"id" => id}) do
+    project = Repo.get!(Project, id)
     render(conn, "show.json", project: project)
   end
 
-  def update(conn, %{"id" => project_id, "project" => project_params}) do
-    project = Repo.get!(Project, project_id)
+  def update(conn, %{"id" => id, "project" => project_params}) do
+    project = Repo.get!(Project, id)
     changeset = Project.changeset(project, project_params)
 
     case Repo.update(changeset) do
@@ -41,15 +41,5 @@ defmodule ApiStorage.ProjectController do
         |> put_status(:unprocessable_entity)
         |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
     end
-  end
-
-  def delete(conn, %{"id" => project_id}) do
-    project = Repo.get!(Project, project_id)
-
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(project)
-
-    send_resp(conn, :no_content, "")
   end
 end
