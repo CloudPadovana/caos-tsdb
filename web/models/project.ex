@@ -8,6 +8,9 @@ defmodule ApiStorage.Project do
 
     timestamps()
 
+    has_many :samples, ApiStorage.Sample,
+      foreign_key: :project_id,
+      references: :id
   end
 
   @doc """
