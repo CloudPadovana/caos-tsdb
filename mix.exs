@@ -19,7 +19,7 @@ defmodule ApiStorage.Mixfile do
   def application do
     [mod: {ApiStorage, []},
      applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :mariaex]]
+                    :timex, :timex_ecto, :phoenix_ecto, :mariaex]]
   end
 
   # Specifies which paths to compile per environment.
@@ -34,6 +34,8 @@ defmodule ApiStorage.Mixfile do
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.0"},
      {:mariaex, ">= 0.0.0"},
+     {:timex, "~> 2.2"},
+     {:timex_ecto, "~> 1.1"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"}]
   end
