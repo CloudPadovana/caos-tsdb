@@ -7,16 +7,7 @@ defmodule ApiStorage.Project do
     field :name, :string
 
     timestamps()
-  end
 
-  def validate_immutable(changeset, field) do
-    validate_change changeset, field, fn _, newvalue ->
-      case Map.get(changeset.data, field) do
-        ^newvalue -> []
-        nil -> []
-        _ -> [field: "must be kept immutable"]
-      end
-    end
   end
 
   @doc """

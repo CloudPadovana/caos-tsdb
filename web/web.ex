@@ -24,6 +24,8 @@ defmodule ApiStorage.Web do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+
+      import ApiStorage.Models.Helpers
     end
   end
 
