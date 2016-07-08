@@ -2,9 +2,9 @@ defmodule ApiStorage.ProjectControllerTest do
   use ApiStorage.ConnCase
 
   alias ApiStorage.Project
-  @project %Project{id: "an id"}
-  @valid_attrs %{id: "an id", name: "some content"}
-  @invalid_attrs %{id: "another id", name: "some content"}
+  @valid_attrs %{id: "an id", name: "a name"}
+  @project struct(Project, @valid_attrs)
+  @invalid_attrs %{id: "a new id", name: "a name"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -23,9 +23,8 @@ defmodule ApiStorage.ProjectControllerTest do
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get conn, project_path(conn, :show, -1)
-    end
+    conn = get conn, project_path(conn, :show, @project)
+    assert json_response(conn, 404)["errors"] != %{}
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do
@@ -41,9 +40,9 @@ defmodule ApiStorage.ProjectControllerTest do
 
   test "updates and renders chosen resource when data is valid", %{conn: conn} do
     project = Repo.insert! @project
-    conn = put conn, project_path(conn, :update, project), project: @valid_attrs
+    conn = put conn, project_path(conn, :update, project), project: %{@valid_attrs | name: "a new name"}
     assert json_response(conn, 200)["data"]["id"]
-    assert Repo.get_by(Project, @valid_attrs)
+    assert Repo.get_by(Project, %{@valid_attrs | name: "a new name"})
   end
 
   test "does not update chosen resource and renders errors when id is invalid", %{conn: conn} do

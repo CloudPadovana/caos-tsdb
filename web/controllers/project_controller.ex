@@ -25,8 +25,14 @@ defmodule ApiStorage.ProjectController do
   end
 
   def show(conn, %{"id" => id}) do
-    project = Repo.get!(Project, id)
-    render(conn, "show.json", project: project)
+    project = Repo.get(Project, id)
+    if project do
+      render(conn, "show.json", project: project)
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(ApiStorage.ErrorView, "404.json")
+    end
   end
 
   def update(conn, %{"id" => id, "project" => project_params}) do
