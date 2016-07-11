@@ -8,7 +8,7 @@ defmodule ApiStorage.Project do
 
     timestamps()
 
-    has_many :samples, ApiStorage.Sample,
+    has_many :series, ApiStorage.Series,
       foreign_key: :project_id,
       references: :id
   end

@@ -39,6 +39,7 @@ defmodule ApiStorage.Web do
 
       import ApiStorage.Router.Helpers
       import ApiStorage.Gettext
+      import ApiStorage.DateTime.Helpers
     end
   end
 
@@ -52,6 +53,7 @@ defmodule ApiStorage.Web do
       import ApiStorage.Router.Helpers
       import ApiStorage.ErrorHelpers
       import ApiStorage.Gettext
+      import ApiStorage.DateTime.Helpers
     end
   end
 

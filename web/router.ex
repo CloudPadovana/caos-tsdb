@@ -8,7 +8,10 @@ defmodule ApiStorage.Router do
   scope "/api", ApiStorage do
     pipe_through :api
 
-    resources "/projects", ProjectController, except: [:new, :edit, :delete]
+    resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]
+    resources "/metrics", MetricController, param: "name", except: [:new, :edit, :delete]
+
+    resources "/series", SeriesController, param: "id", except: [:new, :edit, :delete]
 
     resources "/samples", SampleController, only: [:show, :create], singleton: true
   end

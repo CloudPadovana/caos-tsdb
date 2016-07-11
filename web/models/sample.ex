@@ -3,14 +3,14 @@ defmodule ApiStorage.Sample do
 
   @primary_key false
   schema "samples" do
-    field :project_id, :string, primary_key: true
-    field :name, :string, primary_key: true
+    field :series_id, :id, primary_key: true
+    field :timestamp, Timex.Ecto.DateTime, primary_key: true
     field :value, :float
 
     timestamps()
 
-    belongs_to :project, ApiStorage.Project,
-      foreign_key: :project_id,
+    belongs_to :series, ApiStorage.Series,
+      foreign_key: :series_id,
       references: :id,
       define_field: false
   end
@@ -20,7 +20,13 @@ defmodule ApiStorage.Sample do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:project_id, :name, :value])
-    |> validate_required([:project_id, :name])
+    |> cast(params, [:series_id, :timestamp, :value])
+    |> validate_required([:series_id, :timestamp])
+    |> validate_immutable(:series_id)
+    |> validate_immutable(:timestamp)
+    |> validate_immutable(:value)
+    |> foreign_key_constraint(:series_id)
+    |> assoc_constraint(:series)
+    |> unique_constraint(:series_id, name: "samples_series_id_timestamp_index")
   end
 end
