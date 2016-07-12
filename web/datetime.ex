@@ -2,7 +2,7 @@
 #
 # Filename: datetime.ex
 # Created: 2016-07-11T11:22:26+0200
-# Time-stamp: <2016-07-11T11:22:50cest>
+# Time-stamp: <2016-07-11T12:59:14cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -34,5 +34,12 @@ defmodule ApiStorage.DateTime.Helpers do
   def format_date(date) do
     date
     |> Timex.format!("%FT%TZ", :strftime)
+  end
+
+  defimpl Poison.Encoder, for: Timex.DateTime do
+    def encode(d, _options) do
+      fmt = Timex.format!(d, "%FT%TZ", :strftime)
+      "\"#{fmt}\""
+    end
   end
 end

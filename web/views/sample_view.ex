@@ -7,7 +7,7 @@ defmodule ApiStorage.SampleView do
 
   def render("sample.json", %{sample: sample}) do
     %{series_id: sample.series_id,
-      timestamp: sample.timestamp |> format_date,
+      timestamp: sample.timestamp,
       value: sample.value}
   end
 
