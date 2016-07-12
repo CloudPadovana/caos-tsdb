@@ -4,13 +4,15 @@ defmodule ApiStorage.SampleController do
   alias ApiStorage.Sample
   alias ApiStorage.Project
 
+  plug :scrub_timestamp, "timestamp"
+
   def show(conn, %{"series_id" => series_id}) do
     sample = Repo.get_by!(Sample, series_id: series_id)
     render(conn, "show.json", sample: sample)
   end
 
   def create(conn, %{"sample" => sample_params}) do
-    changeset = Sample.changeset(%Sample{}, sample_params |> Map.update!("timestamp", &(&1 |> parse_date)))
+    changeset = Sample.changeset(%Sample{}, sample_params)
 
     case Repo.insert(changeset) do
       {:ok, sample} ->
@@ -25,4 +27,11 @@ defmodule ApiStorage.SampleController do
     end
   end
 
+  @spec scrub_timestamp(Plug.Conn.t, String.t) :: Plug.Conn.t
+  defp scrub_timestamp(conn, key) when is_binary(key) do
+    with {:ok, timestamp} <- Map.fetch(conn.params, key) do
+      %{conn | params: %{conn.params | key => timestamp |> parse_date}}
+    end
+    conn
+  end
 end
