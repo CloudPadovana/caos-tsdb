@@ -27,6 +27,7 @@ defmodule ApiStorage.Sample do
     |> validate_immutable(:value)
     |> foreign_key_constraint(:series_id)
     |> assoc_constraint(:series)
-    |> unique_constraint(:series_id, name: "samples_series_id_timestamp_index")
+    # the following line has this form due to mysql error format
+    |> unique_constraint(:primary, name: "PRIMARY")
   end
 end
