@@ -40,6 +40,7 @@ defmodule ApiStorage.Web do
       import ApiStorage.Router.Helpers
       import ApiStorage.Gettext
       import ApiStorage.DateTime.Helpers
+      import ApiStorage.QueryFilter
     end
   end
 

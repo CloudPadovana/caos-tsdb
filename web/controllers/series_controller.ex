@@ -3,8 +3,11 @@ defmodule ApiStorage.SeriesController do
 
   alias ApiStorage.Series
 
-  def index(conn, _params) do
-    series = Repo.all(Series)
+  def index(conn, params) do
+    series = Series
+    |> ApiStorage.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
+    |> Repo.all
+
     render(conn, "index.json", series: series)
   end
 
