@@ -21,5 +21,6 @@ defmodule ApiStorage.Project do
     |> cast(params, [:id, :name])
     |> validate_required(:id)
     |> validate_immutable(:id)
+    |> unique_constraint(:id)
   end
 end

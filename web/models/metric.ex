@@ -21,5 +21,6 @@ defmodule ApiStorage.Metric do
     |> cast(params, [:name, :type])
     |> validate_required(:name)
     |> validate_immutable(:name)
+    |> unique_constraint(:name)
   end
 end
