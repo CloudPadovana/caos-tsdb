@@ -1,6 +1,10 @@
 defmodule ApiStorage.SampleView do
   use ApiStorage.Web, :view
 
+  def render("show.json", %{samples: samples}) do
+    %{data: render_many(samples, ApiStorage.SampleView, "sample.json")}
+  end
+
   def render("show.json", %{sample: sample}) do
     %{data: render_one(sample, ApiStorage.SampleView, "sample.json")}
   end
@@ -10,7 +14,4 @@ defmodule ApiStorage.SampleView do
       timestamp: sample.timestamp,
       value: sample.value}
   end
-
-
-
 end
