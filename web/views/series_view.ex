@@ -17,4 +17,8 @@ defmodule ApiStorage.SeriesView do
       ttl: series.ttl,
       last_timestamp: series.last_timestamp}
   end
+
+  def render("grid.json", %{grid: grid}) do
+    %{data: %{grid: grid}}
+  end
 end

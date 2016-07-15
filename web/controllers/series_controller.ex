@@ -3,6 +3,8 @@ defmodule ApiStorage.SeriesController do
 
   alias ApiStorage.Series
 
+  plug :scrub_datetime, "start_date" when action in [:grid]
+
   def index(conn, params) do
     series = Series
     |> ApiStorage.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
@@ -45,4 +47,24 @@ defmodule ApiStorage.SeriesController do
         |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
     end
   end
+
+  def grid(conn, %{"series_id" => id, "start_date" => start_date}) do
+    series = Repo.get_by!(Series, id: id)
+    period = series.period
+    last_timestamp = series.last_timestamp
+
+    to = Timex.DateTime.now
+
+    d = Timex.diff(Timex.DateTime.epoch, start_date)
+    n = trunc(d / period)
+
+    from = Timex.DateTime.epoch
+    |> Timex.shift(seconds: n*period)
+
+    grid = Timex.Interval.new(from: from, until: to, step: [seconds: period])
+    |> Enum.map(fn(x) -> format_date(x) end)
+
+    render(conn, "grid.json", grid: grid)
+  end
+
 end
