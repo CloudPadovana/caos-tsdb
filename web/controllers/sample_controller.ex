@@ -4,7 +4,7 @@ defmodule ApiStorage.SampleController do
   alias ApiStorage.Sample
   alias ApiStorage.Project
 
-  plug :scrub_timestamp, "timestamp"
+  plug :scrub_datetime, "timestamp"
 
   def show(conn, params) do
     samples = Sample
@@ -30,12 +30,5 @@ defmodule ApiStorage.SampleController do
     end
   end
 
-  @spec scrub_timestamp(Plug.Conn.t, String.t) :: Plug.Conn.t
-  defp scrub_timestamp(conn, key) when is_binary(key) do
-    with {:ok, timestamp} <- Map.fetch(conn.params, key) do
-      %{conn | params: %{conn.params | key => timestamp |> parse_date}}
-    end
-    conn
-  end
 end
 

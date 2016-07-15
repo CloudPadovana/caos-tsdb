@@ -2,7 +2,7 @@
 #
 # Filename: datetime.ex
 # Created: 2016-07-11T11:22:26+0200
-# Time-stamp: <2016-07-11T12:59:14cest>
+# Time-stamp: <2016-07-15T15:21:59cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -28,7 +28,7 @@ defmodule ApiStorage.DateTime.Helpers do
 
   def parse_date(date) do
     date
-    |> Timex.parse!("%FT%TZ", :strftime)
+    |> Timex.parse("%FT%TZ", :strftime)
   end
 
   def format_date(date) do
@@ -40,6 +40,24 @@ defmodule ApiStorage.DateTime.Helpers do
     def encode(d, _options) do
       fmt = Timex.format!(d, "%FT%TZ", :strftime)
       "\"#{fmt}\""
+    end
+  end
+
+  @spec scrub_datetime(Plug.Conn.t, String.t) :: Plug.Conn.t
+  def scrub_datetime(conn, key) when is_binary(key) do
+    case Map.fetch(conn.params, key) do
+      {:ok, value} ->
+        case parse_date(value) do
+          {:ok, datetime} ->
+            %{conn | params: %{conn.params | key => datetime}}
+          {:error, _} ->
+            conn
+            |> Plug.Conn.put_status(:bad_request)
+            |> Phoenix.Controller.render(ApiStorage.ErrorView, "400.json")
+            |> Plug.Conn.halt
+        end
+      :error ->
+        conn
     end
   end
 end
