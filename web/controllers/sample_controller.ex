@@ -2,7 +2,7 @@ defmodule ApiStorage.SampleController do
   use ApiStorage.Web, :controller
 
   alias ApiStorage.Sample
-  alias ApiStorage.Project
+  alias ApiStorage.Series
 
   plug :scrub_datetime, "timestamp"
 
@@ -19,6 +19,23 @@ defmodule ApiStorage.SampleController do
 
     case Repo.insert(changeset) do
       {:ok, sample} ->
+
+        last_timestamp =
+        (from s in Sample,
+          where: s.series_id == ^sample.series_id)
+        |> Repo.aggregate(:max, :timestamp)
+
+        series = Repo.get_by!(Series, id: sample.series_id)
+        changeset = Series.changeset(series, %{"last_timestamp" => last_timestamp})
+
+        case Repo.update(changeset) do
+          {:ok, _} -> nil
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        end
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", sample_path(conn, :show, %{"series_id" => sample.series_id, "timestamp" => sample.timestamp |> format_date}))
@@ -29,6 +46,4 @@ defmodule ApiStorage.SampleController do
         |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
     end
   end
-
 end
-
