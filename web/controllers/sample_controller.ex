@@ -23,35 +23,42 @@ defmodule ApiStorage.SampleController do
   end
 
   def create(conn, %{"sample" => sample_params}) do
-    changeset = Sample.changeset(%Sample{}, sample_params)
+    sample = Sample
+    |> ApiStorage.QueryFilter.filter(%Sample{}, sample_params, [:series_id, :timestamp])
+    |> Repo.one
 
-    case Repo.insert(changeset) do
-      {:ok, sample} ->
+    changeset = case sample do
+                  nil -> Sample.changeset(%Sample{}, sample_params)
+                  sample -> Sample.changeset(sample, sample_params)
+                end
 
-        last_timestamp =
-        (from s in Sample,
-          where: s.series_id == ^sample.series_id)
-        |> Repo.aggregate(:max, :timestamp)
+    result = case sample do
+               nil -> Repo.insert(changeset) |> Tuple.append(:created)
+               _ -> Repo.update(changeset) |> Tuple.append(:ok)
+             end
 
-        series = Repo.get_by!(Series, id: sample.series_id)
-        changeset = Series.changeset(series, %{"last_timestamp" => last_timestamp})
+    with {:ok, sample, status} <- result,
+         {:ok, _} <- update_last_timestamp(sample.series_id) do
 
-        case Repo.update(changeset) do
-          {:ok, _} -> nil
-          {:error, changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
-        end
-
-        conn
-        |> put_status(:created)
-        |> put_resp_header("location", sample_path(conn, :show, %{"series_id" => sample.series_id, "timestamp" => sample.timestamp |> format_date}))
-        |> render("show.json", sample: sample)
-      {:error, changeset} ->
+      conn
+      |> put_status(status)
+      |> put_resp_header("location", sample_path(conn, :show, %{"series_id" => sample.series_id, "timestamp" => sample.timestamp |> format_date}))
+      |> render("show.json", sample: sample)
+    else
+      {:error, changeset, _} ->
         conn
         |> put_status(:unprocessable_entity)
         |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
     end
+  end
+
+  defp update_last_timestamp(series_id) do
+    last_timestamp = (from s in Sample, where: s.series_id == ^series_id)
+    |> Repo.aggregate(:max, :timestamp)
+
+    series = Repo.get_by!(Series, id: series_id)
+    changeset = Series.changeset(series, %{"last_timestamp" => last_timestamp})
+
+    Repo.update(changeset)
   end
 end
