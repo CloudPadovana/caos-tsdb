@@ -13,6 +13,8 @@ defmodule ApiStorage.Sample do
       foreign_key: :series_id,
       references: :id,
       define_field: false
+
+    field :force, :boolean, virtual: true
   end
 
   @doc """
@@ -20,11 +22,11 @@ defmodule ApiStorage.Sample do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:series_id, :timestamp, :value])
+    |> cast(params, [:series_id, :timestamp, :value, :force])
     |> validate_required([:series_id, :timestamp])
     |> validate_immutable(:series_id)
-    |> validate_immutable(:timestamp)
-    |> validate_immutable(:value)
+    |> validate_immutable_unless_forced(:timestamp, :force)
+    |> validate_immutable_unless_forced(:value, :force)
     |> foreign_key_constraint(:series_id)
     |> assoc_constraint(:series)
     # the following line has this form due to mysql error format
