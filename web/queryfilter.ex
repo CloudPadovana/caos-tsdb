@@ -2,7 +2,7 @@
 #
 # Filename: queryfilter.ex
 # Created: 2016-07-12T11:36:36+0200
-# Time-stamp: <2016-07-12T11:39:56cest>
+# Time-stamp: <2016-07-19T10:50:24cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -26,7 +26,11 @@
 # From https://medium.com/@kaisersly/filtering-from-params-in-phoenix-27b85b6b1354
 
 defmodule ApiStorage.QueryFilter do
-  def filter(query, model, params, filters) do
+  def filter(query, model, params, filters) when is_atom(filters) do
+    filter(query, model, params, [filters,])
+  end
+
+  def filter(query, model, params, filters) when is_list(filters) do
     import Ecto.Query, only: [where: 2]
 
     where_clauses = cast(model, params, filters)
