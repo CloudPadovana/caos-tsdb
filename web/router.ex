@@ -13,6 +13,7 @@ defmodule ApiStorage.Router do
 
     resources "/series", SeriesController, param: "id", except: [:new, :edit, :delete] do
       get "/grid", SeriesController, :grid, as: "grid"
+      get "/samples", SampleController, :show, as: "samples"
     end
 
     resources "/samples", SampleController, only: [:show, :create], singleton: true

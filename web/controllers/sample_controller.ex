@@ -6,9 +6,17 @@ defmodule ApiStorage.SampleController do
 
   plug :scrub_datetime, "timestamp"
 
-  def show(conn, params) do
-    samples = Sample
+  def show(conn, params = %{"series_id" => series_id, "timestamp" => timestamp}) do
+    sample = Sample
     |> ApiStorage.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
+    |> Repo.one
+
+    render(conn, "show.json", sample: sample)
+  end
+
+  def show(conn, params = %{"series_id" => series_id}) do
+    samples = Sample
+    |> ApiStorage.QueryFilter.filter(%Sample{}, params, :series_id)
     |> Repo.all
 
     render(conn, "show.json", samples: samples)
