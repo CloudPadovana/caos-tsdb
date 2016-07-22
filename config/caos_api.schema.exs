@@ -170,6 +170,22 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest"
     ],
+    "caos_api.Elixir.CaosApi.Endpoint.server": [
+      commented: false,
+      datatype: :atom,
+      default: true,
+      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.server here.",
+      hidden: true,
+      to: "caos_api.Elixir.CaosApi.Endpoint.server"
+    ],
+    "caos_api.Elixir.CaosApi.Endpoint.root": [
+      commented: false,
+      datatype: :binary,
+      default: ".",
+      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.root here.",
+      hidden: true,
+      to: "caos_api.Elixir.CaosApi.Endpoint.root"
+    ],
     "caos_api.Elixir.CaosApi.Repo.adapter": [
       commented: false,
       datatype: :atom,
@@ -217,12 +233,12 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.port"
     ],
-    "caos_api.Elixir.CaosApi.Repo.pool_size": [
+    "db.pool_size": [
       commented: false,
       datatype: :integer,
-      default: 10,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.pool_size here.",
-      hidden: true,
+      default: 1,
+      doc: "DB connection pool size.",
+      hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.pool_size"
     ]
   ],

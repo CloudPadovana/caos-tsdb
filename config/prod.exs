@@ -52,13 +52,11 @@ config :logger, level: :info
 #
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
-#
-#     config :caos_api, CaosApi.Endpoint, server: true
-#
+config :caos_api, CaosApi.Endpoint, server: true
+
 # You will also need to set the application root to `.` in order
 # for the new static assets to be served after a hot upgrade:
-#
-#     config :caos_api, CaosApi.Endpoint, root: "."
+config :caos_api, CaosApi.Endpoint, root: "."
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
