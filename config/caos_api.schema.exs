@@ -52,6 +52,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   extends: [],
   import: [],
   mappings: [
+    "logger.level": [
+      commented: false,
+      datatype: :atom,
+      default: :info,
+      doc: "Logger level.",
+      hidden: false,
+      to: "logger.level"
+    ],
     "logger.console.metadata": [
       commented: false,
       datatype: [
@@ -68,19 +76,11 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       commented: false,
       datatype: :binary,
       default: """
-      [$level] $message
+      $time $metadata[$level] $message
       """,
       doc: "Provide documentation for logger.console.format here.",
       hidden: true,
       to: "logger.console.format"
-    ],
-    "phoenix.stacktrace_depth": [
-      commented: false,
-      datatype: :integer,
-      default: 20,
-      doc: "Provide documentation for phoenix.stacktrace_depth here.",
-      hidden: true,
-      to: "phoenix.stacktrace_depth"
     ],
     "caos_api.ecto_repos": [
       commented: false,
@@ -102,12 +102,20 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Endpoint.url.host"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.secret_key_base": [
+    "port": [
+      commented: false,
+      datatype: :integer,
+      default: 4000,
+      doc: "Server port.",
+      hidden: false,
+      to: "caos_api.Elixir.CaosApi.Endpoint.http.port"
+    ],
+    "secret_key_base": [
       commented: false,
       datatype: :binary,
       default: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.secret_key_base here.",
-      hidden: true,
+      doc: "Secret key.",
+      hidden: false,
       to: "caos_api.Elixir.CaosApi.Endpoint.secret_key_base"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.render_errors.view": [
@@ -146,37 +154,21 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter"
     ],
-    "port": [
+    "caos_api.Elixir.CaosApi.Endpoint.http.port": [
       commented: false,
-      datatype: :integer,
-      default: 4000,
-      doc: "Server port.",
-      hidden: false,
+      datatype: {:atom, :binary},
+      default: {:system, "PORT"},
+      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.http.port here.",
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.http.port"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.debug_errors": [
+    "caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest": [
       commented: false,
-      datatype: :atom,
-      default: true,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.debug_errors here.",
+      datatype: :binary,
+      default: "priv/static/manifest.json",
+      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.debug_errors"
-    ],
-    "caos_api.Elixir.CaosApi.Endpoint.code_reloader": [
-      commented: false,
-      datatype: :atom,
-      default: true,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.code_reloader here.",
-      hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.code_reloader"
-    ],
-    "caos_api.Elixir.CaosApi.Endpoint.check_origin": [
-      commented: false,
-      datatype: :atom,
-      default: false,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.check_origin here.",
-      hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.check_origin"
+      to: "caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest"
     ],
     "caos_api.Elixir.CaosApi.Repo.adapter": [
       commented: false,
