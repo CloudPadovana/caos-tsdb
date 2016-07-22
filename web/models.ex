@@ -1,4 +1,4 @@
-defmodule ApiStorage.Models.Helpers do
+defmodule CaosApi.Models.Helpers do
   import Ecto.Changeset
 
   @spec validate_immutable(Ecto.Changeset.t, atom) :: Ecto.Changeset.t

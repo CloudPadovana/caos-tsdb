@@ -1,9 +1,9 @@
-defmodule ApiStorage.SeriesControllerTest do
-  use ApiStorage.ConnCase
+defmodule CaosApi.SeriesControllerTest do
+  use CaosApi.ConnCase
 
-  alias ApiStorage.Series
-  alias ApiStorage.Project
-  alias ApiStorage.Metric
+  alias CaosApi.Series
+  alias CaosApi.Project
+  alias CaosApi.Metric
   @project %Project{id: "an id", name: "a name"}
   @metric %Metric{name: "a name", type: "a type"}
 

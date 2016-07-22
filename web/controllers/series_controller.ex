@@ -1,13 +1,13 @@
-defmodule ApiStorage.SeriesController do
-  use ApiStorage.Web, :controller
+defmodule CaosApi.SeriesController do
+  use CaosApi.Web, :controller
 
-  alias ApiStorage.Series
+  alias CaosApi.Series
 
   plug :scrub_datetime, "start_date" when action in [:grid]
 
   def index(conn, params) do
     series = Series
-    |> ApiStorage.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
+    |> CaosApi.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
     |> Repo.all
 
     render(conn, "index.json", series: series)
@@ -25,7 +25,7 @@ defmodule ApiStorage.SeriesController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -44,7 +44,7 @@ defmodule ApiStorage.SeriesController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

@@ -1,11 +1,11 @@
-defmodule ApiStorage.Router do
-  use ApiStorage.Web, :router
+defmodule CaosApi.Router do
+  use CaosApi.Web, :router
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  scope "/api", ApiStorage do
+  scope "/api", CaosApi do
     pipe_through :api
 
     resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]

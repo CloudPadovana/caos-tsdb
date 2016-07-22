@@ -1,11 +1,11 @@
-defmodule ApiStorage.ChangesetView do
-  use ApiStorage.Web, :view
+defmodule CaosApi.ChangesetView do
+  use CaosApi.Web, :view
 
   @doc """
   Traverses and translates changeset errors.
 
   See `Ecto.Changeset.traverse_errors/2` and
-  `ApiStorage.ErrorHelpers.translate_error/1` for more details.
+  `CaosApi.ErrorHelpers.translate_error/1` for more details.
   """
   def translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, &translate_error/1)

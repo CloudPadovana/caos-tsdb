@@ -1,14 +1,14 @@
-defmodule ApiStorage.SampleController do
-  use ApiStorage.Web, :controller
+defmodule CaosApi.SampleController do
+  use CaosApi.Web, :controller
 
-  alias ApiStorage.Sample
-  alias ApiStorage.Series
+  alias CaosApi.Sample
+  alias CaosApi.Series
 
   plug :scrub_datetime, "timestamp"
 
   def show(conn, params = %{"series_id" => series_id, "timestamp" => timestamp}) do
     sample = Sample
-    |> ApiStorage.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
+    |> CaosApi.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
     |> Repo.one
 
     render(conn, "show.json", sample: sample)
@@ -16,7 +16,7 @@ defmodule ApiStorage.SampleController do
 
   def show(conn, params = %{"series_id" => series_id}) do
     samples = Sample
-    |> ApiStorage.QueryFilter.filter(%Sample{}, params, :series_id)
+    |> CaosApi.QueryFilter.filter(%Sample{}, params, :series_id)
     |> Repo.all
 
     render(conn, "show.json", samples: samples)
@@ -24,7 +24,7 @@ defmodule ApiStorage.SampleController do
 
   def create(conn, %{"sample" => sample_params}) do
     sample = Sample
-    |> ApiStorage.QueryFilter.filter(%Sample{}, sample_params, [:series_id, :timestamp])
+    |> CaosApi.QueryFilter.filter(%Sample{}, sample_params, [:series_id, :timestamp])
     |> Repo.one
 
     changeset = case sample do
@@ -48,7 +48,7 @@ defmodule ApiStorage.SampleController do
       {:error, changeset, _} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

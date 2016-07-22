@@ -1,5 +1,5 @@
-defmodule ApiStorage.ErrorView do
-  use ApiStorage.Web, :view
+defmodule CaosApi.ErrorView do
+  use CaosApi.Web, :view
 
   def render("400.json", _assigns) do
     %{errors: %{detail: "Bad request"}}

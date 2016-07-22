@@ -1,10 +1,10 @@
-defmodule ApiStorage.SampleControllerTest do
-  use ApiStorage.ConnCase
+defmodule CaosApi.SampleControllerTest do
+  use CaosApi.ConnCase
 
-  alias ApiStorage.Sample
-  alias ApiStorage.Series
-  alias ApiStorage.Project
-  alias ApiStorage.Metric
+  alias CaosApi.Sample
+  alias CaosApi.Series
+  alias CaosApi.Project
+  alias CaosApi.Metric
   use Timex
 
   @project %Project{id: "an id", name: "a name"}

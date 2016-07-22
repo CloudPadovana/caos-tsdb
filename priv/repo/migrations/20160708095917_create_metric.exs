@@ -1,4 +1,4 @@
-defmodule ApiStorage.Repo.Migrations.CreateMetric do
+defmodule CaosApi.Repo.Migrations.CreateMetric do
   use Ecto.Migration
 
   def change do

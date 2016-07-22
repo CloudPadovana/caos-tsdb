@@ -1,7 +1,7 @@
-defmodule ApiStorage.ProjectController do
-  use ApiStorage.Web, :controller
+defmodule CaosApi.ProjectController do
+  use CaosApi.Web, :controller
 
-  alias ApiStorage.Project
+  alias CaosApi.Project
 
   def index(conn, _params) do
     projects = Repo.all(Project)
@@ -20,7 +20,7 @@ defmodule ApiStorage.ProjectController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -31,7 +31,7 @@ defmodule ApiStorage.ProjectController do
     else
       conn
       |> put_status(:not_found)
-      |> render(ApiStorage.ErrorView, "404.json")
+      |> render(CaosApi.ErrorView, "404.json")
     end
   end
 
@@ -45,7 +45,7 @@ defmodule ApiStorage.ProjectController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(ApiStorage.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
     end
   end
 end

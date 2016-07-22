@@ -1,7 +1,7 @@
-defmodule ApiStorage.MetricControllerTest do
-  use ApiStorage.ConnCase
+defmodule CaosApi.MetricControllerTest do
+  use CaosApi.ConnCase
 
-  alias ApiStorage.Metric
+  alias CaosApi.Metric
   @valid_attrs %{name: "a name", type: "a type"}
   @metric struct(Metric, @valid_attrs)
   @invalid_attrs %{name: "a new name", type: "a type"}

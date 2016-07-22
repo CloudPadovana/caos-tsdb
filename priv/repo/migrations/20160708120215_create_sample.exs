@@ -1,4 +1,4 @@
-defmodule ApiStorage.Repo.Migrations.CreateSample do
+defmodule CaosApi.Repo.Migrations.CreateSample do
   use Ecto.Migration
 
   def change do

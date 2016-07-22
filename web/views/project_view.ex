@@ -1,12 +1,12 @@
-defmodule ApiStorage.ProjectView do
-  use ApiStorage.Web, :view
+defmodule CaosApi.ProjectView do
+  use CaosApi.Web, :view
 
   def render("index.json", %{projects: projects}) do
-    %{data: render_many(projects, ApiStorage.ProjectView, "project.json")}
+    %{data: render_many(projects, CaosApi.ProjectView, "project.json")}
   end
 
   def render("show.json", %{project: project}) do
-    %{data: render_one(project, ApiStorage.ProjectView, "project.json")}
+    %{data: render_one(project, CaosApi.ProjectView, "project.json")}
   end
 
   def render("project.json", %{project: project}) do

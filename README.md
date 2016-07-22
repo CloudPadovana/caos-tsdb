@@ -1,4 +1,4 @@
-# ApiStorage
+# CaosApi
 
 To start your Phoenix app:
 

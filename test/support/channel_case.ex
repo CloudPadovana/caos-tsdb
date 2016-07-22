@@ -1,4 +1,4 @@
-defmodule ApiStorage.ChannelCase do
+defmodule CaosApi.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -20,22 +20,22 @@ defmodule ApiStorage.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias ApiStorage.Repo
+      alias CaosApi.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
 
       # The default endpoint for testing
-      @endpoint ApiStorage.Endpoint
+      @endpoint CaosApi.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiStorage.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(ApiStorage.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
     end
 
     :ok

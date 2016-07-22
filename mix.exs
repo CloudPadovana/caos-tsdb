@@ -1,8 +1,8 @@
-defmodule ApiStorage.Mixfile do
+defmodule CaosApi.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :api_storage,
+    [app: :caos_api,
      version: "0.0.1",
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -17,7 +17,7 @@ defmodule ApiStorage.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {ApiStorage, []},
+    [mod: {CaosApi, []},
      applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
                     :timex, :timex_ecto, :phoenix_ecto, :mariaex]]
   end

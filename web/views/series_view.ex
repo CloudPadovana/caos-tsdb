@@ -1,12 +1,12 @@
-defmodule ApiStorage.SeriesView do
-  use ApiStorage.Web, :view
+defmodule CaosApi.SeriesView do
+  use CaosApi.Web, :view
 
   def render("index.json", %{series: series}) do
-    %{data: render_many(series, ApiStorage.SeriesView, "series.json")}
+    %{data: render_many(series, CaosApi.SeriesView, "series.json")}
   end
 
   def render("show.json", %{series: series}) do
-    %{data: render_one(series, ApiStorage.SeriesView, "series.json")}
+    %{data: render_one(series, CaosApi.SeriesView, "series.json")}
   end
 
   def render("series.json", %{series: series}) do

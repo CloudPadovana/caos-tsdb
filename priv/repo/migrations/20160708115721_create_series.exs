@@ -1,4 +1,4 @@
-defmodule ApiStorage.Repo.Migrations.CreateSeries do
+defmodule CaosApi.Repo.Migrations.CreateSeries do
   use Ecto.Migration
 
   def change do

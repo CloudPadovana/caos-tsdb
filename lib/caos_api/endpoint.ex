@@ -1,14 +1,14 @@
-defmodule ApiStorage.Endpoint do
-  use Phoenix.Endpoint, otp_app: :api_storage
+defmodule CaosApi.Endpoint do
+  use Phoenix.Endpoint, otp_app: :caos_api
 
-  socket "/socket", ApiStorage.UserSocket
+  socket "/socket", CaosApi.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
   plug Plug.Static,
-    at: "/", from: :api_storage, gzip: false,
+    at: "/", from: :caos_api, gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
@@ -33,8 +33,8 @@ defmodule ApiStorage.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_api_storage_key",
+    key: "_caos_api_key",
     signing_salt: "3EH8asux"
 
-  plug ApiStorage.Router
+  plug CaosApi.Router
 end

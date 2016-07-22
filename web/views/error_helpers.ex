@@ -1,4 +1,4 @@
-defmodule ApiStorage.ErrorHelpers do
+defmodule CaosApi.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -21,9 +21,9 @@ defmodule ApiStorage.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(ApiStorage.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(CaosApi.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(ApiStorage.Gettext, "errors", msg, opts)
+      Gettext.dgettext(CaosApi.Gettext, "errors", msg, opts)
     end
   end
 end

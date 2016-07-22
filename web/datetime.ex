@@ -23,7 +23,7 @@
 #
 ######################################################################
 
-defmodule ApiStorage.DateTime.Helpers do
+defmodule CaosApi.DateTime.Helpers do
   use Timex
 
   def parse_date(date) do
@@ -53,7 +53,7 @@ defmodule ApiStorage.DateTime.Helpers do
           {:error, _} ->
             conn
             |> Plug.Conn.put_status(:bad_request)
-            |> Phoenix.Controller.render(ApiStorage.ErrorView, "400.json")
+            |> Phoenix.Controller.render(CaosApi.ErrorView, "400.json")
             |> Plug.Conn.halt
         end
       :error ->

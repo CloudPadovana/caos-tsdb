@@ -1,8 +1,8 @@
-defmodule ApiStorage.SampleTest do
-  use ApiStorage.ModelCase
+defmodule CaosApi.SampleTest do
+  use CaosApi.ModelCase
 
-  alias ApiStorage.Sample
-  alias ApiStorage.Series
+  alias CaosApi.Sample
+  alias CaosApi.Series
   use Timex
   @series %Series{id: 1,
                   project_id: "an id",

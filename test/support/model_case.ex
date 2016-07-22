@@ -1,4 +1,4 @@
-defmodule ApiStorage.ModelCase do
+defmodule CaosApi.ModelCase do
   @moduledoc """
   This module defines the test case to be used by
   model tests.
@@ -16,20 +16,20 @@ defmodule ApiStorage.ModelCase do
 
   using do
     quote do
-      alias ApiStorage.Repo
+      alias CaosApi.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import ApiStorage.ModelCase
+      import CaosApi.ModelCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiStorage.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(ApiStorage.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
     end
 
     :ok
@@ -59,7 +59,7 @@ defmodule ApiStorage.ModelCase do
   """
   def errors_on(struct, data) do
     struct.__struct__.changeset(struct, data)
-    |> Ecto.Changeset.traverse_errors(&ApiStorage.ErrorHelpers.translate_error/1)
+    |> Ecto.Changeset.traverse_errors(&CaosApi.ErrorHelpers.translate_error/1)
     |> Enum.flat_map(fn {key, errors} -> for msg <- errors, do: {key, msg} end)
   end
 end

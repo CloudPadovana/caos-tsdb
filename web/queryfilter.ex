@@ -25,7 +25,7 @@
 
 # From https://medium.com/@kaisersly/filtering-from-params-in-phoenix-27b85b6b1354
 
-defmodule ApiStorage.QueryFilter do
+defmodule CaosApi.QueryFilter do
   def filter(query, model, params, filters) when is_atom(filters) do
     filter(query, model, params, [filters,])
   end

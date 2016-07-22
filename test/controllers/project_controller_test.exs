@@ -1,7 +1,7 @@
-defmodule ApiStorage.ProjectControllerTest do
-  use ApiStorage.ConnCase
+defmodule CaosApi.ProjectControllerTest do
+  use CaosApi.ConnCase
 
-  alias ApiStorage.Project
+  alias CaosApi.Project
   @valid_attrs %{id: "an id", name: "a name"}
   @project struct(Project, @valid_attrs)
   @invalid_attrs %{id: "a new id", name: "a name"}

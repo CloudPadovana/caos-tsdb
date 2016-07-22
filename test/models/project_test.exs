@@ -1,7 +1,7 @@
-defmodule ApiStorage.ProjectTest do
-  use ApiStorage.ModelCase
+defmodule CaosApi.ProjectTest do
+  use CaosApi.ModelCase
 
-  alias ApiStorage.Project
+  alias CaosApi.Project
 
   @project %Project{id: "an id", name: "a name"}
   @valid_attrs %{id: "an id", name: "a new name"}

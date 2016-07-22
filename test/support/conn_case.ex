@@ -1,4 +1,4 @@
-defmodule ApiStorage.ConnCase do
+defmodule CaosApi.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -20,23 +20,23 @@ defmodule ApiStorage.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      alias ApiStorage.Repo
+      alias CaosApi.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
-      import ApiStorage.Router.Helpers
+      import CaosApi.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint ApiStorage.Endpoint
+      @endpoint CaosApi.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ApiStorage.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(ApiStorage.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

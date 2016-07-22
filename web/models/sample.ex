@@ -1,5 +1,5 @@
-defmodule ApiStorage.Sample do
-  use ApiStorage.Web, :model
+defmodule CaosApi.Sample do
+  use CaosApi.Web, :model
 
   @primary_key false
   schema "samples" do
@@ -9,7 +9,7 @@ defmodule ApiStorage.Sample do
 
     timestamps()
 
-    belongs_to :series, ApiStorage.Series,
+    belongs_to :series, CaosApi.Series,
       foreign_key: :series_id,
       references: :id,
       define_field: false

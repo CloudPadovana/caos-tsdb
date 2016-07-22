@@ -6,15 +6,15 @@
 use Mix.Config
 
 # General application configuration
-config :api_storage,
-  ecto_repos: [ApiStorage.Repo]
+config :caos_api,
+  ecto_repos: [CaosApi.Repo]
 
 # Configures the endpoint
-config :api_storage, ApiStorage.Endpoint,
+config :caos_api, CaosApi.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
-  render_errors: [view: ApiStorage.ErrorView, accepts: ~w(json)],
-  pubsub: [name: ApiStorage.PubSub,
+  render_errors: [view: CaosApi.ErrorView, accepts: ~w(json)],
+  pubsub: [name: CaosApi.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

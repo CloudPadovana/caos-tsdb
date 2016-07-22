@@ -1,5 +1,5 @@
-defmodule ApiStorage.Series do
-  use ApiStorage.Web, :model
+defmodule CaosApi.Series do
+  use CaosApi.Web, :model
 
   @primary_key {:id, :id, autogenerate: true}
   @derive {Phoenix.Param, key: :id}
@@ -13,12 +13,12 @@ defmodule ApiStorage.Series do
 
     timestamps()
 
-    belongs_to :project, ApiStorage.Project,
+    belongs_to :project, CaosApi.Project,
       foreign_key: :project_id,
       references: :id,
       define_field: false
 
-    belongs_to :metric, ApiStorage.Metric,
+    belongs_to :metric, CaosApi.Metric,
       foreign_key: :metric_name,
       references: :name,
       define_field: false

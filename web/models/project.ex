@@ -1,5 +1,5 @@
-defmodule ApiStorage.Project do
-  use ApiStorage.Web, :model
+defmodule CaosApi.Project do
+  use CaosApi.Web, :model
 
   @primary_key {:id, :string, []}
   @derive {Phoenix.Param, key: :id}
@@ -8,7 +8,7 @@ defmodule ApiStorage.Project do
 
     timestamps()
 
-    has_many :series, ApiStorage.Series,
+    has_many :series, CaosApi.Series,
       foreign_key: :project_id,
       references: :id
   end

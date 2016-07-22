@@ -1,12 +1,12 @@
-defmodule ApiStorage.Web do
+defmodule CaosApi.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use ApiStorage.Web, :controller
-      use ApiStorage.Web, :view
+      use CaosApi.Web, :controller
+      use CaosApi.Web, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -25,7 +25,7 @@ defmodule ApiStorage.Web do
       import Ecto.Changeset
       import Ecto.Query
 
-      import ApiStorage.Models.Helpers
+      import CaosApi.Models.Helpers
     end
   end
 
@@ -33,14 +33,14 @@ defmodule ApiStorage.Web do
     quote do
       use Phoenix.Controller
 
-      alias ApiStorage.Repo
+      alias CaosApi.Repo
       import Ecto
       import Ecto.Query
 
-      import ApiStorage.Router.Helpers
-      import ApiStorage.Gettext
-      import ApiStorage.DateTime.Helpers
-      import ApiStorage.QueryFilter
+      import CaosApi.Router.Helpers
+      import CaosApi.Gettext
+      import CaosApi.DateTime.Helpers
+      import CaosApi.QueryFilter
     end
   end
 
@@ -51,10 +51,10 @@ defmodule ApiStorage.Web do
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
 
-      import ApiStorage.Router.Helpers
-      import ApiStorage.ErrorHelpers
-      import ApiStorage.Gettext
-      import ApiStorage.DateTime.Helpers
+      import CaosApi.Router.Helpers
+      import CaosApi.ErrorHelpers
+      import CaosApi.Gettext
+      import CaosApi.DateTime.Helpers
     end
   end
 
@@ -68,10 +68,10 @@ defmodule ApiStorage.Web do
     quote do
       use Phoenix.Channel
 
-      alias ApiStorage.Repo
+      alias CaosApi.Repo
       import Ecto
       import Ecto.Query
-      import ApiStorage.Gettext
+      import CaosApi.Gettext
     end
   end
 

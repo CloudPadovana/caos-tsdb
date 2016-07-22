@@ -1,7 +1,7 @@
-defmodule ApiStorage.MetricTest do
-  use ApiStorage.ModelCase
+defmodule CaosApi.MetricTest do
+  use CaosApi.ModelCase
 
-  alias ApiStorage.Metric
+  alias CaosApi.Metric
 
   @metric %Metric{name: "a name", type: "a type"}
   @valid_attrs %{name: "a name", type: "a new type"}

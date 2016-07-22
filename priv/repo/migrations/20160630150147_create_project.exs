@@ -1,4 +1,4 @@
-defmodule ApiStorage.Repo.Migrations.CreateProject do
+defmodule CaosApi.Repo.Migrations.CreateProject do
   use Ecto.Migration
 
   def change do

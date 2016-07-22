@@ -1,9 +1,9 @@
-defmodule ApiStorage.SeriesTest do
-  use ApiStorage.ModelCase
+defmodule CaosApi.SeriesTest do
+  use CaosApi.ModelCase
 
-  alias ApiStorage.Project
-  alias ApiStorage.Metric
-  alias ApiStorage.Series
+  alias CaosApi.Project
+  alias CaosApi.Metric
+  alias CaosApi.Series
 
   @project %Project{id: "an id", name: "a name"}
   @metric %Metric{name: "a name", type: "a type"}
