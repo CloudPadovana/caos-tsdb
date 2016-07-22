@@ -4,7 +4,7 @@ defmodule CaosApi.Mixfile do
   def project do
     [app: :caos_api,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -18,8 +18,17 @@ defmodule CaosApi.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {CaosApi, []},
-     applications: [:phoenix, :phoenix_pubsub, :cowboy, :logger, :gettext,
-                    :timex, :timex_ecto, :phoenix_ecto, :mariaex]]
+     applications: [:phoenix,
+                    :phoenix_pubsub,
+                    :cowboy,
+                    :logger,
+                    :gettext,
+                    :timex,
+                    :timex_ecto,
+                    :phoenix_ecto,
+                    :mariaex,
+                    :conform,
+                    :conform_exrm]]
   end
 
   # Specifies which paths to compile per environment.
@@ -45,7 +54,7 @@ defmodule CaosApi.Mixfile do
      # in conform_exrm are declared as optional, but are required in
      # order to ensure conform and exrm are compiled before
      # conform_exrm is.
-     {:exrm, "~> 1.0", override: true},
+     {:exrm, "~> 1.0.8", override: true},
      {:conform, "~> 2.0", override: true},
      {:conform_exrm, "~> 1.0"}]
   end
