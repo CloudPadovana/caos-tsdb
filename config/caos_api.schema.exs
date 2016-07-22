@@ -61,7 +61,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
         :request_id
       ],
       doc: "Provide documentation for logger.console.metadata here.",
-      hidden: false,
+      hidden: true,
       to: "logger.console.metadata"
     ],
     "logger.console.format": [
@@ -71,7 +71,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       [$level] $message
       """,
       doc: "Provide documentation for logger.console.format here.",
-      hidden: false,
+      hidden: true,
       to: "logger.console.format"
     ],
     "phoenix.stacktrace_depth": [
@@ -79,7 +79,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :integer,
       default: 20,
       doc: "Provide documentation for phoenix.stacktrace_depth here.",
-      hidden: false,
+      hidden: true,
       to: "phoenix.stacktrace_depth"
     ],
     "caos_api.ecto_repos": [
@@ -91,14 +91,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
         CaosApi.Repo
       ],
       doc: "Provide documentation for caos_api.ecto_repos here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.ecto_repos"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.url.host": [
+    "hostname": [
       commented: false,
       datatype: :binary,
       default: "localhost",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.url.host here.",
+      doc: "Server hostname.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Endpoint.url.host"
     ],
@@ -107,7 +107,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :binary,
       default: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.secret_key_base here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.secret_key_base"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.render_errors.view": [
@@ -115,7 +115,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: CaosApi.ErrorView,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.render_errors.view here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.render_errors.view"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts": [
@@ -127,7 +127,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
         "json"
       ],
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.pubsub.name": [
@@ -135,7 +135,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: CaosApi.PubSub,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.pubsub.name here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.pubsub.name"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter": [
@@ -143,14 +143,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: Phoenix.PubSub.PG2,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.http.port": [
+    "port": [
       commented: false,
       datatype: :integer,
       default: 4000,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.http.port here.",
+      doc: "Server port.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Endpoint.http.port"
     ],
@@ -159,7 +159,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: true,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.debug_errors here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.debug_errors"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.code_reloader": [
@@ -167,7 +167,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: true,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.code_reloader here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.code_reloader"
     ],
     "caos_api.Elixir.CaosApi.Endpoint.check_origin": [
@@ -175,7 +175,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: false,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.check_origin here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Endpoint.check_origin"
     ],
     "caos_api.Elixir.CaosApi.Repo.adapter": [
@@ -183,46 +183,54 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       datatype: :atom,
       default: Ecto.Adapters.MySQL,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.adapter here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Repo.adapter"
     ],
-    "caos_api.Elixir.CaosApi.Repo.username": [
+    "db.username": [
       commented: false,
       datatype: :binary,
-      default: "root",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.username here.",
+      default: "caos",
+      doc: "DB username.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.username"
     ],
-    "caos_api.Elixir.CaosApi.Repo.password": [
+    "db.password": [
       commented: false,
       datatype: :binary,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.password here.",
+      doc: "DB password.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.password"
     ],
-    "caos_api.Elixir.CaosApi.Repo.database": [
+    "db.name": [
       commented: false,
       datatype: :binary,
-      default: "caos_api_dev",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.database here.",
+      default: "caos",
+      doc: "DB name.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.database"
     ],
-    "caos_api.Elixir.CaosApi.Repo.hostname": [
+    "db.hostname": [
       commented: false,
       datatype: :binary,
       default: "localhost",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.hostname here.",
+      doc: "DB host.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.hostname"
+    ],
+    "db.port": [
+      commented: false,
+      datatype: :integer,
+      default: 3306,
+      doc: "DB port.",
+      hidden: false,
+      to: "caos_api.Elixir.CaosApi.Repo.port"
     ],
     "caos_api.Elixir.CaosApi.Repo.pool_size": [
       commented: false,
       datatype: :integer,
       default: 10,
       doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.pool_size here.",
-      hidden: false,
+      hidden: true,
       to: "caos_api.Elixir.CaosApi.Repo.pool_size"
     ]
   ],
