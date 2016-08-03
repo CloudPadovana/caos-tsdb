@@ -30,7 +30,7 @@ defmodule CaosApi.SampleControllerTest do
     Repo.insert! @metric
     Repo.insert! @series
 
-    sample = Repo.insert! %{ @sample | timestamp: Timex.parse!(@sample.timestamp, "%FT%TZ", :strftime)}
+    Repo.insert! %{ @sample | timestamp: Timex.parse!(@sample.timestamp, "%FT%TZ", :strftime)}
     conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id})
     assert json_response(conn, 200)["data"] == [%{
       "series_id" => @sample.series_id,

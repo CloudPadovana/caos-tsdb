@@ -23,8 +23,8 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "shows chosen resource", %{conn: conn} do
-    project = Repo.insert! @project
-    metric = Repo.insert! @metric
+    Repo.insert! @project
+    Repo.insert! @metric
 
     series = Repo.insert! @series
     conn = get conn, series_path(conn, :show, series)
@@ -44,8 +44,8 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do
-    project = Repo.insert! @project
-    metric = Repo.insert! @metric
+    Repo.insert! @project
+    Repo.insert! @metric
 
     conn = post conn, series_path(conn, :create), series: @valid_attrs
     assert json_response(conn, 201)["data"]["id"]
@@ -53,16 +53,16 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "does not create resource and renders errors when data is invalid", %{conn: conn} do
-    project = Repo.insert! @project
-    metric = Repo.insert! @metric
+    Repo.insert! @project
+    Repo.insert! @metric
 
     conn = post conn, series_path(conn, :create), series: %{@valid_attrs | project_id: "another"}
     assert json_response(conn, 422)["errors"] != %{}
   end
 
   test "updates and renders chosen resource when data is valid", %{conn: conn} do
-    project = Repo.insert! @project
-    metric = Repo.insert! @metric
+    Repo.insert! @project
+    Repo.insert! @metric
     series = Repo.insert! @series
 
     conn = put conn, series_path(conn, :update, series), series: %{ttl: 3}
@@ -71,8 +71,8 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
-    project = Repo.insert! @project
-    metric = Repo.insert! @metric
+    Repo.insert! @project
+    Repo.insert! @metric
     series = Repo.insert! @series
 
     conn = put conn, series_path(conn, :update, series), series: %{ttl: "a string"}
