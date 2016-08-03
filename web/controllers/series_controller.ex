@@ -3,7 +3,7 @@ defmodule CaosApi.SeriesController do
 
   alias CaosApi.Series
 
-  plug :scrub_datetime, "start_date" when action in [:grid]
+  plug :scrub_datetime, "from" when action in [:grid]
 
   def index(conn, params) do
     series = Series
@@ -48,7 +48,7 @@ defmodule CaosApi.SeriesController do
     end
   end
 
-  def grid(conn, %{"series_id" => id, "start_date" => start_date}) do
+  def grid(conn, %{"series_id" => id, "from" => start_date}) do
     series = Repo.get_by!(Series, id: id)
     period = series.period
     last_timestamp = series.last_timestamp
