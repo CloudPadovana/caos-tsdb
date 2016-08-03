@@ -32,16 +32,15 @@ defmodule CaosApi.SampleControllerTest do
 
     sample = Repo.insert! %{ @sample | timestamp: Timex.parse!(@sample.timestamp, "%FT%TZ", :strftime)}
     conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id})
-    assert json_response(conn, 200)["data"] == %{
+    assert json_response(conn, 200)["data"] == [%{
       "series_id" => @sample.series_id,
       "value" => @sample.value,
-      "timestamp" => @sample.timestamp}
+      "timestamp" => @sample.timestamp}]
   end
 
-  test "renders page not found when id is nonexistent", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get conn, sample_path(conn, :show, %{series_id: 1})
-    end
+  test "renders empty list when sample is nonexistent", %{conn: conn} do
+    conn = get conn, sample_path(conn, :show, %{series_id: -1})
+    assert json_response(conn, 200)["data"] == []
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do

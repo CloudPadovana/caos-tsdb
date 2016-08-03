@@ -30,7 +30,7 @@ defmodule CaosApi.SeriesController do
   end
 
   def show(conn, %{"id" => id}) do
-    series = Repo.get_by(Series, id: id)
+    series = Repo.get_by!(Series, id: id)
     render(conn, "show.json", series: series)
   end
 
