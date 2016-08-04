@@ -1,6 +1,8 @@
 defmodule CaosApi.SeriesControllerTest do
   use CaosApi.ConnCase
 
+  import CaosApi.DateTime.Helpers
+
   alias CaosApi.Series
   alias CaosApi.Project
   alias CaosApi.Metric
@@ -78,4 +80,33 @@ defmodule CaosApi.SeriesControllerTest do
     conn = put conn, series_path(conn, :update, series), series: %{ttl: "a string"}
     assert json_response(conn, 422)["errors"] != %{}
   end
+
+  test "grid to now", %{conn: conn} do
+    Repo.insert! @project
+    Repo.insert! @metric
+    series = Repo.insert! @series
+
+    from = "2016-08-02T05:04:29Z"
+    to = Timex.DateTime.now |> format_date!
+
+    grid = Timex.Interval.new(from: "2016-08-02T05:00:00Z" |> parse_date!,
+      until: to |> parse_date!,
+      step: [seconds: 3600])
+      |> Enum.map(fn(x) -> format_date!(x) end)
+
+    conn = get conn, series_grid_path(conn, :grid, series), from: from
+    assert json_response(conn, 200)["data"]["grid"] == grid
+  end
+
+  test "grid from the future", %{conn: conn} do
+    Repo.insert! @project
+    Repo.insert! @metric
+    series = Repo.insert! @series
+
+    from = Timex.DateTime.now |> Timex.shift(days: 2, hours: 3) |> format_date!
+
+    conn = get conn, series_grid_path(conn, :grid, series), from: from
+    assert json_response(conn, 200)["data"]["grid"] == []
+  end
+
 end
