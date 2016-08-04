@@ -62,7 +62,7 @@ defmodule CaosApi.SeriesController do
     |> Timex.shift(seconds: n*period)
 
     grid = Timex.Interval.new(from: from, until: to, step: [seconds: period])
-    |> Enum.map(fn(x) -> format_date(x) end)
+    |> Enum.map(fn(x) -> format_date!(x) end)
 
     render(conn, "grid.json", grid: grid)
   end

@@ -2,7 +2,7 @@
 #
 # Filename: datetime.ex
 # Created: 2016-07-11T11:22:26+0200
-# Time-stamp: <2016-07-15T15:21:59cest>
+# Time-stamp: <2016-08-04T12:57:52cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -31,7 +31,17 @@ defmodule CaosApi.DateTime.Helpers do
     |> Timex.parse("%FT%TZ", :strftime)
   end
 
+  def parse_date!(date) do
+    date
+    |> Timex.parse!("%FT%TZ", :strftime)
+  end
+
   def format_date(date) do
+    date
+    |> Timex.format("%FT%TZ", :strftime)
+  end
+
+  def format_date!(date) do
     date
     |> Timex.format!("%FT%TZ", :strftime)
   end

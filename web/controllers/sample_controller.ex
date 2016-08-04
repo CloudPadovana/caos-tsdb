@@ -42,7 +42,7 @@ defmodule CaosApi.SampleController do
 
       conn
       |> put_status(status)
-      |> put_resp_header("location", sample_path(conn, :show, %{"series_id" => sample.series_id, "timestamp" => sample.timestamp |> format_date}))
+      |> put_resp_header("location", sample_path(conn, :show, %{"series_id" => sample.series_id, "timestamp" => sample.timestamp |> format_date!}))
       |> render("show.json", sample: sample)
     else
       {:error, changeset, _} ->
