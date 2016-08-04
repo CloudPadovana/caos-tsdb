@@ -5,6 +5,8 @@ defmodule CaosApi.SampleController do
   alias CaosApi.Series
 
   plug :scrub_datetime, "timestamp"
+  plug :scrub_datetime, "from" when action in [:show]
+  plug :scrub_datetime, "to" when action in [:show]
 
   def show(conn, params = %{"series_id" => series_id, "timestamp" => timestamp}) do
     sample = Sample
@@ -12,6 +14,18 @@ defmodule CaosApi.SampleController do
     |> Repo.one
 
     render(conn, "show.json", sample: sample)
+  end
+
+  def show(conn, params = %{"series_id" => series_id, "from" => from}) do
+    to = Map.get(params, "to", Timex.DateTime.now)
+
+    query = (from s in Sample,
+      where: s.series_id == ^series_id
+      and s.timestamp >= ^from
+      and s.timestamp <= ^to)
+
+    samples = query |> Repo.all
+    render(conn, "show.json", samples: samples)
   end
 
   def show(conn, params = %{"series_id" => series_id}) do

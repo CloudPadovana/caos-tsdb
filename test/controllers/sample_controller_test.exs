@@ -1,6 +1,7 @@
 defmodule CaosApi.SampleControllerTest do
   use CaosApi.ConnCase
 
+  import CaosApi.DateTime.Helpers
   alias CaosApi.Sample
   alias CaosApi.Series
   alias CaosApi.Project
@@ -51,4 +52,45 @@ defmodule CaosApi.SampleControllerTest do
     assert json_response(conn, 201)["data"]
     assert Repo.get_by(Sample, @valid_attrs)
   end
+
+  test "shows samples from date",  %{conn: conn}  do
+    Repo.insert! @project
+    Repo.insert! @metric
+    Repo.insert! @series
+
+    t0 = "2016-08-02T05:04:29Z" |> parse_date!
+
+    samples = 1..10 |> Enum.map(fn(x) ->
+      sample = %{@sample | timestamp: t0 |> Timex.shift(hours: x),
+                 value: :rand.uniform()*x}
+
+      Repo.insert! sample
+
+      %{"series_id" => sample.series_id,
+        "value" => sample.value,
+        "timestamp" => sample.timestamp |> format_date!}
+    end)
+
+
+    from = "2016-08-02T05:04:29Z"
+    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(conn, 200)["data"] == samples
+
+
+    from = "2016-08-02T09:00:00Z"
+    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(conn, 200)["data"] == Enum.slice(samples, 3..10)
+
+
+    from = "2016-08-02T09:00:00Z"
+    to = "2016-08-02T13:00:00Z"
+    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from, to: to
+    assert json_response(conn, 200)["data"] == Enum.slice(samples, 3..6)
+
+
+    from = "2016-08-03T09:00:00Z"
+    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(conn, 200)["data"] == []
+
+    end
 end
