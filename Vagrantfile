@@ -5,7 +5,7 @@
 #
 # Filename: Vagrantfile
 # Created: 2016-07-25T09:10:57+0200
-# Time-stamp: <2016-08-04T17:56:00cest>
+# Time-stamp: <2016-09-14T16:38:09cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -37,7 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "centos/7"
 
-  config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.synced_folder ".", "/vagrant",
                           create: true,
@@ -46,12 +46,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # phoenix server
   config.vm.network :forwarded_port, guest: 4000, host: 4000
 
-  config.vm.hostname = "vagrant.local"
+  config.vm.hostname = "api.caos.vagrant.local"
 
   $script = <<SCRIPT
 sed -i 's/AcceptEnv/# AcceptEnv/' /etc/ssh/sshd_config
 localectl set-locale "LANG=en_US.utf8"
 systemctl reload sshd.service
+
+echo "cd /vagrant" >> /home/vagrant/.bash_profile
 
 yum update -v -y
 yum install -v -y epel-release wget unzip
@@ -68,16 +70,9 @@ rm -rf /opt/elixir && mkdir -p /opt/elixir
   wget https://github.com/elixir-lang/elixir/releases/download/v1.3.2/Precompiled.zip
   unzip Precompiled.zip
 )
-echo 'export PATH=$PATH:/opt/elixir/bin' >> /etc/profile
+echo 'export PATH=$PATH:/opt/elixir/bin' >> /home/vagrant/.bash_profile
 
 ### mysql
-# wget http://dev.mysql.com/get/mysql56-community-release-el7-8.noarch.rpm
-# rpm -Uvh mysql57-community-release-el7-8.noarch.rpm
-# yum install -v -y mysql-community-server
-# systemctl enable mysqld
-# systemctl start mysqld
-# echo mysql password for root is "$(grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'"
-
 yum install -v -y mariadb-server
 systemctl enable mariadb
 systemctl start mariadb
