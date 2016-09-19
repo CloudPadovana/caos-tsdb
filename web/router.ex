@@ -17,5 +17,7 @@ defmodule CaosApi.Router do
     end
 
     resources "/samples", SampleController, only: [:show, :create], singleton: true
+
+    resources "/aggregate", AggregateController, only: [:show], singleton: true
   end
 end
