@@ -1,19 +1,23 @@
 # CaosApi
 
-To start your Phoenix app:
+## How to start development
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Start Phoenix endpoint with `mix phoenix.server`
+  1. Setup VM with `vagrant up && vagrant ssh`
+  2. Install dependencies with `mix deps.get`
+  3. Create and migrate your database with `mix ecto.create && mix ecto.migrate`
+  4. Start Phoenix endpoint with `mix phoenix.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+## How to build for production
 
-## Learn more
+  1. build with `MIX_ENV=prod mix compile`
+  2. generate release with `MIX_ENV=prod mix release --verbosity=verbose`
+  3. deploy the release
+  4. setup the release configuration in `releases/<version>/caos_api.conf`
+  5. check and update the DB with:
+      - `bin/caos_api command dbtools check`
+      - `bin/caos_api command dbtools migrate`
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+  5. start the server with `bin/caos_api start`
+  6. attach with `bin/caos_api attach`
