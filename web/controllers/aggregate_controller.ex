@@ -31,6 +31,7 @@ defmodule CaosApi.AggregateController do
 
   plug :scrub_datetime, "from" when action in [:show]
   plug :scrub_datetime, "to" when action in [:show]
+  plug :scrub_integer, "granularity" when action in [:show]
 
   @default_params %{"from" => Timex.DateTime.epoch,
                     "to" => Timex.DateTime.now,

@@ -41,6 +41,7 @@ defmodule CaosApi.Web do
       import CaosApi.Gettext
       import CaosApi.DateTime.Helpers
       import CaosApi.QueryFilter
+      import CaosApi.Helpers
     end
   end
 
