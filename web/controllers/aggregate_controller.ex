@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller.ex
 # Created: 2016-09-15T09:48:46+0200
-# Time-stamp: <2016-10-03T11:32:44cest>
+# Time-stamp: <2016-10-03T14:26:14cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -38,6 +38,53 @@ defmodule CaosApi.AggregateController do
                     "projects" => [],
                     "granularity" => 24*60*60}
 
+  defp my_where(query, args = %{projects: []}) do
+    query
+    |> where([s, series], series.metric_name == ^args.metric_name)
+    |> where([s, series], series.period == ^args.period)
+    |> where([s], s.timestamp >= ^args.from)
+    |> where([s], s.timestamp <= ^args.s_to)
+  end
+
+  defp my_where(query, args = %{projects: _}) do
+    query
+    |> my_where(%{args | projects: []})
+    |> where([s, series], series.project_id in ^args.projects)
+  end
+
+  defp my_group_by(query, args = %{projects: []}) do
+    query
+    |> group_by([s, series], [fragment("mytimestamp")])
+    |> order_by([s, series], [fragment("mytimestamp")])
+  end
+
+  defp my_group_by(query, args = %{projects: _}) do
+    query
+    |> group_by([s, series], [series.project_id, fragment("mytimestamp")])
+    |> order_by([s, series], [series.project_id, fragment("mytimestamp")])
+  end
+
+  defp my_select(query, args) do
+    query
+    |> select([s, series], %{
+                timestamp: fragment("CAST(DATE_ADD(?, INTERVAL (?*(1+((TO_SECONDS(?)-TO_SECONDS(?)) div ?))) SECOND) AS datetime) AS mytimestamp",
+                  type(^args.from, :datetime),
+                  type(^args.granularity, :integer),
+                  s.timestamp,
+                  type(^args.from, :datetime),
+                  type(^args.granularity, :integer)),
+                project_id: series.project_id,
+                granularity: type(^args.granularity, :integer),
+                # aggregates
+                avg: avg(s.value),
+                count: count(s.value),
+                min: min(s.value),
+                max: max(s.value),
+                std: fragment("stddev_pop(?)", s.value),
+                var: fragment("var_pop(?)", s.value),
+                sum: sum(s.value)})
+  end
+
   def show(conn, params = %{"metric" => metric_name, "period" => period}) do
     %{"from" => from,
       "to" => to,
@@ -47,41 +94,32 @@ defmodule CaosApi.AggregateController do
 
     s_to = to |> Timex.shift(seconds: granularity)
 
+    args = %{
+      metric_name: metric_name,
+      period: period,
+      from: from,
+      to: to,
+      s_to: s_to,
+      projects: projects,
+      granularity: granularity
+    }
+
     ### NOTE: do not change "mytimestamp": pay attention to not to use SQL reserved names like "timestamp"
     aggregates = Sample
     |> join(:inner, [s], series in assoc(s, :series))
-    |> where([s, series], series.metric_name == ^metric_name)
-    |> where([s, series], series.period == ^period)
-    |> where([s, series], series.project_id in ^projects)
-    |> where([s], s.timestamp >= ^from)
-    |> where([s], s.timestamp <= ^s_to)
-    |> select([s, series], %{
-                timestamp: fragment("CAST(DATE_ADD(?, INTERVAL (?*(1+((TO_SECONDS(?)-TO_SECONDS(?)) div ?))) SECOND) AS datetime) AS mytimestamp",
-                  type(^from, :datetime),
-                  type(^granularity, :integer),
-                  s.timestamp,
-                  type(^from, :datetime),
-                  type(^granularity, :integer)),
-                granularity: type(^granularity, :integer),
-                project_id: series.project_id,
-                # aggregates
-                avg: avg(s.value),
-                count: count(s.value),
-                min: min(s.value),
-                max: max(s.value),
-                std: fragment("stddev_pop(?)", s.value),
-                var: fragment("var_pop(?)", s.value),
-                sum: sum(s.value)})
-    |> group_by([s, series], [series.project_id, fragment("mytimestamp")])
+    |> my_where(args)
+    |> my_select(args)
+    |> my_group_by(args)
     |> having([s], fragment("mytimestamp") >= ^from)
     |> having([s], fragment("mytimestamp") <= ^s_to)
-    |> order_by([s, series], [series.project_id, fragment("mytimestamp")])
     |> Repo.all
     |> Enum.map(fn(x)
       -> case Timex.Ecto.DateTime.load(x.timestamp) do
            {:ok, t} -> %{ x | timestamp: t }
          end
     end)
-    render(conn, "show.json", %{aggregates: aggregates})
+
+    render(conn, "show.json", %{aggregates: aggregates, projects: projects})
   end
+
 end

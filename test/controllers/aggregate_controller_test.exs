@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller_test.exs
 # Created: 2016-09-19T10:24:36+0200
-# Time-stamp: <2016-10-03T13:57:50cest>
+# Time-stamp: <2016-10-03T14:24:24cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -299,6 +299,75 @@ defmodule CaosApi.AggregateControllerTest do
     assert myround(data["id1"]) == [aggregates11h11,
                                     aggregates11h12,
                                     aggregates11h13]
+  end
+
+  test "daily overall aggregation with outside data and ranges and many series", %{conn: conn} do
+    project1 = fixture(:project)
+    project2 = fixture(:project, id: "id2", name: "project2")
+
+    metric1 = fixture(:metric)
+    metric2 = fixture(:metric, name: "metric2")
+
+    series11h = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series12h = fixture(:series, project: project1, metric: metric2, period: 3600)
+    series21h = fixture(:series, project: project2, metric: metric1, period: 3600)
+    series22h = fixture(:series, project: project2, metric: metric2, period: 3600)
+    series11d = fixture(:series, project: project1, metric: metric1, period: 3600*24)
+    series12d = fixture(:series, project: project1, metric: metric2, period: 3600*24)
+    series21d = fixture(:series, project: project2, metric: metric1, period: 3600*24)
+    series22d = fixture(:series, project: project2, metric: metric2, period: 3600*24)
+
+    t0 = "2016-08-08T16:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+    t2 = "2016-08-12T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 100, series: series11h)
+    samples21h1 = fixture(:samples, from: t0, repeat: 100, series: series21h)
+    samples12d1 = fixture(:samples, from: t0, repeat: 100, series: series12d)
+
+    t1a = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b0 = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c0 = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d0 = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d = "2016-08-12T22:00:00Z" |> parse_date!
+
+    values11h11 = Enum.map(samples11h1 |> Enum.slice(30..53), fn(s) -> s.value end)
+    values21h11 = Enum.map(samples21h1 |> Enum.slice(30..53), fn(s) -> s.value end)
+    values = values11h11 ++ values21h11
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1b |> format_date!,
+                                                "start" => t1b0 |> format_date!,
+                                                "end" => t1b |> format_date!,
+                                                "granularity" => 60*60*24})
+    values11h12 = Enum.map(samples11h1 |> Enum.slice(54..77), fn(s) -> s.value end)
+    values21h12 = Enum.map(samples21h1 |> Enum.slice(54..77), fn(s) -> s.value end)
+    values = values11h12 ++ values21h12
+    aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t1c |> format_date!,
+                                                "start" => t1c0 |> format_date!,
+                                                "end" => t1c |> format_date!,
+                                                "granularity" => 60*60*24})
+    values11h13 = Enum.map(samples11h1 |> Enum.slice(78..99), fn(s) -> s.value end)
+    values21h13 = Enum.map(samples21h1 |> Enum.slice(78..99), fn(s) -> s.value end)
+    values = values11h13 ++ values21h13
+    aggregates11h13 = Map.merge(aggr(values), %{"timestamp" => t1d |> format_date!,
+                                                "start" => t1d0 |> format_date!,
+                                                "end" => t1d |> format_date!,
+                                                "granularity" => 60*60*24})
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   from: t1 |> format_date!,
+                                                   to: t2 |> format_date!,
+                                                   granularity: 60*60*24,
+                                                   projects: [],
+                                                  })
+
+
+    data = json_response(conn, 200)["data"]
+    assert myround(data) == [aggregates11h11,
+                             aggregates11h12,
+                             aggregates11h13]
   end
 
 end

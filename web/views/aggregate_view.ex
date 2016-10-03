@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_view.ex
 # Created: 2016-09-15T10:03:58+0200
-# Time-stamp: <2016-10-03T13:55:40cest>
+# Time-stamp: <2016-10-03T14:22:25cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -26,7 +26,11 @@
 defmodule CaosApi.AggregateView do
   use CaosApi.Web, :view
 
-  def render("show.json", %{aggregates: aggregates}) do
+  def render("show.json", %{aggregates: aggregates, projects: []}) do
+    %{data: aggregates |> Enum.map(fn v -> render_one(v, CaosApi.AggregateView, "aggregate.json") end) }
+  end
+
+  def render("show.json", %{aggregates: aggregates, projects: _}) do
     %{data: aggregates |> Enum.group_by(fn x -> x.project_id end, fn v -> render_one(v, CaosApi.AggregateView, "aggregate.json") end) }
   end
 
