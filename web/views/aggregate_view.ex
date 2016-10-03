@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_view.ex
 # Created: 2016-09-15T10:03:58+0200
-# Time-stamp: <2016-09-19T10:23:07cest>
+# Time-stamp: <2016-10-03T13:55:40cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -32,7 +32,9 @@ defmodule CaosApi.AggregateView do
 
   def render("aggregate.json", %{aggregate: aggregate}) do
     %{timestamp: aggregate.timestamp,
-      project_id: aggregate.project_id,
+      start: aggregate.timestamp |> Timex.shift(seconds: -aggregate.granularity),
+      end: aggregate.timestamp,
+      granularity: aggregate.granularity,
       avg: aggregate.avg,
       count: aggregate.count,
       min: aggregate.min,

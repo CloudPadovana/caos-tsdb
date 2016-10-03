@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller_test.exs
 # Created: 2016-09-19T10:24:36+0200
-# Time-stamp: <2016-10-03T10:40:36cest>
+# Time-stamp: <2016-10-03T13:57:50cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -86,7 +86,9 @@ defmodule CaosApi.AggregateControllerTest do
     samples11h1 = fixture(:samples, from: t0, repeat: 24, series: series11)
     values = Enum.map(samples11h1, fn(s) -> s.value end)
     aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1 |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t0 |> format_date!,
+                                                "end" => t1 |> format_date!,
+                                                "granularity" => 60*60*24})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
@@ -108,15 +110,21 @@ defmodule CaosApi.AggregateControllerTest do
 
     samples11h1 = fixture(:samples, from: t0, repeat: 24, series: series11)
 
+    t1a0 = "2016-08-08T00:00:00Z" |> parse_date!
     t1a = "2016-08-09T00:00:00Z" |> parse_date!
     values = Enum.map(samples11h1 |> Enum.slice(0..1), fn(s) -> s.value end)
     aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1a |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t1a0 |> format_date!,
+                                                "end" => t1a |> format_date!,
+                                                "granularity" => 60*60*24})
 
+    t2a0 = "2016-08-09T00:00:00Z" |> parse_date!
     t2a = "2016-08-10T00:00:00Z" |> parse_date!
     values = Enum.map(samples11h1 |> Enum.slice(2..24), fn(s) -> s.value end)
     aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t2a |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t2a0 |> format_date!,
+                                                "end" => t2a |> format_date!,
+                                                "granularity" => 60*60*24})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
@@ -138,20 +146,29 @@ defmodule CaosApi.AggregateControllerTest do
 
     samples11h1 = fixture(:samples, from: t0, repeat: 36, series: series11)
 
+    t1a0 = "2016-08-08T00:00:00Z" |> parse_date!
     t1a = "2016-08-09T00:00:00Z" |> parse_date!
     values = Enum.map(samples11h1 |> Enum.slice(0..1), fn(s) -> s.value end)
     aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1a |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t1a0 |> format_date!,
+                                                "end" => t1a |> format_date!,
+                                                "granularity" => 60*60*24})
 
+    t2a0 = "2016-08-09T00:00:00Z" |> parse_date!
     t2a = "2016-08-10T00:00:00Z" |> parse_date!
     values = Enum.map(samples11h1 |> Enum.slice(2..25), fn(s) -> s.value end)
     aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t2a |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t2a0 |> format_date!,
+                                                "end" => t2a |> format_date!,
+                                                "granularity" => 60*60*24})
 
+    t3a0 = "2016-08-10T00:00:00Z" |> parse_date!
     t3a = "2016-08-11T00:00:00Z" |> parse_date!
     values = Enum.map(samples11h1 |> Enum.slice(26..100), fn(s) -> s.value end)
     aggregates11h13 = Map.merge(aggr(values), %{"timestamp" => t3a |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t3a0 |> format_date!,
+                                                "end" => t3a |> format_date!,
+                                                "granularity" => 60*60*24})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
@@ -176,7 +193,9 @@ defmodule CaosApi.AggregateControllerTest do
 
     values = Enum.map(samples11h1 |> Enum.slice(0..23), fn(s) -> s.value end)
     aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1 |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t0 |> format_date!,
+                                                "end" => t1 |> format_date!,
+                                                "granularity" => 60*60*24})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
@@ -203,7 +222,9 @@ defmodule CaosApi.AggregateControllerTest do
     |> Enum.map(fn(s) -> s.value end)
     |> Enum.with_index
     |> Enum.map(fn({v, n}) -> Map.merge(aggr(v), %{"timestamp" => t0 |> Timex.shift(seconds: 3600*(n+1)) |> format_date!,
-                                                  "project_id" => "id1"})
+                                                  "start" => t0 |> Timex.shift(seconds: 3600*(n+0)) |> format_date!,
+                                                  "end" => t0 |> Timex.shift(seconds: 3600*(n+1)) |> format_date!,
+                                                  "granularity" => 60*60})
     end)
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
@@ -242,19 +263,28 @@ defmodule CaosApi.AggregateControllerTest do
     samples12d1 = fixture(:samples, from: t0, repeat: 100, series: series12d)
 
     t1a = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b0 = "2016-08-09T22:00:00Z" |> parse_date!
     t1b = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c0 = "2016-08-10T22:00:00Z" |> parse_date!
     t1c = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d0 = "2016-08-11T22:00:00Z" |> parse_date!
     t1d = "2016-08-12T22:00:00Z" |> parse_date!
 
     values = Enum.map(samples11h1 |> Enum.slice(30..53), fn(s) -> s.value end)
     aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1b |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t1b0 |> format_date!,
+                                                "end" => t1b |> format_date!,
+                                                "granularity" => 60*60*24})
     values = Enum.map(samples11h1 |> Enum.slice(54..77), fn(s) -> s.value end)
     aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t1c |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t1c0 |> format_date!,
+                                                "end" => t1c |> format_date!,
+                                                "granularity" => 60*60*24})
     values = Enum.map(samples11h1 |> Enum.slice(78..99), fn(s) -> s.value end)
     aggregates11h13 = Map.merge(aggr(values), %{"timestamp" => t1d |> format_date!,
-                                                "project_id" => "id1"})
+                                                "start" => t1d0 |> format_date!,
+                                                "end" => t1d |> format_date!,
+                                                "granularity" => 60*60*24})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,

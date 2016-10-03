@@ -62,6 +62,7 @@ defmodule CaosApi.AggregateController do
                   s.timestamp,
                   type(^from, :datetime),
                   type(^granularity, :integer)),
+                granularity: type(^granularity, :integer),
                 project_id: series.project_id,
                 # aggregates
                 avg: avg(s.value),
