@@ -5,7 +5,7 @@
 #
 # Filename: Vagrantfile
 # Created: 2016-07-25T09:10:57+0200
-# Time-stamp: <2016-09-14T16:38:09cest>
+# Time-stamp: <2016-10-03T10:58:34cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -46,7 +46,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # phoenix server
   config.vm.network :forwarded_port, guest: 4000, host: 4000
 
-  config.vm.hostname = "api.caos.vagrant.local"
+  config.vm.hostname = "api.caos.vagrant.localhost"
 
   $script = <<SCRIPT
 sed -i 's/AcceptEnv/# AcceptEnv/' /etc/ssh/sshd_config
