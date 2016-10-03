@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller_test.exs
 # Created: 2016-09-19T10:24:36+0200
-# Time-stamp: <2016-09-19T13:58:18cest>
+# Time-stamp: <2016-10-03T10:40:36cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -38,106 +38,237 @@ defmodule CaosApi.AggregateControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  defp avg(l) do
+  # emulate AVG
+  defp avg(l) when is_list(l) do
     Enum.sum(l)/(length(l))
   end
 
-  defp var(l) do
+  # emulate VAR
+  defp var(l) when is_list(l) do
     a = avg(l)
     l2 = Enum.map(l, fn(x) -> x*x end)
     avg(Enum.map(l2, fn(x) -> x - a*a end))
   end
 
-  defp aggr(vals) do
-    res = %{"avg" => avg(vals),
-            "count" => Enum.count(vals),
-            "min" => Enum.min(vals),
-            "max" => Enum.max(vals),
-            "var" => var(vals),
-            "std" => :math.sqrt(var(vals)),
-            "sum" => Enum.sum(vals)}
-    myround(res)
+  # round data to 10 decimal digits in order to match calculations by SQL
+  defp myround(map) when is_list(map) do
+    map |> Enum.map(fn(x) -> myround(x) end)
   end
-
-  defp myround(res) do
-    Enum.reduce(["avg", "count", "min", "max", "var", "std", "sum"], res, fn(k, acc) ->
-      Map.put(acc, k, Float.round(res[k] + 0.0, 10))
+  defp myround(map) do
+    Enum.reduce(["avg", "count", "min", "max", "var", "std", "sum"], map, fn(k, acc) ->
+      Map.put(acc, k, Float.round(map[k] + 0.0, 10))
     end)
   end
 
-  test "test1", %{conn: conn} do
-    project1 = fixture(:project, 1)
-    project2 = fixture(:project, 2)
-    metric1 = fixture(:metric, "metric1")
-    metric2 = fixture(:metric, "metric2")
+  # calculate fixture aggregation
+  defp aggr(values) when is_number(values) do
+    aggr([values])
+  end
+  defp aggr(values) when is_list(values) do
+    map = %{"avg" => avg(values),
+            "count" => Enum.count(values),
+            "min" => Enum.min(values),
+            "max" => Enum.max(values),
+            "var" => var(values),
+            "std" => :math.sqrt(var(values)),
+            "sum" => Enum.sum(values)}
+    myround(map)
+  end
+
+  test "daily aggregation with from", %{conn: conn} do
+    project1 = fixture(:project)
+    metric1 = fixture(:metric)
     series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
-    series12 = fixture(:series, project: project1, metric: metric2, period: 3600)
-    series21 = fixture(:series, project: project2, metric: metric1, period: 3600)
-    series22 = fixture(:series, project: project2, metric: metric2, period: 3600)
 
-    t1 = "2016-08-08T00:00:00Z" |> parse_date!
-    t2 = "2016-08-09T00:00:00Z" |> parse_date!
-    t3 = "2016-08-10T00:00:00Z" |> parse_date!
-    t4 = "2016-08-10T03:00:00Z" |> parse_date!
-    samples11 = fixture(:samples, from: t1, n: 12, series: series11)
-    samples12 = fixture(:samples, from: t2, n: 12, series: series11)
-    samples13 = fixture(:samples, from: t3, n: 12, series: series11)
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
 
-    vals = Enum.map(samples11, fn(s) -> s.value end)
-    res11 = Map.merge(aggr(vals), %{"timestamp" => t2 |> format_date!,
-                                    "project_id" => "id1"})
-    vals = Enum.map(samples12, fn(s) -> s.value end)
-    res12 = Map.merge(aggr(vals), %{"timestamp" => t3 |> format_date!,
-                                    "project_id" => "id1"})
-    vals = Enum.map(samples13, fn(s) -> s.value end)
-    res13 = Map.merge(aggr(Enum.slice(vals, 0..2)), %{"timestamp" => "2016-08-11T00:00:00Z",
-                                                     "project_id" => "id1"})
+    samples11h1 = fixture(:samples, from: t0, repeat: 24, series: series11)
+    values = Enum.map(samples11h1, fn(s) -> s.value end)
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1 |> format_date!,
+                                                "project_id" => "id1"})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
-                                                   from: t1 |> format_date!,
-                                                   to: t4 |> format_date!,
+                                                   from: t0 |> format_date!,
                                                    granularity: 60*60*24,
                                                    projects: [project1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(Enum.at(data["id1"], 0)) == res11
-    assert myround(Enum.at(data["id1"], 1)) == res12
-    assert myround(Enum.at(data["id1"], 2)) == res13
+    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+  end
 
-    samples21 = fixture(:samples, from: t1, n: 12, series: series21)
-    samples22 = fixture(:samples, from: t2, n: 12, series: series21)
-    samples23 = fixture(:samples, from: t3, n: 12, series: series21)
+  test "daily aggregation", %{conn: conn} do
+    project1 = fixture(:project)
+    metric1 = fixture(:metric)
+    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
 
-    samples21a = fixture(:samples, from: t1, n: 12, series: series22)
-    samples22a = fixture(:samples, from: t2, n: 12, series: series22)
-    samples23a = fixture(:samples, from: t3, n: 12, series: series22)
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
 
-    vals = Enum.map(samples21, fn(s) -> s.value end)
-    res21 = Map.merge(aggr(vals), %{"timestamp" => t2 |> format_date!,
-                                   "project_id" => "id2"})
-    vals = Enum.map(samples22, fn(s) -> s.value end)
-    res22 = Map.merge(aggr(vals), %{"timestamp" => t3 |> format_date!,
-                                   "project_id" => "id2"})
-    vals = Enum.map(samples23, fn(s) -> s.value end)
-    res23 = Map.merge(aggr(Enum.slice(vals, 0..2)), %{"timestamp" => "2016-08-11T00:00:00Z",
-                                                      "project_id" => "id2"})
+    samples11h1 = fixture(:samples, from: t0, repeat: 24, series: series11)
+
+    t1a = "2016-08-09T00:00:00Z" |> parse_date!
+    values = Enum.map(samples11h1 |> Enum.slice(0..1), fn(s) -> s.value end)
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1a |> format_date!,
+                                                "project_id" => "id1"})
+
+    t2a = "2016-08-10T00:00:00Z" |> parse_date!
+    values = Enum.map(samples11h1 |> Enum.slice(2..24), fn(s) -> s.value end)
+    aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t2a |> format_date!,
+                                                "project_id" => "id1"})
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   granularity: 60*60*24,
+                                                   projects: [project1.id],
+                                                  })
+    data = json_response(conn, 200)["data"]
+    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["id1"], 1)) == aggregates11h12
+  end
+
+  test "daily aggregation with outside data", %{conn: conn} do
+    project1 = fixture(:project)
+    metric1 = fixture(:metric)
+    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 36, series: series11)
+
+    t1a = "2016-08-09T00:00:00Z" |> parse_date!
+    values = Enum.map(samples11h1 |> Enum.slice(0..1), fn(s) -> s.value end)
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1a |> format_date!,
+                                                "project_id" => "id1"})
+
+    t2a = "2016-08-10T00:00:00Z" |> parse_date!
+    values = Enum.map(samples11h1 |> Enum.slice(2..25), fn(s) -> s.value end)
+    aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t2a |> format_date!,
+                                                "project_id" => "id1"})
+
+    t3a = "2016-08-11T00:00:00Z" |> parse_date!
+    values = Enum.map(samples11h1 |> Enum.slice(26..100), fn(s) -> s.value end)
+    aggregates11h13 = Map.merge(aggr(values), %{"timestamp" => t3a |> format_date!,
+                                                "project_id" => "id1"})
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   granularity: 60*60*24,
+                                                   projects: [project1.id],
+                                                  })
+    data = json_response(conn, 200)["data"]
+    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["id1"], 1)) == aggregates11h12
+    assert myround(Enum.at(data["id1"], 2)) == aggregates11h13
+  end
+
+  test "daily aggregation with outside data and ranges", %{conn: conn} do
+    project1 = fixture(:project)
+    metric1 = fixture(:metric)
+    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 36, series: series11)
+
+    values = Enum.map(samples11h1 |> Enum.slice(0..23), fn(s) -> s.value end)
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1 |> format_date!,
+                                                "project_id" => "id1"})
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   from: t0 |> format_date!,
+                                                   to: t1 |> format_date!,
+                                                   granularity: 60*60*24,
+                                                   projects: [project1.id],
+                                                  })
+    data = json_response(conn, 200)["data"]
+    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+  end
+
+  test "hourly aggregation with outside data and ranges", %{conn: conn} do
+    project1 = fixture(:project)
+    metric1 = fixture(:metric)
+    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 37, series: series11)
+
+    aggregates11h1n = samples11h1
+    |> Enum.map(fn(s) -> s.value end)
+    |> Enum.with_index
+    |> Enum.map(fn({v, n}) -> Map.merge(aggr(v), %{"timestamp" => t0 |> Timex.shift(seconds: 3600*(n+1)) |> format_date!,
+                                                  "project_id" => "id1"})
+    end)
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   from: t0 |> format_date!,
+                                                   to: t1 |> format_date!,
+                                                   granularity: 60*60,
+                                                   projects: [project1.id],
+                                                  })
+    data = json_response(conn, 200)["data"]
+    assert myround(data["id1"]) == aggregates11h1n |> Enum.slice(0..24)
+  end
+
+  test "daily aggregation with outside data and ranges and many series", %{conn: conn} do
+    project1 = fixture(:project)
+    project2 = fixture(:project, id: "id2", name: "project2")
+
+    metric1 = fixture(:metric)
+    metric2 = fixture(:metric, name: "metric2")
+
+    series11h = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series12h = fixture(:series, project: project1, metric: metric2, period: 3600)
+    series21h = fixture(:series, project: project2, metric: metric1, period: 3600)
+    series22h = fixture(:series, project: project2, metric: metric2, period: 3600)
+    series11d = fixture(:series, project: project1, metric: metric1, period: 3600*24)
+    series12d = fixture(:series, project: project1, metric: metric2, period: 3600*24)
+    series21d = fixture(:series, project: project2, metric: metric1, period: 3600*24)
+    series22d = fixture(:series, project: project2, metric: metric2, period: 3600*24)
+
+    t0 = "2016-08-08T16:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+    t2 = "2016-08-12T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 100, series: series11h)
+    samples21h1 = fixture(:samples, from: t0, repeat: 100, series: series21h)
+    samples12d1 = fixture(:samples, from: t0, repeat: 100, series: series12d)
+
+    t1a = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d = "2016-08-12T22:00:00Z" |> parse_date!
+
+    values = Enum.map(samples11h1 |> Enum.slice(30..53), fn(s) -> s.value end)
+    aggregates11h11 = Map.merge(aggr(values), %{"timestamp" => t1b |> format_date!,
+                                                "project_id" => "id1"})
+    values = Enum.map(samples11h1 |> Enum.slice(54..77), fn(s) -> s.value end)
+    aggregates11h12 = Map.merge(aggr(values), %{"timestamp" => t1c |> format_date!,
+                                                "project_id" => "id1"})
+    values = Enum.map(samples11h1 |> Enum.slice(78..99), fn(s) -> s.value end)
+    aggregates11h13 = Map.merge(aggr(values), %{"timestamp" => t1d |> format_date!,
+                                                "project_id" => "id1"})
 
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
                                                    from: t1 |> format_date!,
-                                                   to: t4 |> format_date!,
+                                                   to: t2 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id, project2.id],
+                                                   projects: [project1.id],
                                                   })
+
+
     data = json_response(conn, 200)["data"]
-
-    assert myround(Enum.at(data["id1"], 0)) == res11
-    assert myround(Enum.at(data["id1"], 1)) == res12
-    assert myround(Enum.at(data["id1"], 2)) == res13
-    assert myround(Enum.at(data["id2"], 0)) == res21
-    assert myround(Enum.at(data["id2"], 1)) == res22
-    assert myround(Enum.at(data["id2"], 2)) == res23
-
+    assert myround(data["id1"]) == [aggregates11h11,
+                                    aggregates11h12,
+                                    aggregates11h13]
   end
+
 end

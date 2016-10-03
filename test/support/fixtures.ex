@@ -2,7 +2,7 @@
 #
 # Filename: fixtures.ex
 # Created: 2016-09-19T10:34:49+0200
-# Time-stamp: <2016-09-19T10:56:53cest>
+# Time-stamp: <2016-10-03T10:25:34cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -29,24 +29,27 @@ defmodule CaosApi.Fixtures do
   alias CaosApi.Series
   alias CaosApi.Project
   alias CaosApi.Metric
+  use Timex
 
-  def fixture(:project, name) do
+  def fixture(_, assoc \\ [])
+
+  def fixture(:project, assoc) do
     Repo.insert! %Project{
-      id: "id#{name}",
-      name: "project#{name}"
+      id: assoc[:id] || "id1",
+      name: assoc[:name] || "project1"
     }
   end
 
-  def fixture(:metric, name) do
+  def fixture(:metric, assoc) do
     Repo.insert! %Metric{
-      name: name
+      name: assoc[:name] || "metric1"
     }
   end
 
   def fixture(:series, assoc) do
-    project = assoc[:project]
-    metric = assoc[:metric]
-    period = assoc[:period]
+    project = assoc[:project] || fixture(:project)
+    metric = assoc[:metric] || fixture(:metric)
+    period = assoc[:period] || 3600
 
     Repo.insert! %Series{
       project_id: project.id,
@@ -56,13 +59,13 @@ defmodule CaosApi.Fixtures do
   end
 
   def fixture(:samples, assoc) do
-    series = assoc[:series]
-    t0 = assoc[:from]
-    n = assoc[:n]
+    series = assoc[:series] || fixture(:series)
+    t0 = assoc[:from] || Timex.DateTime.epoch
+    n = assoc[:repeat] || 1
 
-    samples = Range.new(1, n) |> Enum.map(fn(x) ->
+    samples = Range.new(0, n-1) |> Enum.map(fn(x) ->
       sample = %Sample{series_id: series.id,
-                       timestamp: t0 |> Timex.shift(hours: x),
+                       timestamp: t0 |> Timex.shift(seconds: x*series.period),
                        value: :rand.uniform()}
       Repo.insert! sample
     end)
