@@ -7,7 +7,7 @@
   3. Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   4. Start Phoenix endpoint with `mix phoenix.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+The API is exposed at [`localhost:4000/api`](http://localhost:4000/api).
 
 ## How to build for production
 
