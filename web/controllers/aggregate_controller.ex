@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller.ex
 # Created: 2016-09-15T09:48:46+0200
-# Time-stamp: <2016-09-19T14:16:12cest>
+# Time-stamp: <2016-10-03T11:32:44cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -36,10 +36,16 @@ defmodule CaosApi.AggregateController do
   @default_params %{"from" => Timex.DateTime.epoch,
                     "to" => Timex.DateTime.now,
                     "projects" => [],
-                    "granularity" => 86400}
+                    "granularity" => 24*60*60}
 
   def show(conn, params = %{"metric" => metric_name, "period" => period}) do
-    %{"from" => from, "to" => to, "projects" => projects, "granularity" => granularity} = Map.merge(@default_params, params)
+    %{"from" => from,
+      "to" => to,
+      "projects" => projects,
+      "granularity" => granularity
+    } = Map.merge(@default_params, params)
+
+    s_to = to |> Timex.shift(seconds: granularity)
 
     ### NOTE: do not change "mytimestamp": pay attention to not to use SQL reserved names like "timestamp"
     aggregates = Sample
@@ -48,7 +54,7 @@ defmodule CaosApi.AggregateController do
     |> where([s, series], series.period == ^period)
     |> where([s, series], series.project_id in ^projects)
     |> where([s], s.timestamp >= ^from)
-    |> where([s], s.timestamp <= ^to)
+    |> where([s], s.timestamp <= ^s_to)
     |> select([s, series], %{
                 timestamp: fragment("CAST(DATE_ADD(?, INTERVAL (?*(1+((TO_SECONDS(?)-TO_SECONDS(?)) div ?))) SECOND) AS datetime) AS mytimestamp",
                   type(^from, :datetime),
@@ -66,6 +72,8 @@ defmodule CaosApi.AggregateController do
                 var: fragment("var_pop(?)", s.value),
                 sum: sum(s.value)})
     |> group_by([s, series], [series.project_id, fragment("mytimestamp")])
+    |> having([s], fragment("mytimestamp") >= ^from)
+    |> having([s], fragment("mytimestamp") <= ^s_to)
     |> order_by([s, series], [series.project_id, fragment("mytimestamp")])
     |> Repo.all
     |> Enum.map(fn(x)
@@ -73,7 +81,6 @@ defmodule CaosApi.AggregateController do
            {:ok, t} -> %{ x | timestamp: t }
          end
     end)
-
     render(conn, "show.json", %{aggregates: aggregates})
   end
 end
