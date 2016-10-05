@@ -47,6 +47,7 @@ defmodule CaosApi.Mixfile do
      {:timex_ecto, "~> 1.1"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
+     {:guardian, "~> 0.13.0"},
 
      # the override of exrm and conform in your deps is to tell Mix
      # that it can use your deps to fulfill the requirements for exrm

@@ -240,8 +240,47 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "DB connection pool size.",
       hidden: false,
       to: "caos_api.Elixir.CaosApi.Repo.pool_size"
-    ]
+    ],
+    "auth.token_ttl": [
+      commented: false,
+      datatype: :integer,
+      default: 86400,
+      doc: "Token TTL in seconds.",
+      hidden: false,
+      to: "guardian.Elixir.Guardian.ttl"
+    ],
+    "auth.secret_key": [
+      commented: false,
+      datatype: :binary,
+      default: "vUczE4q9U0SF2eQIUTMJvw==",
+      doc: "Token secret key.",
+      hidden: false,
+      to: "guardian.Elixir.Guardian.secret_key"
+    ],
+    "auth.identity.username": [
+      commented: false,
+      datatype: :binary,
+      default: "admin",
+      doc: "Username",
+      hidden: false,
+      to: "caos_api.Elixir.Auth.identity.username"
+    ],
+    "auth.identity.password": [
+      commented: false,
+      datatype: :binary,
+      default: "ADMIN_PASS",
+      doc: "Password",
+      hidden: false,
+      to: "caos_api.Elixir.Auth.identity.password"
+    ],
   ],
-  transforms: [],
+  transforms: [
+    "guardian.Elixir.Guardian.ttl": fn conf ->
+      conf
+      |> Conform.Conf.get("guardian.Elixir.Guardian.ttl")
+      |> Enum.map(fn {key, ttl} -> { ttl, :seconds } end)
+      |> List.last
+    end,
+  ],
   validators: []
 ]

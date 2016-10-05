@@ -8,6 +8,8 @@ defmodule CaosApi.Router do
   scope "/api", CaosApi do
     pipe_through :api
 
+    resources "/token", TokenController, only: [:show], singleton: true
+
     resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]
     resources "/metrics", MetricController, param: "name", except: [:new, :edit, :delete]
 
