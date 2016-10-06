@@ -17,6 +17,7 @@ defmodule CaosApi.SeriesControllerTest do
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, conn: put_valid_token(conn)}
   end
 
   test "lists all entries on index", %{conn: conn} do

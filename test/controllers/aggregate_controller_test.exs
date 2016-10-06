@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller_test.exs
 # Created: 2016-09-19T10:24:36+0200
-# Time-stamp: <2016-10-03T14:24:24cest>
+# Time-stamp: <2016-10-06T10:42:11cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -32,10 +32,10 @@ defmodule CaosApi.AggregateControllerTest do
   alias CaosApi.Project
   alias CaosApi.Metric
   use Timex
-  import CaosApi.Fixtures
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, conn: put_valid_token(conn)}
   end
 
   # emulate AVG

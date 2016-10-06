@@ -24,6 +24,7 @@ defmodule CaosApi.SampleControllerTest do
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, conn: put_valid_token(conn)}
   end
 
   test "shows chosen resource", %{conn: conn} do
@@ -73,24 +74,23 @@ defmodule CaosApi.SampleControllerTest do
 
 
     from = "2016-08-02T05:04:29Z"
-    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
-    assert json_response(conn, 200)["data"] == samples
-
+    new_conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(new_conn, 200)["data"] == samples
 
     from = "2016-08-02T09:00:00Z"
-    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
-    assert json_response(conn, 200)["data"] == Enum.slice(samples, 3..10)
+    new_conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(new_conn, 200)["data"] == Enum.slice(samples, 3..10)
 
 
     from = "2016-08-02T09:00:00Z"
     to = "2016-08-02T13:00:00Z"
-    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from, to: to
-    assert json_response(conn, 200)["data"] == Enum.slice(samples, 3..6)
+    new_conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from, to: to
+    assert json_response(new_conn, 200)["data"] == Enum.slice(samples, 3..6)
 
 
     from = "2016-08-03T09:00:00Z"
-    conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
-    assert json_response(conn, 200)["data"] == []
+    new_conn = get conn, sample_path(conn, :show, %{series_id: @sample.series_id}), from: from
+    assert json_response(new_conn, 200)["data"] == []
 
     end
 end

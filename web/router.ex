@@ -5,8 +5,20 @@ defmodule CaosApi.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_auth do
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.LoadResource
+    plug Guardian.Plug.EnsureAuthenticated, handler: CaosApi.AuthErrorHandler
+  end
+
   scope "/api", CaosApi do
-    pipe_through :api
+    pipe_through [:api]
+
+    resources "/token", TokenController, only: [:show], singleton: true
+  end
+
+  scope "/api", CaosApi do
+    pipe_through [:api, :api_auth]
 
     resources "/status", StatusController, only: [:index]
 

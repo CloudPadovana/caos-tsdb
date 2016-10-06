@@ -22,6 +22,23 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# AUTH
+config :caos_api, Auth,
+  identity: [username: "admin", password: "ADMIN_PASS"]
+
+# Configures Guardian (for JWT auth)
+config :guardian, Guardian,
+  allowed_algos: ["HS512"],
+  verify_module: Guardian.JWT,
+  issuer: "CaosApi",
+  ttl: { 3600, :seconds },
+  verify_issuer: true,
+  secret_key: %{
+    "k" => "vUczE4q9U0SF2eQIUTMJvw==",
+    "kty" => "oct"
+  },
+  serializer: CaosApi.GuardianSerializer
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
