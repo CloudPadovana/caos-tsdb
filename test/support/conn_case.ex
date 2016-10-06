@@ -29,6 +29,13 @@ defmodule CaosApi.ConnCase do
 
       # The default endpoint for testing
       @endpoint CaosApi.Endpoint
+
+      import CaosApi.Fixtures
+      def put_valid_token(%Plug.Conn{} = conn, username \\ []) do
+        jwt = fixture(:token, username)
+        conn
+        |> put_req_header("authorization", "Bearer #{jwt}")
+      end
     end
   end
 

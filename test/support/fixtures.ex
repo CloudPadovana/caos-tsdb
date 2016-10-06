@@ -2,7 +2,7 @@
 #
 # Filename: fixtures.ex
 # Created: 2016-09-19T10:34:49+0200
-# Time-stamp: <2016-10-03T10:25:34cest>
+# Time-stamp: <2016-10-06T10:33:46cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -32,6 +32,12 @@ defmodule CaosApi.Fixtures do
   use Timex
 
   def fixture(_, assoc \\ [])
+
+  def fixture(:token, assoc) do
+    username = assoc[:username] || "some_user"
+    {:ok, jwt, _} = Guardian.encode_and_sign(username)
+    jwt
+  end
 
   def fixture(:project, assoc) do
     Repo.insert! %Project{

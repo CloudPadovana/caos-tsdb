@@ -2,7 +2,7 @@
 #
 # Filename: auth.ex
 # Created: 2016-09-19T14:51:36+0200
-# Time-stamp: <2016-10-04T17:07:07cest>
+# Time-stamp: <2016-10-06T10:47:21cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -31,4 +31,14 @@ defmodule CaosApi.GuardianSerializer do
 
   def from_token(username) when is_binary(username), do: { :ok, username }
   def from_token(_), do: { :error, "Unknown resource type" }
+end
+
+defmodule CaosApi.AuthErrorHandler do
+  use CaosApi.Web, :controller
+
+  def unauthenticated(conn, _params) do
+    conn
+    |> put_status(:unauthorized)
+    |> render(CaosApi.ErrorView, "401.json")
+  end
 end
