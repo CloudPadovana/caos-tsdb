@@ -2,7 +2,7 @@
 #
 # Filename: status_controller_test.exs
 # Created: 2016-10-06T11:32:51+0200
-# Time-stamp: <2016-10-06T12:03:36cest>
+# Time-stamp: <2016-10-06T13:11:44cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -25,12 +25,10 @@
 
 defmodule CaosApi.StatusControllerTest do
   use CaosApi.ConnCase
-
-  import CaosApi.DateTime.Helpers
   use Timex
-  import CaosApi.Fixtures
 
   @status %{"status" => "online",
+            "auth" => "no",
             "version" => CaosApi.Version.version}
 
   setup %{conn: conn} do
@@ -41,5 +39,21 @@ defmodule CaosApi.StatusControllerTest do
     conn = get conn, status_path(conn, :index)
     assert json_response(conn, 200)["data"] == @status
   end
+
+  test "GET /api/status with valid token", %{conn: conn} do
+    conn = put_valid_token(conn)
+    conn = get conn, status_path(conn, :index)
+    assert json_response(conn, 200)["data"] == %{ @status | "auth" => "yes" }
+  end
+
+  test "GET /api/status with invalid token", %{conn: conn} do
+    iat = Timex.DateTime.now |> Timex.shift(days: -10) |> Timex.to_unix
+    jwt = fixture(:token, username: "some user", claims: %{"iat" => iat})
+
+    conn = put_token(conn, jwt)
+    conn = get conn, status_path(conn, :index)
+    assert json_response(conn, 200)["data"] == %{ @status | "auth" => "no" }
+  end
+
 end
 

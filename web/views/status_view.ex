@@ -2,7 +2,7 @@
 #
 # Filename: status_view.ex
 # Created: 2016-10-06T11:42:12+0200
-# Time-stamp: <2016-10-06T11:59:15cest>
+# Time-stamp: <2016-10-06T12:09:36cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -26,9 +26,10 @@
 defmodule CaosApi.StatusView do
   use CaosApi.Web, :view
 
-  def render("status.json", %{status: status, version: version}) do
+  def render("status.json", %{auth: auth, status: status, version: version}) do
     %{data:
-      %{status: status,
+      %{auth: auth,
+        status: status,
         version: version}
     }
   end

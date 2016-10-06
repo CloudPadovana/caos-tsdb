@@ -2,7 +2,7 @@
 #
 # Filename: fixtures.ex
 # Created: 2016-09-19T10:34:49+0200
-# Time-stamp: <2016-10-06T10:33:46cest>
+# Time-stamp: <2016-10-06T13:10:51cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -35,7 +35,9 @@ defmodule CaosApi.Fixtures do
 
   def fixture(:token, assoc) do
     username = assoc[:username] || "some_user"
-    {:ok, jwt, _} = Guardian.encode_and_sign(username)
+    claims = assoc[:claims] || %{}
+
+    {:ok, jwt, _} = Guardian.encode_and_sign(username, :access, claims)
     jwt
   end
 

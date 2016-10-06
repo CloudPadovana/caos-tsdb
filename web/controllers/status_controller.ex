@@ -2,7 +2,7 @@
 #
 # Filename: status_controller.ex
 # Created: 2016-10-06T11:40:46+0200
-# Time-stamp: <2016-10-06T11:59:20cest>
+# Time-stamp: <2016-10-06T13:13:01cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -25,12 +25,18 @@
 
 defmodule CaosApi.StatusController do
   use CaosApi.Web, :controller
+  use Guardian.Phoenix.Controller
 
   @status "online"
   @version CaosApi.Version.version
 
-  def index(conn, _params) do
-    render(conn, "status.json", status: @status, version: @version)
+  def index(conn, _params, _user, claims) do
+    auth = case claims do
+             { :ok, _ } -> "yes"
+             { :error, _ } -> "no"
+           end
+
+    render(conn, "status.json", status: @status, version: @version, auth: auth)
   end
 end
 

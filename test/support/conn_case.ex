@@ -31,10 +31,15 @@ defmodule CaosApi.ConnCase do
       @endpoint CaosApi.Endpoint
 
       import CaosApi.Fixtures
-      def put_valid_token(%Plug.Conn{} = conn, username \\ []) do
-        jwt = fixture(:token, username)
+      def put_token(%Plug.Conn{} = conn, jwt) do
         conn
         |> put_req_header("authorization", "Bearer #{jwt}")
+      end
+
+      def put_valid_token(%Plug.Conn{} = conn, params \\ []) do
+        jwt = fixture(:token, params)
+        conn
+        |> put_token(jwt)
       end
     end
   end
