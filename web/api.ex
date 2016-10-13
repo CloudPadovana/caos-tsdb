@@ -1,8 +1,8 @@
 ######################################################################
 #
-# Filename: status_controller.ex
-# Created: 2016-10-06T11:40:46+0200
-# Time-stamp: <2016-10-13T09:45:46cest>
+# Filename: api.ex
+# Created: 2016-10-13T09:37:07+0200
+# Time-stamp: <2016-10-13T09:47:17cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -23,21 +23,13 @@
 #
 ######################################################################
 
-defmodule CaosApi.StatusController do
-  use CaosApi.Web, :controller
-  use Guardian.Phoenix.Controller
+defmodule CaosApi.APIVersion do
+  import Plug.Conn
 
-  @status "online"
-  @version CaosApi.Version.version
+  def init(opts), do: opts
 
-  def index(conn, _params, _user, claims) do
-    auth = case claims do
-             { :ok, _ } -> "yes"
-             { :error, _ } -> "no"
-           end
-
-    api_version = conn.assigns[:version]
-    render(conn, "status.json", status: @status, version: @version, auth: auth, api_version: api_version)
+  def call(conn, opts) do
+    version = Keyword.fetch!(opts, :version)
+    assign(conn, :version, version)
   end
 end
-

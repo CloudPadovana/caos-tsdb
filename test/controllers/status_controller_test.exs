@@ -2,7 +2,7 @@
 #
 # Filename: status_controller_test.exs
 # Created: 2016-10-06T11:32:51+0200
-# Time-stamp: <2016-10-06T13:11:44cest>
+# Time-stamp: <2016-10-13T09:42:28cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -29,6 +29,7 @@ defmodule CaosApi.StatusControllerTest do
 
   @status %{"status" => "online",
             "auth" => "no",
+            "api_version" => "v1",
             "version" => CaosApi.Version.version}
 
   setup %{conn: conn} do

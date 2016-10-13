@@ -1,5 +1,6 @@
 defmodule CaosApi.Router do
   use CaosApi.Web, :router
+  alias CaosApi.APIVersion
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -14,15 +15,19 @@ defmodule CaosApi.Router do
     plug Guardian.Plug.EnsureAuthenticated, handler: CaosApi.AuthErrorHandler
   end
 
-  scope "/api", CaosApi do
-    pipe_through [:api, :api_auth]
+  pipeline :v1 do
+    plug APIVersion, version: :v1
+  end
+
+  scope "/api/v1", CaosApi do
+    pipe_through [:v1, :api, :api_auth]
 
     resources "/token", TokenController, only: [:show], singleton: true
     resources "/status", StatusController, only: [:index]
   end
 
-  scope "/api", CaosApi do
-    pipe_through [:api, :api_auth, :api_auth_ensure]
+  scope "/api/v1", CaosApi do
+    pipe_through [:v1, :api, :api_auth, :api_auth_ensure]
 
     resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]
     resources "/metrics", MetricController, param: "name", except: [:new, :edit, :delete]
