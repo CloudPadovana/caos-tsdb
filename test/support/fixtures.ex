@@ -2,7 +2,7 @@
 #
 # Filename: fixtures.ex
 # Created: 2016-09-19T10:34:49+0200
-# Time-stamp: <2016-10-06T13:10:51cest>
+# Time-stamp: <2016-10-15T17:04:55cest>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -70,11 +70,16 @@ defmodule CaosApi.Fixtures do
     series = assoc[:series] || fixture(:series)
     t0 = assoc[:from] || Timex.DateTime.epoch
     n = assoc[:repeat] || 1
+    value_type = assoc[:values] || :rand
 
     samples = Range.new(0, n-1) |> Enum.map(fn(x) ->
+      value = case value_type do
+                :rand -> :rand.uniform()
+                :linear -> x+1.0
+              end
       sample = %Sample{series_id: series.id,
                        timestamp: t0 |> Timex.shift(seconds: x*series.period),
-                       value: :rand.uniform()}
+                       value: value}
       Repo.insert! sample
     end)
   end
