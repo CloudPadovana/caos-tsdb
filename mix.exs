@@ -27,6 +27,7 @@ defmodule CaosApi.Mixfile do
                     :timex_ecto,
                     :phoenix_ecto,
                     :mariaex,
+                    :guardian,
                     :conform,
                     :conform_exrm]]
   end
