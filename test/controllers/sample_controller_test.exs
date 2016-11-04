@@ -18,7 +18,7 @@ defmodule CaosApi.SampleControllerTest do
                   ttl: 500}
 
   @valid_attrs %{series_id: 1,
-                 timestamp: Timex.DateTime.now |> Timex.format!("%FT%TZ", :strftime),
+                 timestamp: Timex.now |> Timex.format!("%FT%TZ", :strftime),
                  value: 322.3}
   @sample struct(Sample, @valid_attrs)
 

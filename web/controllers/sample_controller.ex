@@ -17,7 +17,7 @@ defmodule CaosApi.SampleController do
   end
 
   def show(conn, params = %{"series_id" => series_id, "from" => from}) do
-    to = Map.get(params, "to", Timex.DateTime.now)
+    to = Map.get(params, "to", Timex.now)
 
     query = (from s in Sample,
       where: s.series_id == ^series_id

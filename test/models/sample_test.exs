@@ -11,7 +11,7 @@ defmodule CaosApi.SampleTest do
                   ttl: 500}
 
   @valid_attrs %{series_id: @series.id,
-                 timestamp: DateTime.now,
+                 timestamp: Timex.now,
                  value: 322.3}
   @sample struct(Sample, @valid_attrs)
 

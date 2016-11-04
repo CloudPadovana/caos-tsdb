@@ -51,14 +51,14 @@ defmodule CaosApi.SeriesController do
   def grid(conn, %{"series_id" => id, "from" => start_date}) do
     series = Repo.get_by!(Series, id: id)
     period = series.period
-    last_timestamp = series.last_timestamp
+    _last_timestamp = series.last_timestamp
 
-    to = Timex.DateTime.now
+    to = Timex.now
 
-    d = Timex.diff(Timex.DateTime.epoch, start_date)
+    d = Timex.diff(start_date, epoch, :seconds)
     n = trunc(d / period)
 
-    from = Timex.DateTime.epoch
+    from = epoch
     |> Timex.shift(seconds: n*period)
 
     grid = Timex.Interval.new(from: from, until: to, step: [seconds: period])

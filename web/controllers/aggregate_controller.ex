@@ -2,7 +2,7 @@
 #
 # Filename: aggregate_controller.ex
 # Created: 2016-09-15T09:48:46+0200
-# Time-stamp: <2016-10-16T16:51:14cest>
+# Time-stamp: <2016-11-04T10:06:36cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -34,8 +34,8 @@ defmodule CaosApi.AggregateController do
   plug :scrub_integer, "granularity" when action in [:show]
   plug :scrub_integer, "period" when action in [:show]
 
-  @default_params %{"from" => Timex.DateTime.epoch,
-                    "to" => Timex.DateTime.now,
+  @default_params %{"from" => epoch,
+                    "to" => Timex.now,
                     "projects" => [],
                     "granularity" => 24*60*60}
 

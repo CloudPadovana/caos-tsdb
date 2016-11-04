@@ -2,7 +2,7 @@
 #
 # Filename: datetime.ex
 # Created: 2016-07-11T11:22:26+0200
-# Time-stamp: <2016-08-04T12:57:52cest>
+# Time-stamp: <2016-11-04T11:13:14cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -26,6 +26,11 @@
 defmodule CaosApi.DateTime.Helpers do
   use Timex
 
+  @epoch DateTime.from_unix!(0)
+  def epoch() do
+    @epoch
+  end
+
   def parse_date(date) do
     date
     |> Timex.parse("%FT%TZ", :strftime)
@@ -44,13 +49,6 @@ defmodule CaosApi.DateTime.Helpers do
   def format_date!(date) do
     date
     |> Timex.format!("%FT%TZ", :strftime)
-  end
-
-  defimpl Poison.Encoder, for: Timex.DateTime do
-    def encode(d, _options) do
-      fmt = Timex.format!(d, "%FT%TZ", :strftime)
-      "\"#{fmt}\""
-    end
   end
 
   @spec scrub_datetime(Plug.Conn.t, String.t) :: Plug.Conn.t

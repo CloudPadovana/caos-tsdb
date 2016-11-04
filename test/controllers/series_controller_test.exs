@@ -83,12 +83,12 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "grid to now", %{conn: conn} do
-    Repo.insert! @project
-    Repo.insert! @metric
-    series = Repo.insert! @series
+    project = fixture(:project)
+    metric = fixture(:metric)
+    series = fixture(:series, project: project, metric: metric, period: 3600)
 
     from = "2016-08-02T05:04:29Z"
-    to = Timex.DateTime.now |> format_date!
+    to = Timex.now |> format_date!
 
     grid = Timex.Interval.new(from: "2016-08-02T05:00:00Z" |> parse_date!,
       until: to |> parse_date!,
@@ -100,11 +100,11 @@ defmodule CaosApi.SeriesControllerTest do
   end
 
   test "grid from the future", %{conn: conn} do
-    Repo.insert! @project
-    Repo.insert! @metric
-    series = Repo.insert! @series
+    project = fixture(:project)
+    metric = fixture(:metric)
+    series = fixture(:series, project: project, metric: metric, period: 3600)
 
-    from = Timex.DateTime.now |> Timex.shift(days: 2, hours: 3) |> format_date!
+    from = Timex.now |> Timex.shift(days: 2, hours: 3) |> format_date!
 
     conn = get conn, series_grid_path(conn, :grid, series), from: from
     assert json_response(conn, 200)["data"]["grid"] == []

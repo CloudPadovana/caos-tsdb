@@ -2,7 +2,7 @@
 #
 # Filename: status_controller_test.exs
 # Created: 2016-10-06T11:32:51+0200
-# Time-stamp: <2016-10-13T09:42:28cest>
+# Time-stamp: <2016-11-03T17:01:43cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -48,7 +48,7 @@ defmodule CaosApi.StatusControllerTest do
   end
 
   test "GET /api/status with invalid token", %{conn: conn} do
-    iat = Timex.DateTime.now |> Timex.shift(days: -10) |> Timex.to_unix
+    iat = Timex.now |> Timex.shift(days: -10) |> Timex.to_unix
     jwt = fixture(:token, username: "some user", claims: %{"iat" => iat})
 
     conn = put_token(conn, jwt)

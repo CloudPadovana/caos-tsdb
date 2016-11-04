@@ -2,7 +2,7 @@
 #
 # Filename: fixtures.ex
 # Created: 2016-09-19T10:34:49+0200
-# Time-stamp: <2016-10-15T17:04:55cest>
+# Time-stamp: <2016-11-03T17:01:04cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -30,6 +30,7 @@ defmodule CaosApi.Fixtures do
   alias CaosApi.Project
   alias CaosApi.Metric
   use Timex
+  import CaosApi.DateTime.Helpers
 
   def fixture(_, assoc \\ [])
 
@@ -68,7 +69,7 @@ defmodule CaosApi.Fixtures do
 
   def fixture(:samples, assoc) do
     series = assoc[:series] || fixture(:series)
-    t0 = assoc[:from] || Timex.DateTime.epoch
+    t0 = assoc[:from] || epoch
     n = assoc[:repeat] || 1
     value_type = assoc[:values] || :rand
 
