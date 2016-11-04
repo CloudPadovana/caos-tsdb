@@ -22,7 +22,7 @@ defmodule CaosApi.Router do
   scope "/api/v1", CaosApi do
     pipe_through [:v1, :api, :api_auth]
 
-    resources "/token", TokenController, only: [:show], singleton: true
+    resources "/token", TokenController, only: [:create], singleton: true
     resources "/status", StatusController, only: [:index]
   end
 

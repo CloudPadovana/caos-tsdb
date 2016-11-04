@@ -2,7 +2,7 @@
 #
 # Filename: token_controller.ex
 # Created: 2016-10-04T14:58:40+0200
-# Time-stamp: <2016-10-05T20:02:40cest>
+# Time-stamp: <2016-11-04T11:40:01cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -26,7 +26,7 @@
 defmodule CaosApi.TokenController do
   use CaosApi.Web, :controller
 
-  def show(conn, _params = %{"username" => username, "password" => password}) do
+  def create(conn, _body_params = %{"username" => username, "password" => password}) do
     cfg = Application.get_env(:caos_api, Auth)
     identity = Keyword.get(cfg, :identity)
 

@@ -2,7 +2,7 @@
 #
 # Filename: token_controller_test.exs
 # Created: 2016-09-19T14:57:49+0200
-# Time-stamp: <2016-10-05T11:33:29cest>
+# Time-stamp: <2016-11-04T11:32:49cet>
 # Author: Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>
 #
 # Copyright © 2016 by Fabrizio Chiarello
@@ -30,18 +30,18 @@ defmodule CaosApi.TokenControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "GET /api/token with wrong username", %{conn: conn} do
-    conn = get conn, token_path(conn, :show), username: "invaliduser", password: "invalidpassword"
+  test "POST /token with wrong username", %{conn: conn} do
+    conn = post conn, token_path(conn, :create), username: "invaliduser", password: "invalidpassword"
     assert json_response(conn, 400)["errors"] != %{}
   end
 
-  test "GET /api/token with wrong password", %{conn: conn} do
-    conn = get conn, token_path(conn, :show), username: "admin", password: "invalidpassword"
+  test "POST /token with wrong password", %{conn: conn} do
+    conn = post conn, token_path(conn, :create), username: "admin", password: "invalidpassword"
     assert json_response(conn, 400)["errors"] != %{}
   end
 
-  test "GET /api/token with rigth credentials", %{conn: conn} do
-    conn = get conn, token_path(conn, :show), username: "admin", password: "ADMIN_PASS"
+  test "POST /token with rigth credentials", %{conn: conn} do
+    conn = post conn, token_path(conn, :create), username: "admin", password: "ADMIN_PASS"
     assert json_response(conn, 200)["data"]["token"] != {}
   end
 end
