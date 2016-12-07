@@ -1,4 +1,4 @@
-# CaosApi
+# CaosTsdb
 
 ## How to start development
 
@@ -14,10 +14,10 @@ The API is exposed at [`localhost:4000/api`](http://localhost:4000/api).
   1. build with `MIX_ENV=prod mix compile`
   2. generate release with `MIX_ENV=prod mix release --verbosity=verbose`
   3. deploy the release
-  4. setup the release configuration in `releases/<version>/caos_api.conf`
+  4. setup the release configuration in `releases/<version>/caos_tsdb.conf`
   5. check and update the DB with:
-      - `bin/caos_api command dbtools check`
-      - `bin/caos_api command dbtools migrate`
+      - `bin/caos_tsdb command dbtools check`
+      - `bin/caos_tsdb command dbtools migrate`
 
-  5. start the server with `bin/caos_api start`
-  6. attach with `bin/caos_api attach`
+  5. start the server with `bin/caos_tsdb start`
+  6. attach with `bin/caos_tsdb attach`

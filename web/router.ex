@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,9 +21,9 @@
 #
 ################################################################################
 
-defmodule CaosApi.Router do
-  use CaosApi.Web, :router
-  alias CaosApi.APIVersion
+defmodule CaosTsdb.Router do
+  use CaosTsdb.Web, :router
+  alias CaosTsdb.APIVersion
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -35,21 +35,21 @@ defmodule CaosApi.Router do
   end
 
   pipeline :api_auth_ensure do
-    plug Guardian.Plug.EnsureAuthenticated, handler: CaosApi.AuthErrorHandler
+    plug Guardian.Plug.EnsureAuthenticated, handler: CaosTsdb.AuthErrorHandler
   end
 
   pipeline :v1 do
     plug APIVersion, version: :v1
   end
 
-  scope "/api/v1", CaosApi do
+  scope "/api/v1", CaosTsdb do
     pipe_through [:v1, :api, :api_auth]
 
     resources "/token", TokenController, only: [:create], singleton: true
     resources "/status", StatusController, only: [:index]
   end
 
-  scope "/api/v1", CaosApi do
+  scope "/api/v1", CaosTsdb do
     pipe_through [:v1, :api, :api_auth, :api_auth_ensure]
 
     resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]

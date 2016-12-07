@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.DateTime.Helpers do
+defmodule CaosTsdb.DateTime.Helpers do
   use Timex
 
   @epoch DateTime.from_unix!(0)
@@ -59,7 +59,7 @@ defmodule CaosApi.DateTime.Helpers do
           {:error, _} ->
             conn
             |> Plug.Conn.put_status(:bad_request)
-            |> Phoenix.Controller.render(CaosApi.ErrorView, "400.json")
+            |> Phoenix.Controller.render(CaosTsdb.ErrorView, "400.json")
             |> Plug.Conn.halt
         end
       :error ->

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,17 +21,17 @@
 #
 ################################################################################
 
-defmodule CaosApi.Endpoint do
-  use Phoenix.Endpoint, otp_app: :caos_api
+defmodule CaosTsdb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :caos_tsdb
 
-  socket "/socket", CaosApi.UserSocket
+  socket "/socket", CaosTsdb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
   plug Plug.Static,
-    at: "/", from: :caos_api, gzip: false,
+    at: "/", from: :caos_tsdb, gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
@@ -56,8 +56,8 @@ defmodule CaosApi.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_caos_api_key",
+    key: "_caos_tsdb_key",
     signing_salt: "3EH8asux"
 
-  plug CaosApi.Router
+  plug CaosTsdb.Router
 end

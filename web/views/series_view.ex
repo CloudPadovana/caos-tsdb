@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,15 +21,15 @@
 #
 ################################################################################
 
-defmodule CaosApi.SeriesView do
-  use CaosApi.Web, :view
+defmodule CaosTsdb.SeriesView do
+  use CaosTsdb.Web, :view
 
   def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosApi.SeriesView, "series.json")}
+    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
   end
 
   def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosApi.SeriesView, "series.json")}
+    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
   end
 
   def render("series.json", %{series: series}) do

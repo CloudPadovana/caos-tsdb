@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,6 +21,6 @@
 #
 ################################################################################
 
-defmodule CaosApi.Repo do
-  use Ecto.Repo, otp_app: :caos_api
+defmodule CaosTsdb.Repo do
+  use Ecto.Repo, otp_app: :caos_tsdb
 end

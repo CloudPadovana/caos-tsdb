@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,11 +21,11 @@
 #
 ################################################################################
 
-defmodule CaosApi.UserSocket do
+defmodule CaosTsdb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", CaosApi.RoomChannel
+  # channel "room:*", CaosTsdb.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -53,7 +53,7 @@ defmodule CaosApi.UserSocket do
   # Would allow you to broadcast a "disconnect" event and terminate
   # all active sockets and channels for a given user:
   #
-  #     CaosApi.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
+  #     CaosTsdb.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
   def id(_socket), do: nil

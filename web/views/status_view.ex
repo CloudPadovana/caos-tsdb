@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,8 +21,8 @@
 #
 ################################################################################
 
-defmodule CaosApi.StatusView do
-  use CaosApi.Web, :view
+defmodule CaosTsdb.StatusView do
+  use CaosTsdb.Web, :view
 
   def render("status.json", %{auth: auth, api_version: api_version, status: status, version: version}) do
     %{data:

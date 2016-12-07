@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -29,7 +29,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :caos_api, CaosApi.Endpoint,
+config :caos_tsdb, CaosTsdb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -45,10 +45,10 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
-config :caos_api, CaosApi.Repo,
+config :caos_tsdb, CaosTsdb.Repo,
   adapter: Ecto.Adapters.MySQL,
   username: "root",
   password: "",
-  database: "caos_api_dev",
+  database: "caos_tsdb_dev",
   hostname: "localhost",
   pool_size: 10

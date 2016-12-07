@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,14 +21,14 @@
 #
 ################################################################################
 
-defmodule CaosApi.StatusControllerTest do
-  use CaosApi.ConnCase
+defmodule CaosTsdb.StatusControllerTest do
+  use CaosTsdb.ConnCase
   use Timex
 
   @status %{"status" => "online",
             "auth" => "no",
             "api_version" => "v1",
-            "version" => CaosApi.Version.version}
+            "version" => CaosTsdb.Version.version}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}

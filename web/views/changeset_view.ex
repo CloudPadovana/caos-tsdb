@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,14 +21,14 @@
 #
 ################################################################################
 
-defmodule CaosApi.ChangesetView do
-  use CaosApi.Web, :view
+defmodule CaosTsdb.ChangesetView do
+  use CaosTsdb.Web, :view
 
   @doc """
   Traverses and translates changeset errors.
 
   See `Ecto.Changeset.traverse_errors/2` and
-  `CaosApi.ErrorHelpers.translate_error/1` for more details.
+  `CaosTsdb.ErrorHelpers.translate_error/1` for more details.
   """
   def translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, &translate_error/1)

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.ChannelCase do
+defmodule CaosTsdb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -43,22 +43,22 @@ defmodule CaosApi.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias CaosApi.Repo
+      alias CaosTsdb.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
 
       # The default endpoint for testing
-      @endpoint CaosApi.Endpoint
+      @endpoint CaosTsdb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosTsdb.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosTsdb.Repo, {:shared, self()})
     end
 
     :ok

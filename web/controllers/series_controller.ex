@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,16 +21,16 @@
 #
 ################################################################################
 
-defmodule CaosApi.SeriesController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.SeriesController do
+  use CaosTsdb.Web, :controller
 
-  alias CaosApi.Series
+  alias CaosTsdb.Series
 
   plug :scrub_datetime, "from" when action in [:grid]
 
   def index(conn, params) do
     series = Series
-    |> CaosApi.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
+    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
     |> Repo.all
 
     render(conn, "index.json", series: series)
@@ -48,7 +48,7 @@ defmodule CaosApi.SeriesController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -67,7 +67,7 @@ defmodule CaosApi.SeriesController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

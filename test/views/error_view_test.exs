@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,24 +21,24 @@
 #
 ################################################################################
 
-defmodule CaosApi.ErrorViewTest do
-  use CaosApi.ConnCase, async: true
+defmodule CaosTsdb.ErrorViewTest do
+  use CaosTsdb.ConnCase, async: true
 
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
   test "renders 404.json" do
-    assert render(CaosApi.ErrorView, "404.json", []) ==
+    assert render(CaosTsdb.ErrorView, "404.json", []) ==
            %{errors: %{detail: "Page not found"}}
   end
 
   test "render 500.json" do
-    assert render(CaosApi.ErrorView, "500.json", []) ==
+    assert render(CaosTsdb.ErrorView, "500.json", []) ==
            %{errors: %{detail: "Internal server error"}}
   end
 
   test "render any other" do
-    assert render(CaosApi.ErrorView, "505.json", []) ==
+    assert render(CaosTsdb.ErrorView, "505.json", []) ==
            %{errors: %{detail: "Internal server error"}}
   end
 end

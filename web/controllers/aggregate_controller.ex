@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,11 +21,11 @@
 #
 ################################################################################
 
-defmodule CaosApi.AggregateController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.AggregateController do
+  use CaosTsdb.Web, :controller
 
-  alias CaosApi.Sample
-  alias CaosApi.Series
+  alias CaosTsdb.Sample
+  alias CaosTsdb.Series
 
   plug :scrub_datetime, "from" when action in [:show]
   plug :scrub_datetime, "to" when action in [:show]

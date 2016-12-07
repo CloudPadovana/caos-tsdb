@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -28,7 +28,7 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     CaosApi.Repo.insert!(%CaosApi.SomeModel{})
+#     CaosTsdb.Repo.insert!(%CaosTsdb.SomeModel{})
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.

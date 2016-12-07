@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.Repo.Migrations.CreateMetric do
+defmodule CaosTsdb.Repo.Migrations.CreateMetric do
   use Ecto.Migration
 
   def change do

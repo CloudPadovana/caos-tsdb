@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,15 +21,15 @@
 #
 ################################################################################
 
-defmodule CaosApi.AggregateView do
-  use CaosApi.Web, :view
+defmodule CaosTsdb.AggregateView do
+  use CaosTsdb.Web, :view
 
   def render("show.json", %{aggregates: aggregates, projects: []}) do
-    %{data: aggregates |> Enum.map(fn v -> render_one(v, CaosApi.AggregateView, "aggregate.json") end) }
+    %{data: aggregates |> Enum.map(fn v -> render_one(v, CaosTsdb.AggregateView, "aggregate.json") end) }
   end
 
   def render("show.json", %{aggregates: aggregates, projects: _}) do
-    %{data: aggregates |> Enum.group_by(fn x -> x.project_id end, fn v -> render_one(v, CaosApi.AggregateView, "aggregate.json") end) }
+    %{data: aggregates |> Enum.group_by(fn x -> x.project_id end, fn v -> render_one(v, CaosTsdb.AggregateView, "aggregate.json") end) }
   end
 
   def render("aggregate.json", %{aggregate: aggregate}) do

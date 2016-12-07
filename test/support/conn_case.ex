@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.ConnCase do
+defmodule CaosTsdb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -43,17 +43,17 @@ defmodule CaosApi.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
 
-      alias CaosApi.Repo
+      alias CaosTsdb.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
-      import CaosApi.Router.Helpers
+      import CaosTsdb.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint CaosApi.Endpoint
+      @endpoint CaosTsdb.Endpoint
 
-      import CaosApi.Fixtures
+      import CaosTsdb.Fixtures
       def put_token(%Plug.Conn{} = conn, jwt) do
         conn
         |> put_req_header("authorization", "Bearer #{jwt}")
@@ -68,10 +68,10 @@ defmodule CaosApi.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosTsdb.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosTsdb.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

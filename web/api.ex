@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.APIVersion do
+defmodule CaosTsdb.APIVersion do
   import Plug.Conn
 
   def init(opts), do: opts

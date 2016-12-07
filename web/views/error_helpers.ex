@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.ErrorHelpers do
+defmodule CaosTsdb.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -44,9 +44,9 @@ defmodule CaosApi.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(CaosApi.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(CaosTsdb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(CaosApi.Gettext, "errors", msg, opts)
+      Gettext.dgettext(CaosTsdb.Gettext, "errors", msg, opts)
     end
   end
 end

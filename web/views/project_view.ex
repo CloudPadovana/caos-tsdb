@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,15 +21,15 @@
 #
 ################################################################################
 
-defmodule CaosApi.ProjectView do
-  use CaosApi.Web, :view
+defmodule CaosTsdb.ProjectView do
+  use CaosTsdb.Web, :view
 
   def render("index.json", %{projects: projects}) do
-    %{data: render_many(projects, CaosApi.ProjectView, "project.json")}
+    %{data: render_many(projects, CaosTsdb.ProjectView, "project.json")}
   end
 
   def render("show.json", %{project: project}) do
-    %{data: render_one(project, CaosApi.ProjectView, "project.json")}
+    %{data: render_one(project, CaosTsdb.ProjectView, "project.json")}
   end
 
   def render("project.json", %{project: project}) do

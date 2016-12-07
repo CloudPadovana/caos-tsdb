@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,14 +21,14 @@
 #
 ################################################################################
 
-defmodule CaosApi.Fixtures do
-  alias CaosApi.Repo
-  alias CaosApi.Sample
-  alias CaosApi.Series
-  alias CaosApi.Project
-  alias CaosApi.Metric
+defmodule CaosTsdb.Fixtures do
+  alias CaosTsdb.Repo
+  alias CaosTsdb.Sample
+  alias CaosTsdb.Series
+  alias CaosTsdb.Project
+  alias CaosTsdb.Metric
   use Timex
-  import CaosApi.DateTime.Helpers
+  import CaosTsdb.DateTime.Helpers
 
   def fixture(_, assoc \\ [])
 

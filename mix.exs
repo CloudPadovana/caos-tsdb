@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,11 +21,11 @@
 #
 ################################################################################
 
-defmodule CaosApi.Mixfile do
+defmodule CaosTsdb.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :caos_api,
+    [app: :caos_tsdb,
      version: "0.0.1",
      elixir: "~> 1.3",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -40,7 +40,7 @@ defmodule CaosApi.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {CaosApi, []},
+    [mod: {CaosTsdb, []},
      applications: [:phoenix,
                     :phoenix_pubsub,
                     :cowboy,

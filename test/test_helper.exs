@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -23,5 +23,5 @@
 
 ExUnit.start
 
-Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(CaosTsdb.Repo, :manual)
 

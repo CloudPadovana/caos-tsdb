@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -28,8 +28,8 @@ defmodule :dbtools do
   Mix is not available in a built release. Instead we define the tasks here,
   and invoke it using the application script generated in the release:
 
-      bin/caos_api command dbtools check
-      bin/caos_api command dbtools migrate
+      bin/caos_tsdb command dbtools check
+      bin/caos_tsdb command dbtools migrate
   """
 
   def migrate do
@@ -82,18 +82,18 @@ defmodule :dbtools do
 
   defp start_repo do
     :ok = load_app()
-    [repo] = Application.get_env(:caos_api, :ecto_repos)
+    [repo] = Application.get_env(:caos_tsdb, :ecto_repos)
     {:ok, _} = repo.start_link()
     repo
   end
 
   defp load_app do
     start_applications([:logger, :mariaex, :ecto])
-    :ok = Application.load(:caos_api)
+    :ok = Application.load(:caos_tsdb)
   end
 
   defp ensure_migrations_path(repo) do
-    path = Application.app_dir(:caos_api, "priv/repo/migrations")
+    path = Application.app_dir(:caos_tsdb, "priv/repo/migrations")
     case File.dir?(path) do
       true ->
         path

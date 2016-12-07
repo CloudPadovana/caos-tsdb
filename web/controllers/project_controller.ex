@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,10 +21,10 @@
 #
 ################################################################################
 
-defmodule CaosApi.ProjectController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.ProjectController do
+  use CaosTsdb.Web, :controller
 
-  alias CaosApi.Project
+  alias CaosTsdb.Project
 
   def index(conn, _params) do
     projects = Repo.all(Project)
@@ -43,7 +43,7 @@ defmodule CaosApi.ProjectController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -54,7 +54,7 @@ defmodule CaosApi.ProjectController do
     else
       conn
       |> put_status(:not_found)
-      |> render(CaosApi.ErrorView, "404.json")
+      |> render(CaosTsdb.ErrorView, "404.json")
     end
   end
 
@@ -68,7 +68,7 @@ defmodule CaosApi.ProjectController do
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 end

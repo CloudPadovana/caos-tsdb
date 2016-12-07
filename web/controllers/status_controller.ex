@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,12 +21,12 @@
 #
 ################################################################################
 
-defmodule CaosApi.StatusController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.StatusController do
+  use CaosTsdb.Web, :controller
   use Guardian.Phoenix.Controller
 
   @status "online"
-  @version CaosApi.Version.version
+  @version CaosTsdb.Version.version
 
   def index(conn, _params, _user, claims) do
     auth = case claims do

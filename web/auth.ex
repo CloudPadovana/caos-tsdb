@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.GuardianSerializer do
+defmodule CaosTsdb.GuardianSerializer do
   @behaviour Guardian.Serializer
 
   def for_token(username) when is_binary(username), do: { :ok, username }
@@ -31,12 +31,12 @@ defmodule CaosApi.GuardianSerializer do
   def from_token(_), do: { :error, "Unknown resource type" }
 end
 
-defmodule CaosApi.AuthErrorHandler do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.AuthErrorHandler do
+  use CaosTsdb.Web, :controller
 
   def unauthenticated(conn, _params) do
     conn
     |> put_status(:unauthorized)
-    |> render(CaosApi.ErrorView, "401.json")
+    |> render(CaosTsdb.ErrorView, "401.json")
   end
 end

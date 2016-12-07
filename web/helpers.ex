@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.Helpers do
+defmodule CaosTsdb.Helpers do
   @spec scrub_integer(Plug.Conn.t, String.t) :: Plug.Conn.t
   def scrub_integer(conn, key) when is_binary(key) do
     case Map.fetch(conn.params, key) do
@@ -32,7 +32,7 @@ defmodule CaosApi.Helpers do
           _ ->
             conn
             |> Plug.Conn.put_status(:bad_request)
-            |> Phoenix.Controller.render(CaosApi.ErrorView, "400.json")
+            |> Phoenix.Controller.render(CaosTsdb.ErrorView, "400.json")
             |> Plug.Conn.halt
         end
       :error ->

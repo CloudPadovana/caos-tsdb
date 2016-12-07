@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,11 +21,11 @@
 #
 ################################################################################
 
-defmodule CaosApi.TokenController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.TokenController do
+  use CaosTsdb.Web, :controller
 
   def create(conn, _body_params = %{"username" => username, "password" => password}) do
-    cfg = Application.get_env(:caos_api, Auth)
+    cfg = Application.get_env(:caos_tsdb, Auth)
     identity = Keyword.get(cfg, :identity)
 
     with {:ok, ^username} <- Keyword.fetch(identity, :username),
@@ -37,7 +37,7 @@ defmodule CaosApi.TokenController do
     else
       _ -> conn
       |> put_status(:bad_request)
-      |> render(CaosApi.ErrorView, "400.json")
+      |> render(CaosTsdb.ErrorView, "400.json")
     end
   end
 end

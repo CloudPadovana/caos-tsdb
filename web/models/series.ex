@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,8 +21,8 @@
 #
 ################################################################################
 
-defmodule CaosApi.Series do
-  use CaosApi.Web, :model
+defmodule CaosTsdb.Series do
+  use CaosTsdb.Web, :model
 
   @primary_key {:id, :id, autogenerate: true}
   @derive {Phoenix.Param, key: :id}
@@ -36,12 +36,12 @@ defmodule CaosApi.Series do
 
     timestamps()
 
-    belongs_to :project, CaosApi.Project,
+    belongs_to :project, CaosTsdb.Project,
       foreign_key: :project_id,
       references: :id,
       define_field: false
 
-    belongs_to :metric, CaosApi.Metric,
+    belongs_to :metric, CaosTsdb.Metric,
       foreign_key: :metric_name,
       references: :name,
       define_field: false

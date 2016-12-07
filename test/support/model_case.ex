@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.ModelCase do
+defmodule CaosTsdb.ModelCase do
   @moduledoc """
   This module defines the test case to be used by
   model tests.
@@ -39,20 +39,20 @@ defmodule CaosApi.ModelCase do
 
   using do
     quote do
-      alias CaosApi.Repo
+      alias CaosTsdb.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import CaosApi.ModelCase
+      import CaosTsdb.ModelCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CaosTsdb.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(CaosApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CaosTsdb.Repo, {:shared, self()})
     end
 
     :ok
@@ -82,7 +82,7 @@ defmodule CaosApi.ModelCase do
   """
   def errors_on(struct, data) do
     struct.__struct__.changeset(struct, data)
-    |> Ecto.Changeset.traverse_errors(&CaosApi.ErrorHelpers.translate_error/1)
+    |> Ecto.Changeset.traverse_errors(&CaosTsdb.ErrorHelpers.translate_error/1)
     |> Enum.flat_map(fn {key, errors} -> for msg <- errors, do: {key, msg} end)
   end
 end

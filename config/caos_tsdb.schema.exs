@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -105,17 +105,17 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "logger.console.format"
     ],
-    "caos_api.ecto_repos": [
+    "caos_tsdb.ecto_repos": [
       commented: false,
       datatype: [
         list: :atom
       ],
       default: [
-        CaosApi.Repo
+        CaosTsdb.Repo
       ],
-      doc: "Provide documentation for caos_api.ecto_repos here.",
+      doc: "Provide documentation for caos_tsdb.ecto_repos here.",
       hidden: true,
-      to: "caos_api.ecto_repos"
+      to: "caos_tsdb.ecto_repos"
     ],
     "hostname": [
       commented: false,
@@ -123,7 +123,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "localhost",
       doc: "Server hostname.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Endpoint.url.host"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.url.host"
     ],
     "port": [
       commented: false,
@@ -131,7 +131,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: 4000,
       doc: "Server port.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Endpoint.http.port"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
     ],
     "secret_key_base": [
       commented: false,
@@ -139,17 +139,17 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
       doc: "Secret key.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Endpoint.secret_key_base"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.secret_key_base"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.render_errors.view": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.view": [
       commented: false,
       datatype: :atom,
-      default: CaosApi.ErrorView,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.render_errors.view here.",
+      default: CaosTsdb.ErrorView,
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.view here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.render_errors.view"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.view"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.accepts": [
       commented: false,
       datatype: [
         list: :binary
@@ -157,65 +157,65 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: [
         "json"
       ],
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.accepts here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.render_errors.accepts"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.accepts"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.pubsub.name": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name": [
       commented: false,
       datatype: :atom,
-      default: CaosApi.PubSub,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.pubsub.name here.",
+      default: CaosTsdb.PubSub,
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.pubsub.name"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter": [
       commented: false,
       datatype: :atom,
       default: Phoenix.PubSub.PG2,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.pubsub.adapter"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.http.port": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port": [
       commented: false,
       datatype: {:atom, :binary},
       default: {:system, "PORT"},
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.http.port here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.http.port"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest": [
       commented: false,
       datatype: :binary,
       default: "priv/static/manifest.json",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.cache_static_manifest"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.server": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.server": [
       commented: false,
       datatype: :atom,
       default: true,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.server here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.server here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.server"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.server"
     ],
-    "caos_api.Elixir.CaosApi.Endpoint.root": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.root": [
       commented: false,
       datatype: :binary,
       default: ".",
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Endpoint.root here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.root here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Endpoint.root"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.root"
     ],
-    "caos_api.Elixir.CaosApi.Repo.adapter": [
+    "caos_tsdb.Elixir.CaosTsdb.Repo.adapter": [
       commented: false,
       datatype: :atom,
       default: Ecto.Adapters.MySQL,
-      doc: "Provide documentation for caos_api.Elixir.CaosApi.Repo.adapter here.",
+      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Repo.adapter here.",
       hidden: true,
-      to: "caos_api.Elixir.CaosApi.Repo.adapter"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.adapter"
     ],
     "db.username": [
       commented: false,
@@ -223,14 +223,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "caos",
       doc: "DB username.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.username"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.username"
     ],
     "db.password": [
       commented: false,
       datatype: :binary,
       doc: "DB password.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.password"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.password"
     ],
     "db.name": [
       commented: false,
@@ -238,7 +238,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "caos",
       doc: "DB name.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.database"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.database"
     ],
     "db.hostname": [
       commented: false,
@@ -246,7 +246,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "localhost",
       doc: "DB host.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.hostname"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.hostname"
     ],
     "db.port": [
       commented: false,
@@ -254,7 +254,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: 3306,
       doc: "DB port.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.port"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.port"
     ],
     "db.pool_size": [
       commented: false,
@@ -262,7 +262,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: 1,
       doc: "DB connection pool size.",
       hidden: false,
-      to: "caos_api.Elixir.CaosApi.Repo.pool_size"
+      to: "caos_tsdb.Elixir.CaosTsdb.Repo.pool_size"
     ],
     "auth.token_ttl": [
       commented: false,
@@ -286,7 +286,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "admin",
       doc: "Username",
       hidden: false,
-      to: "caos_api.Elixir.Auth.identity.username"
+      to: "caos_tsdb.Elixir.Auth.identity.username"
     ],
     "auth.identity.password": [
       commented: false,
@@ -294,7 +294,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       default: "ADMIN_PASS",
       doc: "Password",
       hidden: false,
-      to: "caos_api.Elixir.Auth.identity.password"
+      to: "caos_tsdb.Elixir.Auth.identity.password"
     ],
   ],
   transforms: [

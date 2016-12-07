@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,11 +21,11 @@
 #
 ################################################################################
 
-defmodule CaosApi.SampleController do
-  use CaosApi.Web, :controller
+defmodule CaosTsdb.SampleController do
+  use CaosTsdb.Web, :controller
 
-  alias CaosApi.Sample
-  alias CaosApi.Series
+  alias CaosTsdb.Sample
+  alias CaosTsdb.Series
 
   plug :scrub_datetime, "timestamp"
   plug :scrub_datetime, "from" when action in [:show]
@@ -33,7 +33,7 @@ defmodule CaosApi.SampleController do
 
   def show(conn, params = %{"series_id" => series_id, "timestamp" => timestamp}) do
     sample = Sample
-    |> CaosApi.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
+    |> CaosTsdb.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
     |> Repo.one
 
     render(conn, "show.json", sample: sample)
@@ -53,7 +53,7 @@ defmodule CaosApi.SampleController do
 
   def show(conn, params = %{"series_id" => series_id}) do
     samples = Sample
-    |> CaosApi.QueryFilter.filter(%Sample{}, params, :series_id)
+    |> CaosTsdb.QueryFilter.filter(%Sample{}, params, :series_id)
     |> Repo.all
 
     render(conn, "show.json", samples: samples)
@@ -61,7 +61,7 @@ defmodule CaosApi.SampleController do
 
   def create(conn, %{"sample" => sample_params}) do
     sample = Sample
-    |> CaosApi.QueryFilter.filter(%Sample{}, sample_params, [:series_id, :timestamp])
+    |> CaosTsdb.QueryFilter.filter(%Sample{}, sample_params, [:series_id, :timestamp])
     |> Repo.one
 
     changeset = case sample do
@@ -85,7 +85,7 @@ defmodule CaosApi.SampleController do
       {:error, changeset, _} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(CaosApi.ChangesetView, "error.json", changeset: changeset)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
     end
   end
 

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,15 +21,15 @@
 #
 ################################################################################
 
-defmodule CaosApi.Web do
+defmodule CaosTsdb.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use CaosApi.Web, :controller
-      use CaosApi.Web, :view
+      use CaosTsdb.Web, :controller
+      use CaosTsdb.Web, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -48,7 +48,7 @@ defmodule CaosApi.Web do
       import Ecto.Changeset
       import Ecto.Query
 
-      import CaosApi.Models.Helpers
+      import CaosTsdb.Models.Helpers
     end
   end
 
@@ -56,15 +56,15 @@ defmodule CaosApi.Web do
     quote do
       use Phoenix.Controller
 
-      alias CaosApi.Repo
+      alias CaosTsdb.Repo
       import Ecto
       import Ecto.Query
 
-      import CaosApi.Router.Helpers
-      import CaosApi.Gettext
-      import CaosApi.DateTime.Helpers
-      import CaosApi.QueryFilter
-      import CaosApi.Helpers
+      import CaosTsdb.Router.Helpers
+      import CaosTsdb.Gettext
+      import CaosTsdb.DateTime.Helpers
+      import CaosTsdb.QueryFilter
+      import CaosTsdb.Helpers
     end
   end
 
@@ -75,10 +75,10 @@ defmodule CaosApi.Web do
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
 
-      import CaosApi.Router.Helpers
-      import CaosApi.ErrorHelpers
-      import CaosApi.Gettext
-      import CaosApi.DateTime.Helpers
+      import CaosTsdb.Router.Helpers
+      import CaosTsdb.ErrorHelpers
+      import CaosTsdb.Gettext
+      import CaosTsdb.DateTime.Helpers
     end
   end
 
@@ -92,10 +92,10 @@ defmodule CaosApi.Web do
     quote do
       use Phoenix.Channel
 
-      alias CaosApi.Repo
+      alias CaosTsdb.Repo
       import Ecto
       import Ecto.Query
-      import CaosApi.Gettext
+      import CaosTsdb.Gettext
     end
   end
 

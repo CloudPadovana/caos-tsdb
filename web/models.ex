@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-defmodule CaosApi.Models.Helpers do
+defmodule CaosTsdb.Models.Helpers do
   import Ecto.Changeset
 
   @spec validate_immutable(Ecto.Changeset.t, atom) :: Ecto.Changeset.t

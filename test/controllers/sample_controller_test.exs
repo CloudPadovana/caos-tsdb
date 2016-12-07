@@ -1,6 +1,6 @@
 ################################################################################
 #
-# caos-api - CAOS backend
+# caos-tsdb - CAOS Time-Series DB
 #
 # Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
@@ -21,14 +21,14 @@
 #
 ################################################################################
 
-defmodule CaosApi.SampleControllerTest do
-  use CaosApi.ConnCase
+defmodule CaosTsdb.SampleControllerTest do
+  use CaosTsdb.ConnCase
 
-  import CaosApi.DateTime.Helpers
-  alias CaosApi.Sample
-  alias CaosApi.Series
-  alias CaosApi.Project
-  alias CaosApi.Metric
+  import CaosTsdb.DateTime.Helpers
+  alias CaosTsdb.Sample
+  alias CaosTsdb.Series
+  alias CaosTsdb.Project
+  alias CaosTsdb.Metric
   use Timex
 
   @project %Project{id: "an id", name: "a name"}
