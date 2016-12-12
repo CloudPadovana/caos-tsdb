@@ -36,6 +36,8 @@ defmodule CaosTsdb.Series do
 
     timestamps()
 
+    many_to_many :tags, CaosTsdb.Tag, join_through: CaosTsdb.SeriesTag
+
     belongs_to :project, CaosTsdb.Project,
       foreign_key: :project_id,
       references: :id,

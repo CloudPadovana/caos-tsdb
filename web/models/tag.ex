@@ -32,6 +32,8 @@ defmodule CaosTsdb.Tag do
 
     field :extra, :map
 
+    many_to_many :series, CaosTsdb.Series, join_through: CaosTsdb.SeriesTag
+
     timestamps()
   end
 

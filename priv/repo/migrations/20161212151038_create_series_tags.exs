@@ -21,28 +21,17 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.SeriesView do
-  use CaosTsdb.Web, :view
+defmodule CaosTsdb.Repo.Migrations.CreateSeriesTags do
+  use Ecto.Migration
 
-  def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
-  end
+  def change do
+    create table(:series_tags, primary_key: false) do
+      add :series_id, references(:series), primary_key: true
+      add :tag_id, references(:tags), primary_key: true
 
-  def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
-  end
+      timestamps()
+    end
 
-  def render("series.json", %{series: series}) do
-    %{id: series.id,
-      tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      project_id: series.project_id,
-      metric_name: series.metric_name,
-      period: series.period,
-      ttl: series.ttl,
-      last_timestamp: series.last_timestamp}
-  end
-
-  def render("grid.json", %{grid: grid}) do
-    %{data: %{grid: grid}}
+    create unique_index(:series_tags, [:series_id, :tag_id])
   end
 end

@@ -49,6 +49,15 @@ defmodule CaosTsdb.Fixtures do
     }
   end
 
+  def fixture(:tags, assoc) do
+    [fixture(:tag),
+     fixture(:tag,
+       key: "tag2",
+       value: "value 2",
+       extra: %{"data key1" => "data value1",
+                "data key2" => "data value2"})]
+  end
+
   def fixture(:project, assoc) do
     Repo.insert! %Project{
       id: assoc[:id] || "id1",
@@ -66,12 +75,18 @@ defmodule CaosTsdb.Fixtures do
     project = assoc[:project] || fixture(:project)
     metric = assoc[:metric] || fixture(:metric)
     period = assoc[:period] || 3600
+    tags = assoc[:tags] || []
 
-    Repo.insert! %Series{
+    series = %Series{
       project_id: project.id,
       metric_name: metric.name,
       period: period
     }
+    |> Repo.insert!
+    |> Repo.preload(:tags)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> Repo.update!
   end
 
   def fixture(:samples, assoc) do

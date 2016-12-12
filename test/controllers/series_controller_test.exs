@@ -34,6 +34,7 @@ defmodule CaosTsdb.SeriesControllerTest do
 
   @valid_attrs %{project_id: @project.id,
                  metric_name: @metric.name,
+                 tags: [],
                  period: 3600,
                  ttl: 500}
   @series struct(Series, @valid_attrs)
@@ -48,25 +49,94 @@ defmodule CaosTsdb.SeriesControllerTest do
     assert json_response(conn, 200)["data"] == []
   end
 
-  test "shows chosen resource", %{conn: conn} do
-    Repo.insert! @project
-    Repo.insert! @metric
+  test "lists all entries on index with params", %{conn: conn} do
+    project = fixture(:project)
+    metric = fixture(:metric)
+    series = fixture(:series, project: project, metric: metric, period: 3600)
+    project2 = fixture(:project, id: "id2")
+    series2 = fixture(:series, project: project2, metric: metric, period: 3600)
 
-    series = Repo.insert! @series
+    conn = get conn, series_path(conn, :index), project_id: project.id
+    assert json_response(conn, 200)["data"] == [
+      %{"id" => series.id,
+        "tags" => [],
+        "project_id" => series.project_id,
+        "metric_name" => series.metric_name,
+        "period" => series.period,
+        "ttl" => series.ttl,
+        "last_timestamp"=> series.last_timestamp}]
+  end
+
+  test "shows chosen resource", %{conn: conn} do
+    series = fixture(:series)
+
     conn = get conn, series_path(conn, :show, series)
     assert json_response(conn, 200)["data"] ==
       %{"id" => series.id,
-        "project_id" => @series.project_id,
-        "metric_name" => @series.metric_name,
-        "period" => @series.period,
-        "ttl" => @series.ttl,
-        "last_timestamp"=> @series.last_timestamp}
+        "tags" => [],
+        "project_id" => series.project_id,
+        "metric_name" => series.metric_name,
+        "period" => series.period,
+        "ttl" => series.ttl,
+        "last_timestamp"=> series.last_timestamp}
+  end
+
+  describe "tags support:" do
+    test "shows tags of chosen resource", %{conn: conn} do
+      tags = fixture(:tags)
+      _tag3 = fixture(:tag, key: "another tag", value: "a value", extra: %{key: " another value"})
+      series = fixture(:series, tags: tags)
+
+      conn = get conn, series_path(conn, :show, series)
+      assert json_response(conn, 200)["data"]["tags"] ==
+        tags |> Enum.map(fn (t) -> %{"id" => t.id,
+                                     "key" => t.key,
+                                     "value" => t.value,
+                                     "extra" => t.extra} end)
+    end
+
+    test "add tags to chosen resource", %{conn: conn} do
+      tags = fixture(:tags)
+      series = fixture(:series)
+
+      tag = fixture(:tag,
+        key: "a tag",
+        value: "a value",
+        extra: %{key: " another value"})
+
+      conn1 = get conn, series_path(conn, :show, series)
+      assert json_response(conn1, 200)["data"]["tags"] == []
+
+      conn2 = put conn, series_path(conn, :update, series), tag: %{"id" => tag.id}
+      assert json_response(conn2, 200)["data"]["id"] == series.id
+
+      conn3 = get conn, series_path(conn, :show, series)
+      assert json_response(conn3, 200)["data"]["tags"] ==
+        [tag] |> Enum.map(fn (t) -> %{"id" => t.id,
+                                      "key" => t.key,
+                                      "value" => t.value,
+                                      "extra" => t.extra} end)
+      tag2 = fixture(:tag,
+        key: "a tag2",
+        value: "a value2",
+        extra: %{key: " another value2"})
+
+      conn4 = put conn, series_path(conn, :update, series), tag: %{"id" => tag2.id}
+      assert json_response(conn4, 200)["data"]["id"] == series.id
+
+      conn5 = get conn, series_path(conn, :show, series)
+      assert json_response(conn5, 200)["data"]["tags"] ==
+        [tag, tag2] |> Enum.map(fn (t) -> %{"id" => t.id,
+                                            "key" => t.key,
+                                            "value" => t.value,
+                                            "extra" => t.extra} end)
+
+    end
   end
 
   test "renders page not found when id is nonexistent", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get conn, series_path(conn, :show, -1)
-    end
+    conn = get conn, series_path(conn, :show, -1)
+    assert json_response(conn, 404)["errors"] != %{}
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do
@@ -74,8 +144,8 @@ defmodule CaosTsdb.SeriesControllerTest do
     Repo.insert! @metric
 
     conn = post conn, series_path(conn, :create), series: @valid_attrs
-    assert json_response(conn, 201)["data"]["id"]
-    assert Repo.get_by(Series, @valid_attrs)
+    id = json_response(conn, 201)["data"]["id"]
+    assert Repo.get_by(Series, id: id)
   end
 
   test "does not create resource and renders errors when data is invalid", %{conn: conn} do
