@@ -23,6 +23,7 @@
 
 defmodule CaosTsdb.Fixtures do
   alias CaosTsdb.Repo
+  alias CaosTsdb.Tag
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
   alias CaosTsdb.Project
@@ -38,6 +39,14 @@ defmodule CaosTsdb.Fixtures do
 
     {:ok, jwt, _} = Guardian.encode_and_sign(username, :access, claims)
     jwt
+  end
+
+  def fixture(:tag, assoc) do
+    Repo.insert! %Tag{
+      key: assoc[:key] || "tag1",
+      value: assoc[:value] || "value1",
+      extra: %{"data key1" => "data value1"}
+    }
   end
 
   def fixture(:project, assoc) do
