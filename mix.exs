@@ -29,6 +29,7 @@ defmodule CaosTsdb.Mixfile do
      version: "0.0.1",
      elixir: "~> 1.3",
      elixirc_paths: elixirc_paths(Mix.env),
+     test_paths: test_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -57,7 +58,13 @@ defmodule CaosTsdb.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
+  defp elixirc_paths(:migration_test), do: ["lib", "web", "migration_test/support"]
   defp elixirc_paths(_),     do: ["lib", "web"]
+
+  # Specifies which paths to test per environment.
+  defp test_paths(:test), do: ["test"]
+  defp test_paths(:migration_test), do: ["migration_test"]
+  defp test_paths(_),     do: []
 
   # Specifies your project dependencies.
   #
@@ -93,6 +100,31 @@ defmodule CaosTsdb.Mixfile do
   defp aliases do
     ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
      "ecto.reset": ["ecto.drop", "ecto.setup"],
-     "test": ["ecto.create --quiet", "ecto.migrate", "test"]]
+     "test.migrations": &test_migrations/1,
+     "test": ["ecto.create --quiet",
+              &ecto_migrate_maybe/1,
+              "test"]]
+  end
+
+  defp ecto_migrate_maybe(args) do
+    unless Mix.env == :migration_test do
+      env_run(Mix.env, "ecto.migrate", args)
+    end
+  end
+
+  defp test_migrations(args) do
+    env_run(:migration_test, "test", args)
+  end
+
+  defp env_run(env, cmd, args) do
+    args = ["--color" | args]
+
+    IO.puts "==> Running MIX_ENV=#{env} mix #{cmd}"
+    {_, res} = System.cmd "mix", [cmd | args],
+      into: IO.binstream(:stdio, :line), env: [{"MIX_ENV", to_string(env)}]
+
+    if res > 0 do
+      System.at_exit(fn _ -> exit({:shutdown, 1}) end)
+    end
   end
 end
