@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,15 +24,15 @@
 defmodule CaosTsdb.SeriesTest do
   use CaosTsdb.ModelCase
 
-  alias CaosTsdb.Project
+  alias CaosTsdb.Tag
   alias CaosTsdb.Metric
   alias CaosTsdb.Series
 
-  @project %Project{id: "an id", name: "a name"}
+  @project %Tag{key: "an id", value: "a name"}
   @metric %Metric{name: "a name", type: "a type"}
 
   @valid_attrs %{id: 1,
-                 project_id: @project.id,
+                 tags: [@project],
                  metric_name: @metric.name,
                  period: 3600,
                  ttl: 500}
@@ -54,7 +54,7 @@ defmodule CaosTsdb.SeriesTest do
   end
 
   test "changeset with invalid change" do
-    changeset = Series.changeset(@series, %{project_id: "a new id"})
+    changeset = Series.changeset(@series, %{metric_name: "a new name"})
     refute changeset.valid?
   end
 end

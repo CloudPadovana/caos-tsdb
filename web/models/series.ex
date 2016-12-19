@@ -27,9 +27,8 @@ defmodule CaosTsdb.Series do
   @primary_key {:id, :id, autogenerate: true}
   @derive {Phoenix.Param, key: :id}
   schema "series" do
-    field :project_id, :string, primary_key: true
-    field :metric_name, :string, primary_key: true
-    field :period, :integer, primary_key: true
+    field :metric_name, :string
+    field :period, :integer
 
     field :ttl, :integer
     field :last_timestamp, Timex.Ecto.DateTime
@@ -37,11 +36,6 @@ defmodule CaosTsdb.Series do
     timestamps()
 
     many_to_many :tags, CaosTsdb.Tag, join_through: CaosTsdb.SeriesTag
-
-    belongs_to :project, CaosTsdb.Project,
-      foreign_key: :project_id,
-      references: :id,
-      define_field: false
 
     belongs_to :metric, CaosTsdb.Metric,
       foreign_key: :metric_name,
@@ -54,15 +48,12 @@ defmodule CaosTsdb.Series do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:id, :project_id, :metric_name, :period, :ttl, :last_timestamp])
-    |> validate_required([:project_id, :metric_name, :period])
+    |> cast(params, [:id, :metric_name, :period, :ttl, :last_timestamp])
+    |> validate_required([:metric_name, :period])
     |> validate_immutable(:id)
-    |> validate_immutable(:project_id)
-    |> validate_immutable(:meter_name)
-    |> foreign_key_constraint(:project_id)
+    |> validate_immutable(:metric_name)
     |> foreign_key_constraint(:metric_name)
-    |> assoc_constraint(:project)
     |> assoc_constraint(:metric)
-    |> unique_constraint(:project_id, name: "series_project_id_metric_name_period_index")
+    |> unique_constraint(:id)
   end
 end

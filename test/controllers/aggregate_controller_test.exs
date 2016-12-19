@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,10 +25,6 @@ defmodule CaosTsdb.AggregateControllerTest do
   use CaosTsdb.ConnCase
 
   import CaosTsdb.DateTime.Helpers
-  alias CaosTsdb.Sample
-  alias CaosTsdb.Series
-  alias CaosTsdb.Project
-  alias CaosTsdb.Metric
   use Timex
 
   setup %{conn: conn} do
@@ -74,9 +70,9 @@ defmodule CaosTsdb.AggregateControllerTest do
   end
 
   test "daily aggregation with from", %{conn: conn} do
-    project1 = fixture(:project)
+    tag1 = fixture(:tag)
     metric1 = fixture(:metric)
-    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
 
     t0 = "2016-08-08T22:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -92,16 +88,16 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    period: 3600,
                                                    from: t0 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["#{tag1.id}"], 0)) == aggregates11h11
   end
 
   test "daily aggregation", %{conn: conn} do
-    project1 = fixture(:project)
+    tag1 = fixture(:tag)
     metric1 = fixture(:metric)
-    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
 
     t0 = "2016-08-08T22:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -127,17 +123,17 @@ defmodule CaosTsdb.AggregateControllerTest do
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
-    assert myround(Enum.at(data["id1"], 1)) == aggregates11h12
+    assert myround(Enum.at(data["#{tag1.id}"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["#{tag1.id}"], 1)) == aggregates11h12
   end
 
   test "daily aggregation with outside data", %{conn: conn} do
-    project1 = fixture(:project)
+    tag1 = fixture(:tag)
     metric1 = fixture(:metric)
-    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
 
     t0 = "2016-08-08T22:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -171,18 +167,18 @@ defmodule CaosTsdb.AggregateControllerTest do
     conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
                                                    period: 3600,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
-    assert myround(Enum.at(data["id1"], 1)) == aggregates11h12
-    assert myround(Enum.at(data["id1"], 2)) == aggregates11h13
+    assert myround(Enum.at(data["#{tag1.id}"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["#{tag1.id}"], 1)) == aggregates11h12
+    assert myround(Enum.at(data["#{tag1.id}"], 2)) == aggregates11h13
   end
 
   test "daily aggregation with outside data and ranges", %{conn: conn} do
-    project1 = fixture(:project)
+    tag1 = fixture(:tag)
     metric1 = fixture(:metric)
-    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
 
     t0 = "2016-08-08T22:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -200,16 +196,16 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    from: t0 |> format_date!,
                                                    to: t1 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(Enum.at(data["id1"], 0)) == aggregates11h11
+    assert myround(Enum.at(data["#{tag1.id}"], 0)) == aggregates11h11
   end
 
   test "hourly aggregation with outside data and ranges", %{conn: conn} do
-    project1 = fixture(:project)
+    tag1 = fixture(:tag)
     metric1 = fixture(:metric)
-    series11 = fixture(:series, project: project1, metric: metric1, period: 3600)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
 
     t0 = "2016-08-08T22:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -230,27 +226,27 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    from: t0 |> format_date!,
                                                    to: t1 |> format_date!,
                                                    granularity: 60*60,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
     data = json_response(conn, 200)["data"]
-    assert myround(data["id1"]) == aggregates11h1n |> Enum.slice(1..24)
+    assert myround(data["#{tag1.id}"]) == aggregates11h1n |> Enum.slice(1..24)
   end
 
   test "daily aggregation with outside data and ranges and many series", %{conn: conn} do
-    project1 = fixture(:project)
-    project2 = fixture(:project, id: "id2", name: "project2")
+    tag1 = fixture(:tag)
+    tag2 = fixture(:tag, key: "key2", value: "value2")
 
     metric1 = fixture(:metric)
     metric2 = fixture(:metric, name: "metric2")
 
-    series11h = fixture(:series, project: project1, metric: metric1, period: 3600)
-    series12h = fixture(:series, project: project1, metric: metric2, period: 3600)
-    series21h = fixture(:series, project: project2, metric: metric1, period: 3600)
-    series22h = fixture(:series, project: project2, metric: metric2, period: 3600)
-    series11d = fixture(:series, project: project1, metric: metric1, period: 3600*24)
-    series12d = fixture(:series, project: project1, metric: metric2, period: 3600*24)
-    series21d = fixture(:series, project: project2, metric: metric1, period: 3600*24)
-    series22d = fixture(:series, project: project2, metric: metric2, period: 3600*24)
+    series11h = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+    series12h = fixture(:series, tags: [tag1], metric: metric2, period: 3600)
+    series21h = fixture(:series, tags: [tag2], metric: metric1, period: 3600)
+    series22h = fixture(:series, tags: [tag2], metric: metric2, period: 3600)
+    series11d = fixture(:series, tags: [tag1], metric: metric1, period: 3600*24)
+    series12d = fixture(:series, tags: [tag1], metric: metric2, period: 3600*24)
+    series21d = fixture(:series, tags: [tag2], metric: metric1, period: 3600*24)
+    series22d = fixture(:series, tags: [tag2], metric: metric2, period: 3600*24)
 
     t0 = "2016-08-08T16:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -289,31 +285,31 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    from: t1 |> format_date!,
                                                    to: t2 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
 
 
     data = json_response(conn, 200)["data"]
-    assert myround(data["id1"]) == [aggregates11h11,
-                                    aggregates11h12,
-                                    aggregates11h13]
+    assert myround(data["#{tag1.id}"]) == [aggregates11h11,
+                                           aggregates11h12,
+                                           aggregates11h13]
   end
 
   test "daily overall aggregation with outside data and ranges and many series", %{conn: conn} do
-    project1 = fixture(:project)
-    project2 = fixture(:project, id: "id2", name: "project2")
+    tag1 = fixture(:tag)
+    tag2 = fixture(:tag, key: "key2", value: "value2")
 
     metric1 = fixture(:metric)
     metric2 = fixture(:metric, name: "metric2")
 
-    series11h = fixture(:series, project: project1, metric: metric1, period: 3600)
-    series12h = fixture(:series, project: project1, metric: metric2, period: 3600)
-    series21h = fixture(:series, project: project2, metric: metric1, period: 3600)
-    series22h = fixture(:series, project: project2, metric: metric2, period: 3600)
-    series11d = fixture(:series, project: project1, metric: metric1, period: 3600*24)
-    series12d = fixture(:series, project: project1, metric: metric2, period: 3600*24)
-    series21d = fixture(:series, project: project2, metric: metric1, period: 3600*24)
-    series22d = fixture(:series, project: project2, metric: metric2, period: 3600*24)
+    series11h = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+    series12h = fixture(:series, tags: [tag1], metric: metric2, period: 3600)
+    series21h = fixture(:series, tags: [tag2], metric: metric1, period: 3600)
+    series22h = fixture(:series, tags: [tag2], metric: metric2, period: 3600)
+    series11d = fixture(:series, tags: [tag1], metric: metric1, period: 3600*24)
+    series12d = fixture(:series, tags: [tag1], metric: metric2, period: 3600*24)
+    series21d = fixture(:series, tags: [tag2], metric: metric1, period: 3600*24)
+    series22d = fixture(:series, tags: [tag2], metric: metric2, period: 3600*24)
 
     t0 = "2016-08-08T16:00:00Z" |> parse_date!
     t1 = "2016-08-09T22:00:00Z" |> parse_date!
@@ -358,7 +354,7 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    from: t1 |> format_date!,
                                                    to: t2 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [],
+                                                   tags: [],
                                                   })
 
 
@@ -369,20 +365,20 @@ defmodule CaosTsdb.AggregateControllerTest do
   end
 
   test "daily aggregation with linear data with outside data and ranges and many series", %{conn: conn} do
-    project1 = fixture(:project)
-    project2 = fixture(:project, id: "id2", name: "project2")
+    tag1 = fixture(:tag)
+    tag2 = fixture(:tag, key: "key2", value: "value2")
 
     metric1 = fixture(:metric)
     metric2 = fixture(:metric, name: "metric2")
 
-    series11h = fixture(:series, project: project1, metric: metric1, period: 3600)
-    series12h = fixture(:series, project: project1, metric: metric2, period: 3600)
-    series21h = fixture(:series, project: project2, metric: metric1, period: 3600)
-    series22h = fixture(:series, project: project2, metric: metric2, period: 3600)
-    series11d = fixture(:series, project: project1, metric: metric1, period: 3600*24)
-    series12d = fixture(:series, project: project1, metric: metric2, period: 3600*24)
-    series21d = fixture(:series, project: project2, metric: metric1, period: 3600*24)
-    series22d = fixture(:series, project: project2, metric: metric2, period: 3600*24)
+    series11h = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+    series12h = fixture(:series, tags: [tag1], metric: metric2, period: 3600)
+    series21h = fixture(:series, tags: [tag2], metric: metric1, period: 3600)
+    series22h = fixture(:series, tags: [tag2], metric: metric2, period: 3600)
+    series11d = fixture(:series, tags: [tag1], metric: metric1, period: 3600*24)
+    series12d = fixture(:series, tags: [tag1], metric: metric2, period: 3600*24)
+    series21d = fixture(:series, tags: [tag2], metric: metric1, period: 3600*24)
+    series22d = fixture(:series, tags: [tag2], metric: metric2, period: 3600*24)
 
     t0 = "2016-10-02T22:00:00Z" |> parse_date!
     t1 = "2016-10-03T22:00:00Z" |> parse_date!
@@ -427,18 +423,18 @@ defmodule CaosTsdb.AggregateControllerTest do
                                                    from: t0 |> format_date!,
                                                    to: t4 |> format_date!,
                                                    granularity: 60*60*24,
-                                                   projects: [project1.id],
+                                                   tags: [tag1.id],
                                                   })
 
     data = json_response(conn, 200)["data"]
 
 
-    assert myround(data[project1.id]) == [aggregates11h11,
-                                          aggregates11h12,
-                                          aggregates11h13,
-                                          aggregates11h14]
+    assert myround(data["#{tag1.id}"]) == [aggregates11h11,
+                                           aggregates11h12,
+                                           aggregates11h13,
+                                           aggregates11h14]
 
-    assert data[project1.id] |> Enum.map(fn(x) -> x["sum"] end) == [324, 900, 1476, 2052]
+    assert data["#{tag1.id}"] |> Enum.map(fn(x) -> x["sum"] end) == [324, 900, 1476, 2052]
   end
 
 end

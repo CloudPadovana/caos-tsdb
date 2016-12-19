@@ -53,7 +53,6 @@ defmodule CaosTsdb.Router do
     pipe_through [:v1, :api, :api_auth, :api_auth_ensure]
 
     resources "/tags", TagController, param: "id", except: [:new, :edit, :delete]
-    resources "/projects", ProjectController, param: "id", except: [:new, :edit, :delete]
     resources "/metrics", MetricController, param: "name", except: [:new, :edit, :delete]
 
     resources "/series", SeriesController, param: "id", except: [:new, :edit, :delete] do

@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,15 +27,12 @@ defmodule CaosTsdb.SampleControllerTest do
   import CaosTsdb.DateTime.Helpers
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
-  alias CaosTsdb.Project
   alias CaosTsdb.Metric
   use Timex
 
-  @project %Project{id: "an id", name: "a name"}
   @metric %Metric{name: "a name", type: "a type"}
 
   @series %Series{id: 1,
-                  project_id: "an id",
                   metric_name: "a name",
                   period: 3600,
                   ttl: 500}
@@ -51,7 +48,6 @@ defmodule CaosTsdb.SampleControllerTest do
   end
 
   test "shows chosen resource", %{conn: conn} do
-    Repo.insert! @project
     Repo.insert! @metric
     Repo.insert! @series
 
@@ -69,7 +65,6 @@ defmodule CaosTsdb.SampleControllerTest do
   end
 
   test "creates and renders resource when data is valid", %{conn: conn} do
-    Repo.insert! @project
     Repo.insert! @metric
     Repo.insert! @series
     conn = post conn, sample_path(conn, :create), sample: @valid_attrs
@@ -78,7 +73,6 @@ defmodule CaosTsdb.SampleControllerTest do
   end
 
   test "shows samples from date",  %{conn: conn}  do
-    Repo.insert! @project
     Repo.insert! @metric
     Repo.insert! @series
 

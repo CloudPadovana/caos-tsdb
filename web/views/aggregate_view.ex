@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@
 defmodule CaosTsdb.AggregateView do
   use CaosTsdb.Web, :view
 
-  def render("show.json", %{aggregates: aggregates, projects: []}) do
+  def render("show.json", %{aggregates: aggregates, tags: []}) do
     %{data: aggregates |> Enum.map(fn v -> render_one(v, CaosTsdb.AggregateView, "aggregate.json") end) }
   end
 
-  def render("show.json", %{aggregates: aggregates, projects: _}) do
-    %{data: aggregates |> Enum.group_by(fn x -> x.project_id end, fn v -> render_one(v, CaosTsdb.AggregateView, "aggregate.json") end) }
+  def render("show.json", %{aggregates: aggregates, tags: _}) do
+    %{data: aggregates |> Enum.group_by(fn x -> "#{x.tag_id}" end, fn v -> render_one(v, CaosTsdb.AggregateView, "aggregate.json") end) }
   end
 
   def render("aggregate.json", %{aggregate: aggregate}) do

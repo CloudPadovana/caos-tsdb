@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ defmodule CaosTsdb.Fixtures do
   alias CaosTsdb.Tag
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
-  alias CaosTsdb.Project
   alias CaosTsdb.Metric
   use Timex
   import CaosTsdb.DateTime.Helpers
@@ -58,13 +57,6 @@ defmodule CaosTsdb.Fixtures do
                 "data key2" => "data value2"})]
   end
 
-  def fixture(:project, assoc) do
-    Repo.insert! %Project{
-      id: assoc[:id] || "id1",
-      name: assoc[:name] || "project1"
-    }
-  end
-
   def fixture(:metric, assoc) do
     Repo.insert! %Metric{
       name: assoc[:name] || "metric1"
@@ -72,13 +64,11 @@ defmodule CaosTsdb.Fixtures do
   end
 
   def fixture(:series, assoc) do
-    project = assoc[:project] || fixture(:project)
     metric = assoc[:metric] || fixture(:metric)
     period = assoc[:period] || 3600
-    tags = assoc[:tags] || []
+    tags = assoc[:tags] || [fixture(:tag)]
 
     series = %Series{
-      project_id: project.id,
       metric_name: metric.name,
       period: period
     }

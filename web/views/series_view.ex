@@ -35,7 +35,6 @@ defmodule CaosTsdb.SeriesView do
   def render("series.json", %{series: series}) do
     %{id: series.id,
       tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      project_id: series.project_id,
       metric_name: series.metric_name,
       period: series.period,
       ttl: series.ttl,

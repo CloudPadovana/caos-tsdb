@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,38 +34,33 @@ defmodule CaosTsdb.AggregateController do
 
   @default_params %{"from" => epoch,
                     "to" => Timex.now,
-                    "projects" => [],
+                    "tags" => [],
                     "granularity" => 24*60*60}
 
-  defp my_where(query, args = %{projects: []}) do
+  defp filter_by_tags(query, tags = []) do
     query
-    |> where([s, series], series.metric_name == ^args.metric_name)
-    |> where([s, series], series.period == ^args.period)
-    |> where([s], s.timestamp >= ^args.where_from)
-    |> where([s], s.timestamp <= ^args.where_to)
   end
 
-  defp my_where(query, args = %{projects: _}) do
+  defp filter_by_tags(query, tags = _) do
     query
-    |> my_where(%{args | projects: []})
-    |> where([s, series], series.project_id in ^args.projects)
+    |> where([_, _, tag], tag.id in ^tags)
   end
 
-  defp my_group_by(query, args = %{projects: []}) do
+  defp group_by_tags(query, tags = []) do
     query
-    |> group_by([s, series], [fragment("myfrom")])
-    |> order_by([s, series], [fragment("myfrom")])
+    |> group_by([_, _, _], [fragment("myfrom")])
+    |> order_by([_, _, _], [fragment("myfrom")])
   end
 
-  defp my_group_by(query, args = %{projects: _}) do
+  defp group_by_tags(query, tags = _) do
     query
-    |> group_by([s, series], [series.project_id, fragment("myfrom")])
-    |> order_by([s, series], [series.project_id, fragment("myfrom")])
+    |> group_by([_, _, tag], [tag.id, fragment("myfrom")])
+    |> order_by([_, _, tag], [tag.id, fragment("myfrom")])
   end
 
   defp my_select(query, args) do
     query
-    |> select([s, series], %{
+    |> select([s, series, tag], %{
                 ### NOTE: do not change "myfrom": pay attention to not to use SQL reserved names like "timestamp, from"
                 from: fragment("CAST(DATE_ADD(?, INTERVAL (?*((TO_SECONDS(?)-TO_SECONDS(?)) div ?)) SECOND) AS datetime) AS myfrom",
                   type(^args.from, :datetime),
@@ -73,7 +68,7 @@ defmodule CaosTsdb.AggregateController do
                   datetime_add(s.timestamp, ^(-args.period), "second"),
                   type(^args.from, :datetime),
                   type(^args.granularity, :integer)),
-                project_id: series.project_id,
+                tag_id: tag.id,
                 granularity: type(^args.granularity, :integer),
                 # aggregates
                 avg: avg(s.value),
@@ -88,7 +83,7 @@ defmodule CaosTsdb.AggregateController do
   def show(conn, params = %{"metric" => metric_name, "period" => period}) do
     %{"from" => from,
       "to" => to,
-      "projects" => projects,
+      "tags" => tags,
       "granularity" => granularity
     } = Map.merge(@default_params, params)
 
@@ -106,17 +101,22 @@ defmodule CaosTsdb.AggregateController do
       to: to,
       where_from: where_from,
       where_to: where_to,
-      projects: projects,
+      tags: tags,
       granularity: granularity
     }
 
     aggregates = Sample
-    |> join(:inner, [s], series in assoc(s, :series))
-    |> my_where(args)
+    |> join(:inner, [sample], series in assoc(sample, :series))
+    |> join(:inner, [_, series], tag in assoc(series, :tags))
+    |> where([_, series], series.metric_name == ^args.metric_name)
+    |> where([_, series], series.period == ^args.period)
+    |> filter_by_tags(tags)
+    |> where([sample], sample.timestamp >= ^args.where_from)
+    |> where([sample], sample.timestamp <= ^args.where_to)
     |> my_select(args)
-    |> my_group_by(args)
-    |> having([s], fragment("myfrom") >= ^having_from)
-    |> having([s], fragment("myfrom") <= ^having_to)
+    |> group_by_tags(tags)
+    |> having([sample], fragment("myfrom") >= ^having_from)
+    |> having([sample], fragment("myfrom") <= ^having_to)
     |> Repo.all
     |> Enum.map(fn(x)
       -> case Timex.Ecto.DateTime.load(x.from) do
@@ -124,6 +124,6 @@ defmodule CaosTsdb.AggregateController do
          end
     end)
 
-    render(conn, "show.json", %{aggregates: aggregates, projects: projects})
+    render(conn, "show.json", %{aggregates: aggregates, tags: tags})
   end
 end

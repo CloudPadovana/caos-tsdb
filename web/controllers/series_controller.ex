@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,9 +29,22 @@ defmodule CaosTsdb.SeriesController do
 
   plug :scrub_datetime, "from" when action in [:grid]
 
+  def index(conn, params = %{"tag" => %{"id" => tag_id}}) do
+    query = from s in Series,
+      join: t in assoc(s, :tags),
+      where: t.id == ^tag_id,
+      preload: [tags: t]
+
+    series = query
+    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :metric_name, :period])
+    |> Repo.all
+
+    render(conn, "index.json", series: series)
+  end
+
   def index(conn, params) do
     series = Series
-    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
+    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :metric_name, :period])
     |> Repo.all
     |> Repo.preload(:tags)
 
