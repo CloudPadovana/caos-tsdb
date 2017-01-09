@@ -56,7 +56,7 @@ defmodule CaosTsdb.Series do
     |> validate_required([:project_id, :metric_name, :period])
     |> validate_immutable(:id)
     |> validate_immutable(:project_id)
-    |> validate_immutable(:meter_name)
+    |> validate_immutable(:metric_name)
     |> foreign_key_constraint(:project_id)
     |> foreign_key_constraint(:metric_name)
     |> assoc_constraint(:project)
