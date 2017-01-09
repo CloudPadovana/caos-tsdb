@@ -68,10 +68,10 @@ defmodule CaosTsdb.AggregateController do
     |> select([s, series], %{
                 ### NOTE: do not change "myfrom": pay attention to not to use SQL reserved names like "timestamp, from"
                 from: fragment("CAST(DATE_ADD(?, INTERVAL (?*((TO_SECONDS(?)-TO_SECONDS(?)) div ?)) SECOND) AS datetime) AS myfrom",
-                  type(^args.from, :datetime),
+                  type(^args.from, Timex.Ecto.DateTime),
                   type(^args.granularity, :integer),
                   datetime_add(s.timestamp, ^(-args.period), "second"),
-                  type(^args.from, :datetime),
+                  type(^args.from, Timex.Ecto.DateTime),
                   type(^args.granularity, :integer)),
                 project_id: series.project_id,
                 granularity: type(^args.granularity, :integer),

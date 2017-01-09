@@ -65,13 +65,14 @@ defmodule CaosTsdb.Mixfile do
   defp deps do
     [{:phoenix, "~> 1.2.0"},
      {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_ecto, "~> 3.0"},
-     {:mariaex, "~> 0.7"},
-     {:timex, "~> 3.0"},
-     {:timex_ecto, "~> 3.0"},
+     {:phoenix_ecto, "~> 3.2"},
+     {:mariaex, "~> 0.8"},
+     {:timex, "~> 3.1"},
+     {:tzdata, "~> 0.1.8", override: true},
+     {:timex_ecto, "~> 3.1"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:guardian, "~> 0.13.0"},
+     {:guardian, "~> 0.14.0"},
 
      # the override of exrm and conform in your deps is to tell Mix
      # that it can use your deps to fulfill the requirements for exrm
