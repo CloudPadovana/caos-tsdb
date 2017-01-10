@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,8 +46,11 @@ defmodule CaosTsdb.SampleControllerTest do
   @sample struct(Sample, @valid_attrs)
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
-    {:ok, conn: put_valid_token(conn)}
+    conn = conn
+    |> put_req_header("accept", "application/json")
+    |> put_valid_token()
+
+    {:ok, conn: conn}
   end
 
   test "shows chosen resource", %{conn: conn} do

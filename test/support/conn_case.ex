@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,12 +54,15 @@ defmodule CaosTsdb.ConnCase do
       @endpoint CaosTsdb.Endpoint
 
       import CaosTsdb.Fixtures
-      def put_token(%Plug.Conn{} = conn, jwt) do
+
+      @spec put_token(Plug.Conn.t, String.t) :: Plug.Conn.t
+      def put_token(conn, jwt) do
         conn
         |> put_req_header("authorization", "Bearer #{jwt}")
       end
 
-      def put_valid_token(%Plug.Conn{} = conn, params \\ []) do
+      @spec put_valid_token(Plug.Conn.t, Keyword.t) :: Plug.Conn.t
+      def put_valid_token(conn, params \\ []) do
         jwt = fixture(:token, params)
         conn
         |> put_token(jwt)
