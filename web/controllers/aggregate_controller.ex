@@ -25,14 +25,13 @@ defmodule CaosTsdb.AggregateController do
   use CaosTsdb.Web, :controller
 
   alias CaosTsdb.Sample
-  alias CaosTsdb.Series
 
   plug :scrub_datetime, "from" when action in [:show]
   plug :scrub_datetime, "to" when action in [:show]
   plug :scrub_integer, "granularity" when action in [:show]
   plug :scrub_integer, "period" when action in [:show]
 
-  @default_params %{"from" => epoch,
+  @default_params %{"from" => epoch(),
                     "to" => Timex.now,
                     "projects" => [],
                     "granularity" => 24*60*60}
@@ -51,13 +50,13 @@ defmodule CaosTsdb.AggregateController do
     |> where([s, series], series.project_id in ^args.projects)
   end
 
-  defp my_group_by(query, args = %{projects: []}) do
+  defp my_group_by(query, _args = %{projects: []}) do
     query
     |> group_by([s, series], [fragment("myfrom")])
     |> order_by([s, series], [fragment("myfrom")])
   end
 
-  defp my_group_by(query, args = %{projects: _}) do
+  defp my_group_by(query, _args = %{projects: _}) do
     query
     |> group_by([s, series], [series.project_id, fragment("myfrom")])
     |> order_by([s, series], [series.project_id, fragment("myfrom")])

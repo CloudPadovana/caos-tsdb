@@ -31,7 +31,7 @@ defmodule CaosTsdb.SampleController do
   plug :scrub_datetime, "from" when action in [:show]
   plug :scrub_datetime, "to" when action in [:show]
 
-  def show(conn, params = %{"series_id" => series_id, "timestamp" => timestamp}) do
+  def show(conn, params = %{"series_id" => _series_id, "timestamp" => _timestamp}) do
     sample = Sample
     |> CaosTsdb.QueryFilter.filter(%Sample{}, params, [:series_id, :timestamp])
     |> Repo.one
@@ -51,7 +51,7 @@ defmodule CaosTsdb.SampleController do
     render(conn, "show.json", samples: samples)
   end
 
-  def show(conn, params = %{"series_id" => series_id}) do
+  def show(conn, params = %{"series_id" => _series_id}) do
     samples = Sample
     |> CaosTsdb.QueryFilter.filter(%Sample{}, params, :series_id)
     |> Repo.all

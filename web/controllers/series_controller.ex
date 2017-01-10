@@ -78,10 +78,10 @@ defmodule CaosTsdb.SeriesController do
 
     to = Timex.now
 
-    d = Timex.diff(start_date, epoch, :seconds)
+    d = Timex.diff(start_date, epoch(), :seconds)
     n = trunc(d / period)
 
-    from = epoch
+    from = epoch()
     |> Timex.shift(seconds: n*period)
 
     grid = Timex.Interval.new(from: from, until: to, step: [seconds: period])

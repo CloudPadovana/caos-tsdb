@@ -67,11 +67,11 @@ defmodule CaosTsdb.Fixtures do
 
   def fixture(:samples, assoc) do
     series = assoc[:series] || fixture(:series)
-    t0 = assoc[:from] || epoch
+    t0 = assoc[:from] || epoch()
     n = assoc[:repeat] || 1
     value_type = assoc[:values] || :rand
 
-    samples = Range.new(0, n-1) |> Enum.map(fn(x) ->
+    _samples = Range.new(0, n-1) |> Enum.map(fn(x) ->
       value = case value_type do
                 :rand -> :rand.uniform()
                 :linear -> x+1.0
