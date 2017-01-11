@@ -49,9 +49,7 @@ defmodule CaosTsdb.Mixfile do
                     :timex_ecto,
                     :phoenix_ecto,
                     :mariaex,
-                    :guardian,
-                    :conform,
-                    :conform_exrm]]
+                    :guardian]]
   end
 
   # Specifies which paths to compile per environment.
@@ -71,16 +69,8 @@ defmodule CaosTsdb.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:guardian, "~> 0.14.0"},
-
-     # the override of exrm and conform in your deps is to tell Mix
-     # that it can use your deps to fulfill the requirements for exrm
-     # and conform that are declared in conform_exrm. The requirements
-     # in conform_exrm are declared as optional, but are required in
-     # order to ensure conform and exrm are compiled before
-     # conform_exrm is.
-     {:exrm, "~> 1.0.8", override: true},
-     {:conform, "~> 2.0", override: true},
-     {:conform_exrm, "~> 1.0"}]
+     {:distillery, "~> 1.0.0"},
+     {:conform, "~> 2.1.2"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
