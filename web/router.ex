@@ -63,5 +63,7 @@ defmodule CaosTsdb.Router do
     resources "/samples", SampleController, only: [:show, :create], singleton: true
 
     resources "/aggregate", AggregateController, only: [:show], singleton: true
+
+    forward "/graphql", Graphql.Plug
   end
 end

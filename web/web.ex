@@ -99,6 +99,20 @@ defmodule CaosTsdb.Web do
     end
   end
 
+  def resolver do
+    quote do
+      alias CaosTsdb.Repo
+      import Ecto
+      import Ecto.Query
+
+      import CaosTsdb.Router.Helpers
+      import CaosTsdb.Gettext
+      import CaosTsdb.DateTime.Helpers
+      import CaosTsdb.QueryFilter
+      import CaosTsdb.Helpers
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
   """

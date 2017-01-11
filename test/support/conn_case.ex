@@ -67,6 +67,14 @@ defmodule CaosTsdb.ConnCase do
         conn
         |> put_token(jwt)
       end
+
+      # The GraphQL api endpoint
+      @graphql_api_endpoint "/api/v1/graphql"
+
+      @spec graphql_query(Plug.Conn.t, Keyword.t, Map.t) :: Plug.Conn.t
+      def graphql_query(conn, query, variables \\ %{}) do
+        conn = post conn, @graphql_api_endpoint, query: query, variables: variables
+      end
     end
   end
 
