@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,10 +35,7 @@ config :caos_tsdb,
 # Configures the endpoint
 config :caos_tsdb, CaosTsdb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
-  render_errors: [view: CaosTsdb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: CaosTsdb.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: CaosTsdb.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
 config :logger, :console,

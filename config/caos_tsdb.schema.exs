@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -133,14 +133,6 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
     ],
-    "secret_key_base": [
-      commented: false,
-      datatype: :binary,
-      default: "SysJSKR79rwPkpOd7IE1CnaPwn/QMaCINo3wYsSBspU+ctT/fc8JXUE2Ki4FYAa/",
-      doc: "Secret key.",
-      hidden: false,
-      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.secret_key_base"
-    ],
     "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.view": [
       commented: false,
       datatype: :atom,
@@ -161,22 +153,6 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.accepts"
     ],
-    "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name": [
-      commented: false,
-      datatype: :atom,
-      default: CaosTsdb.PubSub,
-      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name here.",
-      hidden: true,
-      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.name"
-    ],
-    "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter": [
-      commented: false,
-      datatype: :atom,
-      default: Phoenix.PubSub.PG2,
-      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter here.",
-      hidden: true,
-      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.pubsub.adapter"
-    ],
     "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port": [
       commented: false,
       datatype: {:atom, :binary},
@@ -184,14 +160,6 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port here.",
       hidden: true,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
-    ],
-    "caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest": [
-      commented: false,
-      datatype: :binary,
-      default: "priv/static/manifest.json",
-      doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest here.",
-      hidden: true,
-      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.cache_static_manifest"
     ],
     "caos_tsdb.Elixir.CaosTsdb.Endpoint.server": [
       commented: false,

@@ -42,7 +42,6 @@ defmodule CaosTsdb.Mixfile do
   def application do
     [mod: {CaosTsdb, []},
      applications: [:phoenix,
-                    :phoenix_pubsub,
                     :cowboy,
                     :logger,
                     :gettext,
@@ -64,7 +63,6 @@ defmodule CaosTsdb.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [{:phoenix, "~> 1.2.0"},
-     {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.2"},
      {:mariaex, "~> 0.8"},
      {:timex, "~> 3.1"},
