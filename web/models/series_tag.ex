@@ -21,27 +21,30 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.SeriesView do
-  use CaosTsdb.Web, :view
+defmodule CaosTsdb.SeriesTag do
+  use CaosTsdb.Web, :model
 
-  def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
+  @primary_key false
+  schema "series_tags" do
+    belongs_to :series, Series
+    belongs_to :tag, Tag
+
+    timestamps()
   end
 
-  def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
-  end
-
-  def render("series.json", %{series: series}) do
-    %{id: series.id,
-      tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      metric_name: series.metric_name,
-      period: series.period,
-      ttl: series.ttl,
-      last_timestamp: series.last_timestamp}
-  end
-
-  def render("grid.json", %{grid: grid}) do
-    %{data: %{grid: grid}}
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:series_id, :tag_id])
+    |> validate_required([:series_id, :tag_id])
+    |> validate_immutable(:series_id)
+    |> validate_immutable(:tag_id)
+    |> foreign_key_constraint(:series_id)
+    |> foreign_key_constraint(:tag_id)
+    |> assoc_constraint(:series)
+    |> assoc_constraint(:tag)
+    |> unique_constraint(:primary, name: "series_tags_series_id_tag_id_index")
   end
 end

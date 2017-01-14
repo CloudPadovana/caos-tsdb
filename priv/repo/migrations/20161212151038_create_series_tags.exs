@@ -21,29 +21,17 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.Project do
-  use CaosTsdb.Web, :model
+defmodule CaosTsdb.Repo.Migrations.CreateSeriesTags do
+  use Ecto.Migration
 
-  @primary_key {:id, :string, []}
-  @derive {Phoenix.Param, key: :id}
-  schema "projects" do
-    field :name, :string
+  def change do
+    create table(:series_tags, primary_key: false) do
+      add :series_id, references(:series), primary_key: true
+      add :tag_id, references(:tags), primary_key: true
 
-    timestamps()
+      timestamps()
+    end
 
-    has_many :series, CaosTsdb.Series,
-      foreign_key: :project_id,
-      references: :id
-  end
-
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:id, :name])
-    |> validate_required(:id)
-    |> validate_immutable(:id)
-    |> unique_constraint(:id)
+    create unique_index(:series_tags, [:series_id, :tag_id])
   end
 end

@@ -21,27 +21,20 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.SeriesView do
-  use CaosTsdb.Web, :view
+use Mix.Config
 
-  def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
-  end
+# We don't run a server during test. If one is required,
+# you can enable the server option below.
+config :caos_tsdb, CaosTsdb.Endpoint,
+  http: [port: 4001],
+  server: false
 
-  def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
-  end
+config :logger, :console, level: :debug, format: "[$level] $message\n"
 
-  def render("series.json", %{series: series}) do
-    %{id: series.id,
-      tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      metric_name: series.metric_name,
-      period: series.period,
-      ttl: series.ttl,
-      last_timestamp: series.last_timestamp}
-  end
-
-  def render("grid.json", %{grid: grid}) do
-    %{data: %{grid: grid}}
-  end
-end
+# Configure your database
+config :caos_tsdb, CaosTsdb.Repo,
+  adapter: Ecto.Adapters.MySQL,
+  username: "root",
+  password: "",
+  database: "caos_tsdb_migration_test",
+  hostname: "localhost"

@@ -21,27 +21,21 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.SeriesView do
+defmodule CaosTsdb.TagView do
   use CaosTsdb.Web, :view
 
-  def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
+  def render("index.json", %{tags: tags}) do
+    %{data: render_many(tags, CaosTsdb.TagView, "tag.json")}
   end
 
-  def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
+  def render("show.json", %{tag: tag}) do
+    %{data: render_one(tag, CaosTsdb.TagView, "tag.json")}
   end
 
-  def render("series.json", %{series: series}) do
-    %{id: series.id,
-      tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      metric_name: series.metric_name,
-      period: series.period,
-      ttl: series.ttl,
-      last_timestamp: series.last_timestamp}
-  end
-
-  def render("grid.json", %{grid: grid}) do
-    %{data: %{grid: grid}}
+  def render("tag.json", %{tag: tag}) do
+    %{id: tag.id,
+      key: tag.key,
+      value: tag.value,
+      extra: tag.extra}
   end
 end

@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 
 defmodule CaosTsdb.Fixtures do
   alias CaosTsdb.Repo
+  alias CaosTsdb.Tag
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
-  alias CaosTsdb.Project
   alias CaosTsdb.Metric
   use Timex
   import CaosTsdb.DateTime.Helpers
@@ -40,11 +40,21 @@ defmodule CaosTsdb.Fixtures do
     jwt
   end
 
-  def fixture(:project, assoc) do
-    Repo.insert! %Project{
-      id: assoc[:id] || "id1",
-      name: assoc[:name] || "project1"
+  def fixture(:tag, assoc) do
+    Repo.insert! %Tag{
+      key: assoc[:key] || "tag1",
+      value: assoc[:value] || "value1",
+      extra: %{"data key1" => "data value1"}
     }
+  end
+
+  def fixture(:tags, assoc) do
+    [fixture(:tag),
+     fixture(:tag,
+       key: "tag2",
+       value: "value 2",
+       extra: %{"data key1" => "data value1",
+                "data key2" => "data value2"})]
   end
 
   def fixture(:metric, assoc) do
@@ -54,15 +64,19 @@ defmodule CaosTsdb.Fixtures do
   end
 
   def fixture(:series, assoc) do
-    project = assoc[:project] || fixture(:project)
     metric = assoc[:metric] || fixture(:metric)
     period = assoc[:period] || 3600
+    tags = assoc[:tags] || [fixture(:tag)]
 
-    Repo.insert! %Series{
-      project_id: project.id,
+    series = %Series{
       metric_name: metric.name,
       period: period
     }
+    |> Repo.insert!
+    |> Repo.preload(:tags)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> Repo.update!
   end
 
   def fixture(:samples, assoc) do

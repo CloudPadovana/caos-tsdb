@@ -21,25 +21,25 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.ProjectController do
+defmodule CaosTsdb.TagController do
   use CaosTsdb.Web, :controller
 
-  alias CaosTsdb.Project
+  alias CaosTsdb.Tag
 
   def index(conn, _params) do
-    projects = Repo.all(Project)
-    render(conn, "index.json", projects: projects)
+    tags = Repo.all(Tag)
+    render(conn, "index.json", tags: tags)
   end
 
-  def create(conn, %{"project" => project_params}) do
-    changeset = Project.changeset(%Project{}, project_params)
+  def create(conn, %{"tag" => tag_params}) do
+    changeset = Tag.changeset(%Tag{}, tag_params)
 
     case Repo.insert(changeset) do
-      {:ok, project} ->
+      {:ok, tag} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", project_path(conn, :show, project))
-        |> render("show.json", project: project)
+        |> put_resp_header("location", tag_path(conn, :show, tag))
+        |> render("show.json", tag: tag)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -48,9 +48,10 @@ defmodule CaosTsdb.ProjectController do
   end
 
   def show(conn, %{"id" => id}) do
-    project = Repo.get(Project, id)
-    if project do
-      render(conn, "show.json", project: project)
+    tag = Repo.get_by(Tag, id: id)
+
+    if tag do
+      render(conn, "show.json", tag: tag)
     else
       conn
       |> put_status(:not_found)
@@ -58,13 +59,13 @@ defmodule CaosTsdb.ProjectController do
     end
   end
 
-  def update(conn, %{"id" => id, "project" => project_params}) do
-    project = Repo.get!(Project, id)
-    changeset = Project.changeset(project, project_params)
+  def update(conn, %{"id" => id, "tag" => tag_params}) do
+    tag = Repo.get_by(Tag, id: id)
+    changeset = Tag.changeset(tag, tag_params)
 
     case Repo.update(changeset) do
-      {:ok, project} ->
-        render(conn, "show.json", project: project)
+      {:ok, tag} ->
+        render(conn, "show.json", tag: tag)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

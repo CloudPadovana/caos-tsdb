@@ -21,27 +21,33 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.SeriesView do
-  use CaosTsdb.Web, :view
+defmodule CaosTsdb.Tag do
+  use CaosTsdb.Web, :model
 
-  def render("index.json", %{series: series}) do
-    %{data: render_many(series, CaosTsdb.SeriesView, "series.json")}
+  @primary_key {:id, :id, autogenerate: true}
+  @derive {Phoenix.Param, key: :id}
+  schema "tags" do
+    field :key, :string, primary_key: true
+    field :value, :string, primary_key: true
+
+    field :extra, :map
+
+    many_to_many :series, CaosTsdb.Series, join_through: CaosTsdb.SeriesTag
+
+    timestamps()
   end
 
-  def render("show.json", %{series: series}) do
-    %{data: render_one(series, CaosTsdb.SeriesView, "series.json")}
-  end
-
-  def render("series.json", %{series: series}) do
-    %{id: series.id,
-      tags: render_many(series.tags, CaosTsdb.TagView, "tag.json"),
-      metric_name: series.metric_name,
-      period: series.period,
-      ttl: series.ttl,
-      last_timestamp: series.last_timestamp}
-  end
-
-  def render("grid.json", %{grid: grid}) do
-    %{data: %{grid: grid}}
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:id, :key, :value, :extra])
+    |> validate_required([:key, :value])
+    |> validate_immutable(:id)
+    |> validate_immutable(:key)
+    |> validate_immutable(:value)
+    |> unique_constraint(:key, name: "tags_key_value_index")
   end
 end
+

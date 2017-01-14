@@ -21,31 +21,21 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.ProjectTest do
-  use CaosTsdb.ModelCase
+defmodule CaosTsdb.Repo.Migrations.CreateTag do
+  use Ecto.Migration
 
-  alias CaosTsdb.Project
+  def change do
+    create table(:tags, primary_key: false) do
+      add :id, :serial, primary_key: true
 
-  @project %Project{id: "an id", name: "a name"}
-  @valid_attrs %{id: "an id", name: "a new name"}
+      add :key, :string, primary_key: true
+      add :value, :string, primary_key: true
 
-  test "changeset with valid creation" do
-    changeset = Project.changeset(%Project{}, @valid_attrs)
-    assert changeset.valid?
-  end
+      add :extra, :map
 
-  test "changeset with invalid creation" do
-    changeset = Project.changeset(%Project{}, %{name: "a name"})
-    refute changeset.valid?
-  end
+      timestamps()
+    end
 
-  test "changeset with valid change" do
-    changeset = Project.changeset(@project, @valid_attrs)
-    assert changeset.valid?
-  end
-
-  test "changeset with invalid change" do
-    changeset = Project.changeset(@project, %{id: "a new id", name: "a new name"})
-    refute changeset.valid?
+    create unique_index(:tags, [:key, :value])
   end
 end

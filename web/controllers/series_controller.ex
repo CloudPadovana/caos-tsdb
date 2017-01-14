@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,13 +25,28 @@ defmodule CaosTsdb.SeriesController do
   use CaosTsdb.Web, :controller
 
   alias CaosTsdb.Series
+  alias CaosTsdb.Tag
 
   plug :scrub_datetime, "from" when action in [:grid]
 
+  def index(conn, params = %{"tag" => %{"id" => tag_id}}) do
+    query = from s in Series,
+      join: t in assoc(s, :tags),
+      where: t.id == ^tag_id,
+      preload: [tags: t]
+
+    series = query
+    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :metric_name, :period])
+    |> Repo.all
+
+    render(conn, "index.json", series: series)
+  end
+
   def index(conn, params) do
     series = Series
-    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :project_id, :metric_name, :period])
+    |> CaosTsdb.QueryFilter.filter(%Series{}, params, [:id, :metric_name, :period])
     |> Repo.all
+    |> Repo.preload(:tags)
 
     render(conn, "index.json", series: series)
   end
@@ -41,6 +56,8 @@ defmodule CaosTsdb.SeriesController do
 
     case Repo.insert(changeset) do
       {:ok, series} ->
+        series = series |> Repo.preload(:tags)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", series_path(conn, :show, series))
@@ -53,14 +70,42 @@ defmodule CaosTsdb.SeriesController do
   end
 
   def show(conn, %{"id" => id}) do
-    series = Repo.get_by!(Series, id: id)
-    render(conn, "show.json", series: series)
+    series = Repo.get_by(Series, id: id)
+    if series do
+      series = series |> Repo.preload(:tags)
+      render(conn, "show.json", series: series)
+    else
+      conn
+      |> put_status(:not_found)
+      |> render(CaosTsdb.ErrorView, "404.json")
+    end
   end
 
   def update(conn, %{"id" => id, "series" => series_params}) do
     series = Repo.get_by!(Series, id: id)
-    changeset = Series.changeset(series, series_params)
+    |> Repo.preload(:tags)
 
+    changeset = Series.changeset(series, series_params)
+    case Repo.update(changeset) do
+      {:ok, series} ->
+        render(conn, "show.json", series: series)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(CaosTsdb.ChangesetView, "error.json", changeset: changeset)
+    end
+  end
+
+  def update(conn, %{"id" => id, "tag" => _tag_params = %{"id" => tag_id}}) do
+    series = Repo.get_by!(Series, id: id)
+    |> Repo.preload(:tags)
+
+    tag = Tag |> Repo.get_by!(id: tag_id)
+    tags = series.tags ++ [tag]
+
+    changeset = series
+    |> Ecto.Changeset.change
+    |> Ecto.Changeset.put_assoc(:tags, tags)
     case Repo.update(changeset) do
       {:ok, series} ->
         render(conn, "show.json", series: series)

@@ -21,19 +21,30 @@
 #
 ################################################################################
 
-defmodule CaosTsdb.ProjectView do
-  use CaosTsdb.Web, :view
+defmodule CaosTsdb.MigrationTest.ProjectToTagsMigrationTest do
+  use CaosTsdb.MigrationTest.MigrationCase, target_migration: 20161213154617
 
-  def render("index.json", %{projects: projects}) do
-    %{data: render_many(projects, CaosTsdb.ProjectView, "project.json")}
+  test "Migration on empty DB", _context do
+    tags = Tag
+    |> Repo.all
+
+    assert tags == []
   end
 
-  def render("show.json", %{project: project}) do
-    %{data: render_one(project, CaosTsdb.ProjectView, "project.json")}
+  def before_migration(20161213154617) do
+    Repo.insert! %Project{id: "id1", name: "name1"}
+    Repo.insert! %Project{id: "id2", name: "name2"}
+  end
+  def before_migration(_) do
   end
 
-  def render("project.json", %{project: project}) do
-    %{id: project.id,
-      name: project.name}
+  @before_migration &__MODULE__.before_migration/1
+  test "Projects are copied to tags", _context do
+    tags = Tag
+    |> Repo.all
+    |> Enum.map(fn(t) -> %{key: t.key, value: t.value, extra: t.extra} end)
+
+    assert tags == [%{key: "project", value: "id1", extra: %{"name" => "name1"}},
+                    %{key: "project", value: "id2", extra: %{"name" => "name2"}}]
   end
 end
