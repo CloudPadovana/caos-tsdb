@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,5 +93,48 @@ defmodule CaosTsdb.TagControllerTest do
 
     conn2 = put conn, tag_path(conn, :update, tag), tag: %{value: "a new value"}
     assert json_response(conn2, 422)["errors"] != %{}
+  end
+
+  test "lists resources by filtering", %{conn: conn} do
+    tag11 = fixture(:tag, key: "key1", value: "value1")
+    tag12 = fixture(:tag, key: "key1", value: "value2")
+    tag21 = fixture(:tag, key: "key2", value: "value1")
+    tag22 = fixture(:tag, key: "key2", value: "value2")
+    tag = fixture(:tag, value: "value2")
+
+    conn1 = get conn, tag_path(conn, :index), key: "key4", value: "value4"
+    assert json_response(conn1, 200)["data"] == []
+
+    conn2 = get conn, tag_path(conn, :index), key: "key1", value: "value1"
+    assert json_response(conn2, 200)["data"] == [%{"id" => tag11.id,
+                                                   "key" => tag11.key,
+                                                   "value" => tag11.value,
+                                                   "extra" => tag11.extra}]
+
+    conn3 = get conn, tag_path(conn, :index), key: "key1"
+    assert json_response(conn3, 200)["data"] == [%{"id" => tag11.id,
+                                                   "key" => tag11.key,
+                                                   "value" => tag11.value,
+                                                   "extra" => tag11.extra},
+                                                 %{"id" => tag12.id,
+                                                   "key" => tag12.key,
+                                                   "value" => tag12.value,
+                                                   "extra" => tag12.extra}]
+
+    conn4 = get conn, tag_path(conn, :index), value: "value2"
+    assert json_response(conn4, 200)["data"] == [%{"id" => tag12.id,
+                                                   "key" => tag12.key,
+                                                   "value" => tag12.value,
+                                                   "extra" => tag12.extra},
+                                                 %{"id" => tag22.id,
+                                                   "key" => tag22.key,
+                                                   "value" => tag22.value,
+                                                   "extra" => tag22.extra},
+                                                 %{"id" => tag.id,
+                                                   "key" => tag.key,
+                                                   "value" => tag.value,
+                                                   "extra" => tag.extra}]
+
+
   end
 end
