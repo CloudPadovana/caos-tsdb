@@ -24,6 +24,8 @@
 defmodule CaosTsdb.EndpointTest do
   use CaosTsdb.ConnCase
 
+  import CaosTsdb.DateTime.Helpers
+
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -59,7 +61,8 @@ defmodule CaosTsdb.EndpointTest do
 
     @expected_status %{"status" => "online",
                        "auth" => nil,
-                       "api_version" => "v1",
+                       "last_sample_timestamp" => nil,
+                       "api_version" => "v1.1",
                        "version" => CaosTsdb.Version.version}
 
     test "without token", %{conn: conn} do
@@ -87,6 +90,22 @@ defmodule CaosTsdb.EndpointTest do
       |> put_req_header("authorization", "Bearer #{invalid_token}")
       |> get(@api_endpoint)
       assert json_response(conn, 200)["data"] == %{ @expected_status | "auth" => "no" }
+    end
+
+    test "with last sample timestamp", %{conn: conn} do
+      t0 = "2017-01-16T16:00:00Z"
+      sample = fixture(:samples, from: t0 |> parse_date!)
+
+      conn1 = conn
+      |> get(@api_endpoint)
+
+      assert json_response(conn1, 200)["data"]["last_sample_timestamp"] == t0
+
+      conn2 = conn
+      |> put_req_header("authorization", "Bearer #{@valid_token}")
+      |> get(@api_endpoint)
+
+      assert json_response(conn2, 200)["data"]["last_sample_timestamp"] == t0
     end
   end
 end

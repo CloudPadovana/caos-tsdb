@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ defmodule CaosTsdb.StatusControllerTest do
 
   @status %{"status" => "online",
             "auth" => "no",
-            "api_version" => "v1",
+            "last_sample_timestamp" => nil,
+            "api_version" => "v1.1",
             "version" => CaosTsdb.Version.version}
 
   setup %{conn: conn} do

@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,11 +24,16 @@
 defmodule CaosTsdb.StatusView do
   use CaosTsdb.Web, :view
 
-  def render("status.json", %{auth: auth, api_version: api_version, status: status, version: version}) do
+  def render("status.json", %{auth: auth,
+                              api_version: api_version,
+                              status: status,
+                              last_sample_timestamp: last_sample_timestamp,
+                              version: version}) do
     %{data:
       %{auth: auth,
         api_version: api_version,
         status: status,
+        last_sample_timestamp: last_sample_timestamp,
         version: version}
     }
   end

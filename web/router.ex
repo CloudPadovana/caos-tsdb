@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ defmodule CaosTsdb.Router do
   end
 
   pipeline :v1 do
-    plug APIVersion, version: :v1
+    plug APIVersion, version: "v1.1"
   end
 
   scope "/api/v1", CaosTsdb do

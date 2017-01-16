@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ defmodule CaosTsdb.StatusController do
   use CaosTsdb.Web, :controller
   use Guardian.Phoenix.Controller
 
+  alias CaosTsdb.Sample
+
   @status "online"
   @version CaosTsdb.Version.version
 
@@ -34,8 +36,17 @@ defmodule CaosTsdb.StatusController do
              { :error, _ } -> "no"
            end
 
+    last_sample_timestamp = Sample
+    |> select([s], %{last_sample_timestamp: max(s.timestamp)})
+    |> Repo.one
+
     api_version = conn.assigns[:version]
-    render(conn, "status.json", status: @status, version: @version, auth: auth, api_version: api_version)
+    render(conn, "status.json",
+      status: @status,
+      version: @version,
+      auth: auth,
+      last_sample_timestamp: last_sample_timestamp.last_sample_timestamp,
+      api_version: api_version)
   end
 end
 
