@@ -34,7 +34,8 @@ defmodule CaosTsdb.AggregateController do
   @default_params %{"from" => epoch(),
                     "to" => Timex.now,
                     "tags" => [],
-                    "granularity" => 24*60*60}
+                    "granularity" => 24*60*60,
+                    "functions" => ["avg", "count", "min", "max", "var", "std", "sum"]}
 
   defp filter_by_tags(query, tags = []) do
     query
@@ -83,7 +84,8 @@ defmodule CaosTsdb.AggregateController do
     %{"from" => from,
       "to" => to,
       "tags" => tags,
-      "granularity" => granularity
+      "granularity" => granularity,
+      "functions" => functions
     } = Map.merge(@default_params, params)
 
     ### NOTE: where clauses have to be performed on raw fields, i.e. on the timestamp field
@@ -93,6 +95,22 @@ defmodule CaosTsdb.AggregateController do
     having_from = from
     having_to = to |> Timex.shift(seconds: -granularity)
 
+    functions = functions |> Enum.map(fn(x) ->
+      case x do
+        "avg" -> :avg
+        "count" -> :count
+        "min" -> :min
+        "max" -> :max
+        "var" -> :var
+        "std" -> :std
+        "sum" -> :sum
+        _ ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(CaosTsdb.ErrorView, "error.json", error: "Unknown function '#{x}'")
+      end
+    end)
+
     args = %{
       metric_name: metric_name,
       period: period,
@@ -101,7 +119,7 @@ defmodule CaosTsdb.AggregateController do
       where_from: where_from,
       where_to: where_to,
       tags: tags,
-      granularity: granularity
+      granularity: granularity,
     }
 
     aggregates = Sample
@@ -121,6 +139,9 @@ defmodule CaosTsdb.AggregateController do
       -> case Timex.Ecto.DateTime.load(x.from) do
            {:ok, t} -> %{ x | from: t }
          end
+    end)
+    |> Enum.map(fn(x)
+      -> Map.take(x, [:from, :tag_id, :granularity] ++ functions)
     end)
 
     render(conn, "show.json", %{aggregates: aggregates, tags: tags})

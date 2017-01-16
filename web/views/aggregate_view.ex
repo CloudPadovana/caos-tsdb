@@ -36,14 +36,9 @@ defmodule CaosTsdb.AggregateView do
     %{from: aggregate.from,
       to: aggregate.from |> Timex.shift(seconds: aggregate.granularity),
       timestamp: aggregate.from |> Timex.shift(seconds: aggregate.granularity),
-      granularity: aggregate.granularity,
-      avg: aggregate.avg,
-      count: aggregate.count,
-      min: aggregate.min,
-      max: aggregate.max,
-      std: aggregate.std,
-      var: aggregate.var,
-      sum: aggregate.sum}
+      granularity: aggregate.granularity
+    }
+    |> Map.merge(Map.take(aggregate, [:avg, :count, :min, :max, :std, :var, :sum]))
   end
 end
 

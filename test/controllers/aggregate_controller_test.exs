@@ -35,6 +35,8 @@ defmodule CaosTsdb.AggregateControllerTest do
     {:ok, conn: conn}
   end
 
+  @aggregate_functions ["avg", "count", "min", "max", "var", "std", "sum"]
+
   # emulate AVG
   defp avg(l) when is_list(l) do
     Enum.sum(l)/(length(l))
@@ -48,28 +50,37 @@ defmodule CaosTsdb.AggregateControllerTest do
   end
 
   # round data to 10 decimal digits in order to match calculations by SQL
-  defp myround(map) when is_list(map) do
-    map |> Enum.map(fn(x) -> myround(x) end)
+  defp myround(map, functions \\ @aggregate_functions)
+  defp myround(map, functions) when is_list(map) do
+    map |> Enum.map(fn(x) -> myround(x, functions) end)
   end
-  defp myround(map) do
-    Enum.reduce(["avg", "count", "min", "max", "var", "std", "sum"], map, fn(k, acc) ->
+  defp myround(map, functions) do
+    Enum.reduce(functions, map, fn(k, acc) ->
       Map.put(acc, k, Float.round(map[k] + 0.0, 10))
     end)
   end
 
+  defp aggr_function(function, values) do
+    ret = case function do
+      "avg" -> avg(values)
+      "count" -> Enum.count(values)
+      "min" -> Enum.min(values)
+      "max" -> Enum.max(values)
+      "var" -> var(values)
+      "std" -> :math.sqrt(var(values))
+      "sum" -> Enum.sum(values)
+    end
+    {function, ret}
+  end
+
   # calculate fixture aggregation
-  defp aggr(values) when is_number(values) do
+  defp aggr(values, functions \\ @aggregate_functions)
+  defp aggr(values, functions) when is_number(values) do
     aggr([values])
   end
-  defp aggr(values) when is_list(values) do
-    map = %{"avg" => avg(values),
-            "count" => Enum.count(values),
-            "min" => Enum.min(values),
-            "max" => Enum.max(values),
-            "var" => var(values),
-            "std" => :math.sqrt(var(values)),
-            "sum" => Enum.sum(values)}
-    myround(map)
+  defp aggr(values, functions) when is_list(values) do
+    map = Map.new(functions, &aggr_function(&1, values))
+    myround(map, functions)
   end
 
   test "daily aggregation with from", %{conn: conn} do
@@ -365,6 +376,86 @@ defmodule CaosTsdb.AggregateControllerTest do
     assert myround(data) == [aggregates11h11,
                              aggregates11h12,
                              aggregates11h13]
+  end
+
+  test "daily overall aggregation with specific function with outside data and ranges and many series", %{conn: conn} do
+    tag1 = fixture(:tag)
+    tag2 = fixture(:tag, key: "key2", value: "value2")
+
+    metric1 = fixture(:metric)
+    metric2 = fixture(:metric, name: "metric2")
+
+    series11h = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+    series12h = fixture(:series, tags: [tag1], metric: metric2, period: 3600)
+    series21h = fixture(:series, tags: [tag2], metric: metric1, period: 3600)
+    series22h = fixture(:series, tags: [tag2], metric: metric2, period: 3600)
+    series11d = fixture(:series, tags: [tag1], metric: metric1, period: 3600*24)
+    series12d = fixture(:series, tags: [tag1], metric: metric2, period: 3600*24)
+    series21d = fixture(:series, tags: [tag2], metric: metric1, period: 3600*24)
+    series22d = fixture(:series, tags: [tag2], metric: metric2, period: 3600*24)
+
+    t0 = "2016-08-08T16:00:00Z" |> parse_date!
+    t1 = "2016-08-09T22:00:00Z" |> parse_date!
+    t2 = "2016-08-12T22:00:00Z" |> parse_date!
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 100, series: series11h)
+    samples21h1 = fixture(:samples, from: t0, repeat: 100, series: series21h)
+    samples12d1 = fixture(:samples, from: t0, repeat: 100, series: series12d)
+
+    t1a = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b0 = "2016-08-09T22:00:00Z" |> parse_date!
+    t1b = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c0 = "2016-08-10T22:00:00Z" |> parse_date!
+    t1c = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d0 = "2016-08-11T22:00:00Z" |> parse_date!
+    t1d = "2016-08-12T22:00:00Z" |> parse_date!
+
+    functions = ["sum", "count"]
+
+    values11h11 = Enum.map(samples11h1 |> Enum.slice(31..54), fn(s) -> s.value end)
+    values21h11 = Enum.map(samples21h1 |> Enum.slice(31..54), fn(s) -> s.value end)
+    values = values11h11 ++ values21h11
+    aggregates11h11 = Map.merge(
+      aggr(values, functions),
+      %{"timestamp" => t1b |> format_date!,
+        "from" => t1b0 |> format_date!,
+        "to" => t1b |> format_date!,
+        "granularity" => 60*60*24})
+
+    values11h12 = Enum.map(samples11h1 |> Enum.slice(55..78), fn(s) -> s.value end)
+    values21h12 = Enum.map(samples21h1 |> Enum.slice(55..78), fn(s) -> s.value end)
+    values = values11h12 ++ values21h12
+    aggregates11h12 = Map.merge(
+      aggr(values, functions),
+      %{"timestamp" => t1c |> format_date!,
+        "from" => t1c0 |> format_date!,
+        "to" => t1c |> format_date!,
+        "granularity" => 60*60*24})
+
+    values11h13 = Enum.map(samples11h1 |> Enum.slice(79..99), fn(s) -> s.value end)
+    values21h13 = Enum.map(samples21h1 |> Enum.slice(79..99), fn(s) -> s.value end)
+    values = values11h13 ++ values21h13
+    aggregates11h13 = Map.merge(
+      aggr(values, functions),
+      %{"timestamp" => t1d |> format_date!,
+        "from" => t1d0 |> format_date!,
+        "to" => t1d |> format_date!,
+        "granularity" => 60*60*24})
+
+    conn = get conn, aggregate_path(conn, :show, %{metric: "metric1",
+                                                   period: 3600,
+                                                   from: t1 |> format_date!,
+                                                   to: t2 |> format_date!,
+                                                   granularity: 60*60*24,
+                                                   tags: [],
+                                                   functions: functions
+                                                  })
+
+
+    data = json_response(conn, 200)["data"]
+    assert myround(data, functions) == [aggregates11h11,
+                                        aggregates11h12,
+                                        aggregates11h13]
   end
 
   test "daily aggregation with linear data with outside data and ranges and many series", %{conn: conn} do
