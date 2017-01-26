@@ -71,13 +71,13 @@ defmodule CaosTsdb.Mixfile do
      {:phoenix_ecto, "~> 3.2"},
      {:mariaex, "~> 0.8"},
      {:timex, "~> 3.1"},
-     {:tzdata, "~> 0.1.8", override: true},
+     {:tzdata, "~> 0.5.0", override: true},
      {:timex_ecto, "~> 3.1"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:guardian, "~> 0.14.0"},
      {:credo, "~> 0.6.0", only: [:dev, :test]},
-     {:distillery, "~> 1.0.0"},
+     {:distillery, "~> 1.1.0"},
      {:conform, "~> 2.1.2"}]
   end
 
