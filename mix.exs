@@ -56,12 +56,12 @@ defmodule CaosTsdb.Mixfile do
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
   defp elixirc_paths(:migration_test), do: ["lib", "web", "migration_test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]
+  defp elixirc_paths(_), do: ["lib", "web"]
 
   # Specifies which paths to test per environment.
   defp test_paths(:test), do: ["test"]
   defp test_paths(:migration_test), do: ["migration_test"]
-  defp test_paths(_),     do: []
+  defp test_paths(_), do: []
 
   # Specifies your project dependencies.
   #
@@ -76,6 +76,7 @@ defmodule CaosTsdb.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:guardian, "~> 0.14.0"},
+     {:credo, "~> 0.6.0", only: [:dev, :test]},
      {:distillery, "~> 1.0.0"},
      {:conform, "~> 2.1.2"}]
   end
