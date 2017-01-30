@@ -23,4 +23,10 @@
 
 defmodule CaosTsdb.Graphql.Types do
   use Absinthe.Schema.Notation
+
+  object :tag do
+    field :id, :id
+    field :key, :string
+    field :value, :string
+  end
 end

@@ -110,6 +110,7 @@ defmodule CaosTsdb.Web do
       import CaosTsdb.DateTime.Helpers
       import CaosTsdb.QueryFilter
       import CaosTsdb.Helpers
+      import CaosTsdb.Graphql.Helpers
     end
   end
 

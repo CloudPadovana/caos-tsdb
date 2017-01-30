@@ -24,4 +24,30 @@
 defmodule CaosTsdb.Graphql.Schema do
   use Absinthe.Schema
   import_types CaosTsdb.Graphql.Types
+
+  alias CaosTsdb.Graphql.Resolver.TagResolver
+
+  query do
+    field :tag, :tag do
+      arg :id, :id
+      arg :key, :string
+      arg :value, :string
+      resolve &TagResolver.get_one/2
+    end
+
+    field :tags, list_of(:tag) do
+      arg :id, :id
+      arg :key, :string
+      arg :value, :string
+      resolve &TagResolver.get_all/2
+    end
+  end
+
+  mutation do
+    field :create_tag, :tag do
+      arg :key, non_null(:string)
+      arg :value, non_null(:string)
+      resolve &TagResolver.get_or_create/2
+    end
+  end
 end
