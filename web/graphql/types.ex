@@ -29,4 +29,9 @@ defmodule CaosTsdb.Graphql.Types do
     field :key, :string
     field :value, :string
   end
+
+  object :metric do
+    field :name, :string
+    field :type, :string
+  end
 end

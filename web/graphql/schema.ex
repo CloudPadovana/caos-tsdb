@@ -26,6 +26,7 @@ defmodule CaosTsdb.Graphql.Schema do
   import_types CaosTsdb.Graphql.Types
 
   alias CaosTsdb.Graphql.Resolver.TagResolver
+  alias CaosTsdb.Graphql.Resolver.MetricResolver
 
   query do
     field :tag, :tag do
@@ -41,6 +42,18 @@ defmodule CaosTsdb.Graphql.Schema do
       arg :value, :string
       resolve &TagResolver.get_all/2
     end
+
+    field :metric, :metric do
+      arg :name, :string
+      resolve &MetricResolver.get_one/2
+    end
+
+    field :metrics, list_of(:metric) do
+      arg :name, :string
+      arg :type, :string
+      resolve &MetricResolver.get_all/2
+    end
+
   end
 
   mutation do
@@ -49,5 +62,18 @@ defmodule CaosTsdb.Graphql.Schema do
       arg :value, non_null(:string)
       resolve &TagResolver.get_or_create/2
     end
+
+    field :create_metric, :metric do
+      arg :name, non_null(:string)
+      arg :type, :string
+      resolve &MetricResolver.get_or_create/2
+    end
+
+    field :update_metric, :metric do
+      arg :name, non_null(:string)
+      arg :type, :string
+      resolve &MetricResolver.update/2
+    end
+
   end
 end

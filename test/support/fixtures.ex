@@ -59,7 +59,8 @@ defmodule CaosTsdb.Fixtures do
 
   def fixture(:metric, assoc) do
     Repo.insert! %Metric{
-      name: assoc[:name] || "metric1"
+      name: assoc[:name] || "metric1",
+      type: assoc[:type] || "type1"
     }
   end
 
