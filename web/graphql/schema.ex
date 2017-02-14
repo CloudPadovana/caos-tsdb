@@ -27,6 +27,7 @@ defmodule CaosTsdb.Graphql.Schema do
 
   alias CaosTsdb.Graphql.Resolver.TagResolver
   alias CaosTsdb.Graphql.Resolver.MetricResolver
+  alias CaosTsdb.Graphql.Resolver.SeriesResolver
 
   query do
     field :tag, :tag do
@@ -54,6 +55,13 @@ defmodule CaosTsdb.Graphql.Schema do
       resolve &MetricResolver.get_all/2
     end
 
+    field :series, :series do
+      arg :id, :id
+      arg :metric, :metric_primary
+      arg :period, :integer
+      arg :tags, list_of(:tag_primary)
+      resolve &SeriesResolver.get_one/2
+    end
   end
 
   mutation do

@@ -49,6 +49,15 @@ defmodule CaosTsdb.Graphql.Resolver.MetricResolver do
     {:ok, metrics}
   end
 
+  def series_by_metric(_, metric_names) do
+    Metric
+    |> where([m], m.name in ^metric_names)
+    |> join(:inner, [m], s in assoc(m, :series))
+    |> preload([_, s], [series: s])
+    |> Repo.all
+    |> Map.new(&{&1.name, &1.series})
+  end
+
   def create(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end

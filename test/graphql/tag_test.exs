@@ -34,28 +34,6 @@ defmodule CaosTsdb.Graphql.TagTest do
     {:ok, conn: conn}
   end
 
-  defp tag_to_json(tag, fields \\ [:id, :key, :value]) do
-    %{
-      id: %{"id" => "#{tag.id}"},
-      key: %{"key" => tag.key},
-      value: %{"value" => tag.value}
-    } |> Map.take(fields)
-    |> Map.values
-    |> Enum.reduce(%{}, fn (map, acc) -> Map.merge(acc, map) end)
-  end
-  defp tags_to_json(tags, fields \\ [:id, :key, :value]) do
-    tags
-    |> Enum.map(&(tag_to_json(&1, fields)))
-  end
-
-  defp json_to_tag(json) do
-    %{
-      id: json["id"],
-      key: json["key"],
-      value: json["value"]
-    }
-  end
-
   describe "failure on" do
     test "tag query without arguments", %{conn: conn} do
       query = """
@@ -260,6 +238,67 @@ defmodule CaosTsdb.Graphql.TagTest do
 
       conn = graphql_query conn, @query, %{key: "key2"}
       assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag21, tag22])}
+    end
+  end
+
+  describe "get tag series" do
+    @query """
+    query {
+      tags {
+        id
+        key
+        value
+        series {
+          id
+        }
+      }
+    }
+    """
+
+    test "when there is one series", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+
+      expected_json = %{"tags" => [
+                         put_in(tag_to_json(tag1), ["series"], [%{"id" => "#{series2.id}"}]),
+                         put_in(tag_to_json(tag2), ["series"], [%{"id" => "#{series2.id}"}]),
+                         put_in(tag_to_json(tag3), ["series"], [])]}
+
+      conn = graphql_query conn, @query
+      assert json_response(conn, 200)["data"] == expected_json
+    end
+
+    test "when there are many series", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
+
+      expected_json = %{"tags" => [
+                         put_in(tag_to_json(tag1), ["series"], [
+                               %{"id" => "#{series1.id}"},
+                               %{"id" => "#{series2.id}"},
+                               %{"id" => "#{series3.id}"}]),
+                         put_in(tag_to_json(tag2), ["series"], [
+                               %{"id" => "#{series2.id}"},
+                               %{"id" => "#{series3.id}"}]),
+                         put_in(tag_to_json(tag3), ["series"], [
+                               %{"id" => "#{series3.id}"}])]}
+
+      conn = graphql_query conn, @query
+      assert json_response(conn, 200)["data"] == expected_json
     end
   end
 

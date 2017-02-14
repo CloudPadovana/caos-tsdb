@@ -53,6 +53,15 @@ defmodule CaosTsdb.Graphql.Resolver.TagResolver do
     {:ok, tags}
   end
 
+  def series_by_tag(_, tag_ids) do
+    Tag
+    |> where([t], t.id in ^tag_ids)
+    |> join(:inner, [t], s in assoc(t, :series))
+    |> preload([_, s], [series: s])
+    |> Repo.all
+    |> Map.new(&{&1.id, &1.series})
+  end
+
   def create(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end

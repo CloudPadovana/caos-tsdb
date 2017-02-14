@@ -62,6 +62,7 @@ defmodule CaosTsdb.Fixtures do
       name: assoc[:name] || "metric1",
       type: assoc[:type] || "type1"
     }
+    |> Repo.preload(:series)
   end
 
   def fixture(:series, assoc) do

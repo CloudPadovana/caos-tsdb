@@ -75,6 +75,8 @@ defmodule CaosTsdb.ConnCase do
       def graphql_query(conn, query, variables \\ %{}) do
         conn = post conn, @graphql_api_endpoint, query: query, variables: variables
       end
+
+      import CaosTsdb.Test.Support.GraphqHelpers
     end
   end
 
