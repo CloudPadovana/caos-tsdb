@@ -27,7 +27,7 @@ defmodule CaosTsdb.Repo.Migrations.CreateTagMetadata do
   def change do
     create table(:tag_metadatas, primary_key: false) do
       add :tag_id, references(:tags, column: :id, type: :serial), primary_key: true
-      add :timestamp, :datetime, primary_key: true
+      add :timestamp, :utc_datetime, primary_key: true
 
       add :metadata, :text
 

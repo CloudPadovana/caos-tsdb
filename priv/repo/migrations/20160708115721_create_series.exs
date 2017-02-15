@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ defmodule CaosTsdb.Repo.Migrations.CreateSeries do
       add :metric_name, references(:metrics, column: :name, type: :string), primary_key: true
       add :period, :integer, primary_key: true
       add :ttl, :integer
-      add :last_timestamp, :datetime
+      add :last_timestamp, :utc_datetime
       timestamps()
     end
 
