@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ defmodule CaosTsdb.Models.Helpers do
     end
   end
 
-  @spec validate_immutable_unless_forced(Ecto.Changeset.t, atom, atom) :: Ecto.Changeset.t
-  def validate_immutable_unless_forced(changeset, field, force_field) do
-    unless get_field(changeset, force_field) do
+  @spec validate_immutable_unless_overwrite(Ecto.Changeset.t, atom, atom) :: Ecto.Changeset.t
+  def validate_immutable_unless_overwrite(changeset, field, overwrite_field) do
+    unless get_field(changeset, overwrite_field) do
       validate_immutable(changeset, field)
     else
       changeset

@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ defmodule CaosTsdb.Sample do
       references: :id,
       define_field: false
 
-    field :force, :boolean, virtual: true
+    field :overwrite, :boolean, virtual: true
   end
 
   @doc """
@@ -45,11 +45,11 @@ defmodule CaosTsdb.Sample do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:series_id, :timestamp, :value, :force])
+    |> cast(params, [:series_id, :timestamp, :value, :overwrite])
     |> validate_required([:series_id, :timestamp])
     |> validate_immutable(:series_id)
-    |> validate_immutable_unless_forced(:timestamp, :force)
-    |> validate_immutable_unless_forced(:value, :force)
+    |> validate_immutable_unless_overwrite(:timestamp, :overwrite)
+    |> validate_immutable_unless_overwrite(:value, :overwrite)
     |> foreign_key_constraint(:series_id)
     |> assoc_constraint(:series)
     # the following line has this form due to mysql error format

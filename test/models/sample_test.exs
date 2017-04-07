@@ -57,4 +57,26 @@ defmodule CaosTsdb.SampleTest do
     changeset = Sample.changeset(@sample, %{value: 24.3})
     refute changeset.valid?
   end
+
+  describe "changeset overwrite" do
+    test "value without overwrite" do
+      changeset = Sample.changeset(@sample, %{value: 24.3})
+      refute changeset.valid?
+    end
+
+    test "value with overwrite" do
+      changeset = Sample.changeset(@sample, %{value: 24.3, overwrite: true})
+      assert changeset.valid?
+    end
+
+    test "timestamp without overwrite" do
+      changeset = Sample.changeset(@sample, %{timestamp: Timex.now})
+      refute changeset.valid?
+    end
+
+    test "timestamp with overwrite" do
+      changeset = Sample.changeset(@sample, %{timestamp: Timex.now, overwrite: true})
+      assert changeset.valid?
+    end
+  end
 end
