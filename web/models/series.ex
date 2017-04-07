@@ -41,6 +41,10 @@ defmodule CaosTsdb.Series do
       foreign_key: :metric_name,
       references: :name,
       define_field: false
+
+    has_many :samples, CaosTsdb.Sample,
+      foreign_key: :series_id,
+      references: :id
   end
 
   @doc """
