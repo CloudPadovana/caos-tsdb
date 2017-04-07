@@ -108,7 +108,7 @@ defmodule CaosTsdb.Web do
       import CaosTsdb.Router.Helpers
       import CaosTsdb.Gettext
       import CaosTsdb.DateTime.Helpers
-      import CaosTsdb.QueryFilter
+      alias CaosTsdb.QueryFilter
       import CaosTsdb.Helpers
       import CaosTsdb.Graphql.Helpers
     end
