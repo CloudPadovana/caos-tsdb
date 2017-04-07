@@ -24,6 +24,9 @@
 defmodule CaosTsdb.Tag do
   use CaosTsdb.Web, :model
 
+  @tag_key_regex ~r|^[[:alpha:]][[:alnum:]_./]*$|
+  @tag_value_regex ~r|^[[:alpha:]][[:alnum:]_./]*$|
+
   @primary_key {:id, :id, autogenerate: true}
   @derive {Phoenix.Param, key: :id}
   schema "tags" do
@@ -48,6 +51,8 @@ defmodule CaosTsdb.Tag do
     struct
     |> cast(params, [:id, :key, :value, :extra])
     |> validate_required([:key, :value])
+    |> validate_format(:key, @tag_key_regex)
+    |> validate_format(:value, @tag_value_regex)
     |> validate_immutable(:id)
     |> validate_immutable(:key)
     |> validate_immutable(:value)

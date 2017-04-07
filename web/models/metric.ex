@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 defmodule CaosTsdb.Metric do
   use CaosTsdb.Web, :model
 
+  @metric_name_regex ~r|^[[:alpha:]][[:alnum:]_./]*$|
+
   @primary_key {:name, :string, []}
   @derive {Phoenix.Param, key: :name}
   schema "metrics" do
@@ -43,6 +45,7 @@ defmodule CaosTsdb.Metric do
     struct
     |> cast(params, [:name, :type])
     |> validate_required(:name)
+    |> validate_format(:name, @metric_name_regex)
     |> validate_immutable(:name)
     |> unique_constraint(:name)
   end

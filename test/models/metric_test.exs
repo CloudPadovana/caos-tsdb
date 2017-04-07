@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,26 +26,43 @@ defmodule CaosTsdb.MetricTest do
 
   alias CaosTsdb.Metric
 
-  @metric %Metric{name: "a name", type: "a type"}
-  @valid_attrs %{name: "a name", type: "a new type"}
+  @metric %Metric{name: "a_name", type: "a type"}
 
-  test "changeset with valid creation" do
-    changeset = Metric.changeset(%Metric{}, @valid_attrs)
-    assert changeset.valid?
+  describe "valid changeset" do
+    @valid_name @metric.name
+    @valid_type "new #{@metric.type}"
+
+    test "creation" do
+      changeset = Metric.changeset(%Metric{}, %{name: @valid_name, type: @valid_type})
+      assert changeset.valid?
+    end
+
+    test "change" do
+      changeset = Metric.changeset(@metric, %{name: @valid_name, type: @valid_type})
+      assert changeset.valid?
+    end
   end
 
-  test "changeset with invalid creation" do
-    changeset = Metric.changeset(%Metric{}, %{type: "a type"})
-    refute changeset.valid?
-  end
+  describe "invalid changeset" do
+    @valid_type @metric.type
 
-  test "changeset with valid change" do
-    changeset = Metric.changeset(@metric, @valid_attrs)
-    assert changeset.valid?
-  end
+    test "creation with missing name" do
+      changeset = Metric.changeset(%Metric{}, %{type: @valid_type})
+      refute changeset.valid?
+    end
 
-  test "changeset with invalid change" do
-    changeset = Metric.changeset(@metric, %{name: "a new name", type: "a type"})
-    refute changeset.valid?
+    test "creation with invalid name" do
+      invalid_name = ".invalid"
+
+      changeset = Metric.changeset(%Metric{}, %{name: invalid_name, type: @valid_type})
+      refute changeset.valid?
+    end
+
+    test "change with new name" do
+      invalid_name = "new #{@metric.name}"
+
+      changeset = Metric.changeset(@metric, %{name: invalid_name, type: @valid_type})
+      refute changeset.valid?
+    end
   end
 end
