@@ -52,18 +52,6 @@ defmodule CaosTsdb.Router do
   scope "/api/v1", CaosTsdb do
     pipe_through [:v1, :api, :api_auth, :api_auth_ensure]
 
-    resources "/tags", TagController, param: "id", except: [:new, :edit, :delete]
-    resources "/metrics", MetricController, param: "name", except: [:new, :edit, :delete]
-
-    resources "/series", SeriesController, param: "id", except: [:new, :edit, :delete] do
-      get "/grid", SeriesController, :grid, as: "grid"
-      get "/samples", SampleController, :show, as: "samples"
-    end
-
-    resources "/samples", SampleController, only: [:show, :create], singleton: true
-
-    resources "/aggregate", AggregateController, only: [:show], singleton: true
-
     forward "/graphql", Graphql.Plug
   end
 end

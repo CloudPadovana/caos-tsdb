@@ -24,8 +24,6 @@
 defmodule CaosTsdb.Graphql.Resolver.MetricResolver do
   use CaosTsdb.Web, :resolver
 
-  alias CaosTsdb.Metric
-
   def get_one(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end
@@ -43,19 +41,19 @@ defmodule CaosTsdb.Graphql.Resolver.MetricResolver do
 
   def get_all(args, _) do
     metrics = Metric
-    |> CaosTsdb.QueryFilter.filter(%Metric{}, args, [:name, :type])
+    |> QueryFilter.filter(%Metric{}, args, [:name, :type])
     |> Repo.all
 
     {:ok, metrics}
   end
 
-  def series_by_metric(_, metric_names) do
+  def batch_by_series(_, metric_names) do
+    names = metric_names |> Enum.uniq
+
     Metric
-    |> where([m], m.name in ^metric_names)
-    |> join(:inner, [m], s in assoc(m, :series))
-    |> preload([_, s], [series: s])
+    |> where([m], m.name in ^names)
     |> Repo.all
-    |> Map.new(&{&1.name, &1.series})
+    |> Map.new(&{&1.name, &1})
   end
 
   def create(args, _) when args == %{} do

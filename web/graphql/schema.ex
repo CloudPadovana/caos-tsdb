@@ -25,9 +25,12 @@ defmodule CaosTsdb.Graphql.Schema do
   use Absinthe.Schema
   import_types CaosTsdb.Graphql.Types
 
+  import CaosTsdb.DateTime.Helpers
   alias CaosTsdb.Graphql.Resolver.TagResolver
   alias CaosTsdb.Graphql.Resolver.MetricResolver
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
+  alias CaosTsdb.Graphql.Resolver.SampleResolver
+  alias CaosTsdb.Graphql.Resolver.AggregateResolver
 
   query do
     field :tag, :tag do
@@ -62,6 +65,28 @@ defmodule CaosTsdb.Graphql.Schema do
       arg :tags, list_of(:tag_primary)
       resolve &SeriesResolver.get_one/2
     end
+
+    field :sample, :sample do
+      arg :series, non_null(:series_primary)
+      arg :timestamp, non_null(:datetime)
+      resolve &SampleResolver.get_one/2
+    end
+
+    field :samples, list_of(:sample) do
+      arg :series, non_null(:series_primary)
+      arg :from, :datetime, default_value: epoch()
+      arg :to, :datetime, default_value: Timex.now
+      resolve &SampleResolver.get_all/2
+    end
+
+    field :aggregate, list_of(:sample) do
+      arg :series, non_null(:series_group)
+      arg :from, :datetime, default_value: epoch()
+      arg :to, :datetime, default_value: Timex.now
+      arg :granularity, :integer
+      arg :function, :aggregate_function, default_value: :count
+      resolve &AggregateResolver.aggregate/2
+    end
   end
 
   mutation do
@@ -71,17 +96,32 @@ defmodule CaosTsdb.Graphql.Schema do
       resolve &TagResolver.get_or_create/2
     end
 
+    field :create_tag_metadata, :tag_metadata do
+      arg :tag, non_null(:tag_primary)
+      arg :timestamp, non_null(:datetime)
+      arg :metadata, non_null(:string)
+      resolve &TagResolver.create_tag_metadata/2
+    end
+
     field :create_metric, :metric do
       arg :name, non_null(:string)
       arg :type, :string
       resolve &MetricResolver.get_or_create/2
     end
 
-    field :update_metric, :metric do
-      arg :name, non_null(:string)
-      arg :type, :string
-      resolve &MetricResolver.update/2
+    field :create_series, :series do
+      arg :metric, non_null(:metric_primary)
+      arg :period, non_null(:integer)
+      arg :tags, non_null(list_of(:tag_primary))
+      resolve &SeriesResolver.get_or_create/2
     end
 
+    field :create_sample, :sample do
+      arg :series, non_null(:series_primary)
+      arg :timestamp, non_null(:datetime)
+      arg :value, non_null(:float)
+      arg :overwrite, :boolean, default_value: false
+      resolve &SampleResolver.create/2
+    end
   end
 end

@@ -259,7 +259,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       }
     }
     """
-    @valid_args %{name: "a name", type: "a type"}
+    @valid_args %{name: "a/valid.name", type: "a type"}
     @invalid_args %{name: "", type: "a type"}
 
     test "when data is valid", %{conn: conn} do
@@ -281,33 +281,6 @@ defmodule CaosTsdb.Graphql.MetricTest do
       conn = graphql_query conn, @query, @valid_args
 
       assert json_response(conn, 200)["data"] == %{"create_metric" => metric_to_json(metric1)}
-    end
-  end
-
-  describe "update metric" do
-    @query """
-    mutation($name: String!, $type: String) {
-      update_metric(name: $name, type: $type) {
-        name
-        type
-      }
-    }
-    """
-    @valid_args %{name: "a name", type: "a type"}
-    @invalid_args %{name: "", type: "a type"}
-
-    test "when data is valid", %{conn: conn} do
-      _metric1 = fixture(:metric, name: @valid_args.name, type: "old #{@valid_args.type}")
-      conn = graphql_query conn, @query, @valid_args
-
-      assert json_response(conn, 200)["data"] == %{"update_metric" => metric_to_json(@valid_args)}
-    end
-
-    test "should fail when data is invalid", %{conn: conn} do
-      _metric1 = fixture(:metric, name: @valid_args.name, type: "old #{@valid_args.type}")
-
-      conn = graphql_query conn, @query, @invalid_args
-      assert json_response(conn, 200)["errors"] != []
     end
   end
 end

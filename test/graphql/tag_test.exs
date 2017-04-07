@@ -25,6 +25,8 @@ defmodule CaosTsdb.Graphql.TagTest do
   use CaosTsdb.ConnCase
 
   alias CaosTsdb.Tag
+  alias CaosTsdb.TagMetadata
+  import CaosTsdb.DateTime.Helpers
 
   setup %{conn: conn} do
     conn = conn
@@ -302,6 +304,75 @@ defmodule CaosTsdb.Graphql.TagTest do
     end
   end
 
+  describe "get tag metadata" do
+    @query """
+    query($from: Datetime, $to: Datetime) {
+      tags {
+        id
+        key
+        value
+        metadata(from: $from, to: $to) {
+          timestamp
+          metadata
+        }
+        last_metadata {
+          timestamp
+          metadata
+        }
+      }
+    }
+    """
+
+    test "when there is no metadata", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+
+      from = "2017-02-13T00:00:00Z"
+      to = "2017-02-14T00:00:00Z"
+
+      expected_json = %{"tags" => [
+                         tag_to_json(tag1)
+                         |> put_in(["metadata"], [])
+                         |> put_in(["last_metadata"], tag_metadata_to_json(%TagMetadata{}))]}
+
+      conn = graphql_query conn, @query, %{from: from, to: to}
+      assert json_response(conn, 200)["data"] == expected_json
+    end
+
+    test "when there are many metadatas", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      t1 = "2017-02-14T00:00:00Z" |> parse_date!
+      t2 = "2017-02-14T03:00:00Z" |> parse_date!
+      t3 = "2017-02-14T06:00:00Z" |> parse_date!
+
+      meta1 = fixture(:tag_metadata, tag: tag1, from: t1, repeat: 12)
+      meta2 = fixture(:tag_metadata, tag: tag2, from: t2, repeat: 12)
+      meta3 = fixture(:tag_metadata, tag: tag3, from: t3, repeat: 12)
+
+      from = "2017-02-13T00:00:00Z"
+      to = "2017-02-14T09:00:00Z"
+
+      expected_json = %{"tags" => [
+                         tag_to_json(tag1)
+                         |> put_in(["metadata"], tag_metadatas_to_json(meta1 |> Enum.slice(0..9)))
+                         |> put_in(["last_metadata"], tag_metadata_to_json(meta1 |> List.last)),
+
+                         tag_to_json(tag2)
+                         |> put_in(["metadata"], tag_metadatas_to_json(meta2 |> Enum.slice(0..6)))
+                         |> put_in(["last_metadata"], tag_metadata_to_json(meta2 |> List.last)),
+
+                         tag_to_json(tag3)
+                         |> put_in(["metadata"], tag_metadatas_to_json(meta3 |> Enum.slice(0..3)))
+                         |> put_in(["last_metadata"], tag_metadata_to_json(meta3 |> List.last))
+                       ]}
+
+      conn = graphql_query conn, @query, %{from: from, to: to}
+      assert json_response(conn, 200)["data"] == expected_json
+    end
+  end
+
   describe "create tag" do
     @query """
     mutation($key: String!, $value: String!) {
@@ -312,7 +383,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       }
     }
     """
-    @valid_args %{key: "a name", value: "a value"}
+    @valid_args %{key: "a.valid/name", value: "a/valid1/value"}
     @invalid_args %{key: "", value: "a value"}
 
     test "when data is valid", %{conn: conn} do

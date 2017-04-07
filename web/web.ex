@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,6 +111,19 @@ defmodule CaosTsdb.Web do
       alias CaosTsdb.QueryFilter
       import CaosTsdb.Helpers
       import CaosTsdb.Graphql.Helpers
+
+      alias CaosTsdb.Graphql.Resolver.TagResolver
+      alias CaosTsdb.Graphql.Resolver.MetricResolver
+      alias CaosTsdb.Graphql.Resolver.SeriesResolver
+      alias CaosTsdb.Graphql.Resolver.SampleResolver
+      alias CaosTsdb.Graphql.Resolver.AggregateResolver
+
+      alias CaosTsdb.Tag
+      alias CaosTsdb.TagMetadata
+      alias CaosTsdb.Metric
+      alias CaosTsdb.Series
+      alias CaosTsdb.SeriesTag
+      alias CaosTsdb.Sample
     end
   end
 

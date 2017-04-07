@@ -24,13 +24,19 @@
 defmodule CaosTsdb.Graphql.Types do
   use Absinthe.Schema.Notation
 
+  import CaosTsdb.DateTime.Helpers
+
   alias CaosTsdb.Graphql.Resolver.TagResolver
   alias CaosTsdb.Graphql.Resolver.MetricResolver
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
+  alias CaosTsdb.Graphql.Resolver.SampleResolver
+
   scalar :datetime, description: "ISOz datetime" do
     parse &Timex.parse(&1.value, "%FT%TZ", :strftime)
     serialize &Timex.format!(&1, "%FT%TZ", :strftime)
   end
+
+  enum :aggregate_function, values: [:avg, :count, :min, :max, :sum, :std, :var]
 
   input_object :tag_primary do
     field :id, :id
@@ -41,12 +47,88 @@ defmodule CaosTsdb.Graphql.Types do
   object :tag do
     import_fields :tag_primary
 
-    field :series, list_of(:series) do
-      resolve fn tag, _, _ ->
-        batch({TagResolver, :series_by_tag}, tag.id, fn batch_results ->
+    field :metadata, list_of(:tag_metadata) do
+      arg :from, :datetime, default_value: nil
+      arg :to, :datetime, default_value: nil
+
+      resolve fn tag, args, _ ->
+        batch({TagResolver, :batch_metadata_by_tag, args}, tag.id, fn batch_results ->
           {:ok, Map.get(batch_results, tag.id, [])}
         end)
       end
+    end
+
+    field :last_metadata, :tag_metadata do
+      resolve fn tag, _, _ ->
+        batch({TagResolver, :batch_last_metadata_by_tag}, tag.id, fn batch_results ->
+          {:ok, Map.get(batch_results, tag.id, %{})}
+        end)
+      end
+    end
+
+    field :last_sample, :sample do
+      arg :series, non_null(:series_primary)
+
+      resolve fn
+        tag, args = %{series: %{tags: tags}}, context ->
+          SampleResolver.get_last(args |> put_in([:series, :tags], [%{id: tag.id},] ++ tags), context)
+
+        tag, args, context ->
+          SampleResolver.get_last(args |> put_in([:series, :tags], [%{id: tag.id},]), context)
+      end
+    end
+
+    field :last_sample_value, :float do
+      arg :series, non_null(:series_primary)
+
+      resolve fn
+        tag, args = %{series: %{tags: tags}}, context ->
+          SampleResolver.get_last_value(args |> put_in([:series, :tags], [%{id: tag.id},] ++ tags), context)
+
+        tag, args, context ->
+          SampleResolver.get_last_value(args |> put_in([:series, :tags], [%{id: tag.id},]), context)
+      end
+    end
+
+    field :series, list_of(:series) do
+      arg :metric, :metric_primary
+      arg :period, :integer
+      arg :tags, list_of(:tag_primary)
+
+      resolve fn
+        tag, args = %{tags: tags}, context ->
+          SeriesResolver.get_all(%{args | tags: [%{id: tag.id},] ++ tags}, context)
+
+        tag, args, _ ->
+          batch({SeriesResolver, :batch_by_tag, args}, tag.id, fn batch_results ->
+            {:ok, Map.get(batch_results, tag.id, [])}
+          end)
+      end
+    end
+  end
+
+  object :tag_metadata do
+    field :timestamp, :datetime
+    field :metadata, :string
+
+    field :field, :string do
+      arg :key, list_of(:string)
+      resolve &(TagResolver.metadata_field(:string, &1, &2, &3))
+    end
+
+    field :boolean_field, :boolean do
+      arg :key, list_of(:string)
+      resolve &(TagResolver.metadata_field(:boolean, &1, &2, &3))
+    end
+
+    field :float_field, :float do
+      arg :key, list_of(:string)
+      resolve &(TagResolver.metadata_field(:float, &1, &2, &3))
+    end
+
+    field :integer_field, :integer do
+      arg :key, list_of(:string)
+      resolve &(TagResolver.metadata_field(:integer, &1, &2, &3))
     end
   end
 
@@ -61,39 +143,89 @@ defmodule CaosTsdb.Graphql.Types do
 
     field :series, list_of(:series) do
       resolve fn metric, _, _ ->
-        batch({MetricResolver, :series_by_metric}, metric.name, fn batch_results ->
+        batch({SeriesResolver, :batch_by_metric}, metric.name, fn batch_results ->
           {:ok, Map.get(batch_results, metric.name, [])}
         end)
       end
     end
-
   end
 
   input_object :series_primary do
     field :id, :id
     field :period, :integer
+    field :metric, :metric_primary
+    field :tags, list_of(:tag_primary)
+  end
+
+  input_object :series_group do
+    import_fields :series_primary
+
+    field :tag, :tag_primary
+  end
+
+  object :series do
+    field :id, :id
+    field :period, :integer
+
+    field :ttl, :integer
+    field :last_timestamp, :datetime
 
     field :metric, :metric do
       resolve fn series, _, _ ->
-        batch({SeriesResolver, :metric_by_series}, series.metric_name, fn batch_results ->
-          {:ok, Map.get(batch_results, series.metric_name, [])}
+        batch({MetricResolver, :batch_by_series}, series.metric_name, fn batch_results ->
+          {:ok, Map.get(batch_results, series.metric_name, %{})}
         end)
       end
     end
 
     field :tags, list_of(:tag) do
       resolve fn series, _, _ ->
-        batch({SeriesResolver, :tags_by_series}, series.id, fn batch_results ->
+        batch({TagResolver, :batch_by_series}, series.id, fn batch_results ->
+          {:ok, Map.get(batch_results, series.id, [])}
+        end)
+      end
+    end
+
+    field :samples, list_of(:sample) do
+      arg :from, :datetime, default_value: epoch()
+      arg :to, :datetime, default_value: Timex.now
+
+      resolve fn series, args, _ ->
+        batch({SampleResolver, :batch_by_series, args}, series.id, fn batch_results ->
+          {:ok, Map.get(batch_results, series.id, [])}
+        end)
+      end
+    end
+
+    field :sample, :sample do
+      arg :timestamp, :datetime
+
+      resolve fn series, args, _ ->
+        batch({SampleResolver, :batch_by_series, args}, series.id, fn batch_results ->
+          {:ok, Map.get(batch_results, series.id, %{})}
+        end)
+      end
+    end
+
+    field :last_sample, :sample do
+      resolve fn series, _, _ ->
+        batch({SampleResolver, :batch_last_by_series}, series.id, fn batch_results ->
           {:ok, Map.get(batch_results, series.id, [])}
         end)
       end
     end
   end
 
-  object :series do
-    import_fields :series_primary
+  object :sample do
+    field :timestamp, :datetime
+    field :value, :float
 
-    field :ttl, :integer
-    field :last_timestamp, :datetime
+    field :series, :series do
+      resolve fn sample, _, _ ->
+        batch({SeriesResolver, :batch_by_sample}, sample.series_id, fn batch_results ->
+          {:ok, Map.get(batch_results, sample.series_id, %{})}
+        end)
+      end
+    end
   end
 end

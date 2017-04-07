@@ -24,8 +24,6 @@
 defmodule CaosTsdb.Graphql.SeriesTest do
   use CaosTsdb.ConnCase
 
-  alias CaosTsdb.Series
-
   setup %{conn: conn} do
     conn = conn
     |> put_req_header("accept", "application/json")
@@ -44,6 +42,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
             name
           }
           tags {
+            id
             key
             value
           }
@@ -68,6 +67,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
           name
         }
         tags {
+          id
           key
           value
         }
@@ -92,14 +92,14 @@ defmodule CaosTsdb.Graphql.SeriesTest do
     test "when there are many series and many tags", %{conn: conn} do
       tag1 = fixture(:tag, key: "key1", value: "value1")
       tag2 = fixture(:tag, key: "key2", value: "value2")
-      tag3 = fixture(:tag, key: "key3", value: "value3")
+      _tag3 = fixture(:tag, key: "key3", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
-      metric2 = fixture(:metric, name: "metric2")
+      _metric2 = fixture(:metric, name: "metric2")
 
-      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      _series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
       series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
-      series3 = fixture(:series, tags: [tag1], metric: metric1, period: 86400)
+      _series3 = fixture(:series, tags: [tag1], metric: metric1, period: 86400)
 
       conn = graphql_query conn, @query, %{id: series2.id}
       assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
@@ -116,6 +116,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
           name
         }
         tags {
+          id
           key
           value
         }
@@ -143,11 +144,11 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       tag3 = fixture(:tag, key: "key3", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
-      metric2 = fixture(:metric, name: "metric2")
+      _metric2 = fixture(:metric, name: "metric2")
 
-      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
-      series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
-      series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
+      _series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      _series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
 
       conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}]}
       assert json_response(conn, 200)["errors"] != []
@@ -156,10 +157,10 @@ defmodule CaosTsdb.Graphql.SeriesTest do
     test "when there is one series", %{conn: conn} do
       tag1 = fixture(:tag, key: "key1", value: "value1")
       tag2 = fixture(:tag, key: "key2", value: "value2")
-      tag3 = fixture(:tag, key: "key3", value: "value3")
+      _tag3 = fixture(:tag, key: "key3", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
-      metric2 = fixture(:metric, name: "metric2")
+      _metric2 = fixture(:metric, name: "metric2")
 
       series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
 
@@ -173,13 +174,85 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       tag3 = fixture(:tag, key: "key3", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
-      metric2 = fixture(:metric, name: "metric2")
+      _metric2 = fixture(:metric, name: "metric2")
 
-      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      _series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
       series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
-      series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
+      _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
 
       conn = graphql_query conn, @query, %{@query_params | tags: [%{key: tag2.key, value: tag2.value}, %{id: tag1.id}]}
       assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
     end
   end
+
+  describe "create series" do
+    @query """
+    mutation($period: Int!, $metric: MetricPrimary!, $tags: [TagPrimary!]!) {
+      series: create_series(period: $period, metric: $metric, tags: $tags) {
+        id
+        period
+        metric {
+          name
+        }
+        tags {
+          id
+          key
+          value
+        }
+        last_timestamp
+        ttl
+      }
+    }
+    """
+
+    @query_params %{period: 3600, metric: %{name: "metric1"}, tags: []}
+
+    test "when data is valid", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+
+      conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}, %{id: tag3.id}]}
+      expected_json = series_to_json(series1)
+      |> put_in(["tags"], tags_to_json([tag1, tag3]))
+      |> Map.drop(["id"])
+      assert json_response(conn, 200)["data"]["series"] |> Map.drop(["id"]) == expected_json
+    end
+
+    test "must fail when no tag is given", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      _tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      _series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+
+      conn = graphql_query conn, @query, @query_params
+      assert json_response(conn, 200)["errors"] != []
+    end
+
+    test "returns already existent series", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      _series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      series2 = fixture(:series, tags: [tag1, tag3], metric: metric1, period: 3600)
+      _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 3600)
+
+      conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}, %{id: tag3.id}]}
+      expected_json = %{"series" => series_to_json(series2)}
+      assert json_response(conn, 200)["data"] == expected_json
+    end
+  end
+end

@@ -22,6 +22,8 @@
 ################################################################################
 
 defmodule CaosTsdb.Test.Support.GraphqHelpers do
+  import CaosTsdb.DateTime.Helpers
+
   def tag_to_json(tag, fields \\ [:id, :key, :value]) do
     %{
       id: %{"id" => "#{tag.id}"},
@@ -42,6 +44,24 @@ defmodule CaosTsdb.Test.Support.GraphqHelpers do
       key: json["key"],
       value: json["value"]
     }
+  end
+
+  def tag_metadata_to_json(tag_metadata, fields \\ [:timestamp, :metadata]) do
+    ts = case tag_metadata.timestamp do
+      nil -> nil
+      ts -> ts |> format_date!
+    end
+
+    %{
+      metadata: %{"metadata" => tag_metadata.metadata},
+      timestamp: %{"timestamp" => ts}
+    } |> Map.take(fields)
+    |> Map.values
+    |> Enum.reduce(%{}, fn (map, acc) -> Map.merge(acc, map) end)
+  end
+  def tag_metadatas_to_json(tag_metadatas, fields \\ [:timestamp, :metadata]) do
+    tag_metadatas
+    |> Enum.map(&(tag_metadata_to_json(&1, fields)))
   end
 
   def metric_to_json(metric, fields \\ [:name, :type]) do
@@ -69,10 +89,7 @@ defmodule CaosTsdb.Test.Support.GraphqHelpers do
       id: %{"id" => "#{series.id}"},
       period: %{"period" => series.period},
       metric: %{"metric" => %{"name" => series.metric_name}},
-      tags: %{"tags" => series.tags |> Enum.map(fn(t) -> %{
-                                                         "key" => t.key,
-                                                         "value" => t.value
-                                                     } end)},
+      tags: %{"tags" => series.tags |> tags_to_json()},
       ttl: %{"ttl" => series.ttl},
       last_timestamp: %{"last_timestamp" => series.last_timestamp}
     }
@@ -83,5 +100,20 @@ defmodule CaosTsdb.Test.Support.GraphqHelpers do
   def serieses_to_json(serieses, fields \\ [:id, :period, :metric, :tags, :ttl, :last_timestamp]) do
     serieses
     |> Enum.map(&(series_to_json(&1, fields)))
+  end
+
+  def sample_to_json(sample, fields \\ [:series, :timestamp, :value]) do
+    %{
+      series: %{"series" => %{"id" => "#{sample.series_id}"}},
+      timestamp: %{"timestamp" => sample.timestamp |> format_date! },
+      value: %{"value" => sample.value},
+    }
+    |> Map.take(fields)
+    |> Map.values
+    |> Enum.reduce(%{}, fn (map, acc) -> Map.merge(acc, map) end)
+  end
+  def samples_to_json(samples, fields \\ [:series, :timestamp, :value]) do
+    samples
+    |> Enum.map(&(sample_to_json(&1, fields)))
   end
 end

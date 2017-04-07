@@ -24,6 +24,7 @@
 defmodule CaosTsdb.Fixtures do
   alias CaosTsdb.Repo
   alias CaosTsdb.Tag
+  alias CaosTsdb.TagMetadata
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
   alias CaosTsdb.Metric
@@ -48,6 +49,23 @@ defmodule CaosTsdb.Fixtures do
     }
   end
 
+  def fixture(:tag_metadata, assoc) do
+    tag = assoc[:tag] || fixture(:tag)
+    t0 = assoc[:from] || epoch()
+    granularity = assoc[:granularity] || 3600
+    n = assoc[:repeat] || 1
+
+    _metas = Range.new(0, n-1) |> Enum.map(fn(x) ->
+      timestamp = t0 |> Timex.shift(seconds: x*granularity)
+
+      metadata = %TagMetadata{
+        tag_id: tag.id,
+        timestamp: timestamp,
+        metadata: "metadata#{x}"}
+      Repo.insert! metadata
+    end)
+  end
+
   def fixture(:tags, assoc) do
     [fixture(:tag),
      fixture(:tag,
@@ -70,7 +88,7 @@ defmodule CaosTsdb.Fixtures do
     period = assoc[:period] || 3600
     tags = assoc[:tags] || [fixture(:tag)]
 
-    series = %Series{
+    _series = %Series{
       metric_name: metric.name,
       period: period
     }
@@ -79,6 +97,16 @@ defmodule CaosTsdb.Fixtures do
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_assoc(:tags, tags)
     |> Repo.update!
+  end
+
+  def fixture(:sample, assoc) do
+    series = assoc[:series] || fixture(:series)
+    t0 = assoc[:timestamp] || epoch()
+    value = assoc[:value] || :rand.uniform()
+
+    Repo.insert! %Sample{series_id: series.id,
+                         timestamp: t0,
+                         value: value}
   end
 
   def fixture(:samples, assoc) do
@@ -96,6 +124,81 @@ defmodule CaosTsdb.Fixtures do
                        timestamp: t0 |> Timex.shift(seconds: x*series.period),
                        value: value}
       Repo.insert! sample
+    end)
+  end
+
+  @spec timestamp_for_chunk(Sample.t, DateTime.t, integer) :: DateTime.t
+  defp timestamp_for_chunk(sample, epoch \\ epoch(), granularity \\ 1) do
+    n = Timex.diff(sample.timestamp, epoch, :seconds)
+    |> Kernel./(granularity)
+    |> Float.ceil()
+    |> Kernel.trunc()
+
+    Timex.shift(epoch, seconds: n*granularity)
+  end
+
+  # emulate AVG
+  defp avg(l) when is_list(l) do
+    Enum.sum(l)/(length(l))
+  end
+
+  # emulate VAR
+  defp var(l) when is_list(l) do
+    a = avg(l)
+    l2 = Enum.map(l, fn(x) -> x*x end)
+    avg(Enum.map(l2, fn(x) -> x - a*a end))
+  end
+
+  defp aggr_function(function, values) do
+    case function do
+      "AVG" -> avg(values)
+      "COUNT" -> Enum.count(values)
+      "MIN" -> Enum.min(values)
+      "MAX" -> Enum.max(values)
+      "VAR" -> var(values)
+      "STD" -> :math.sqrt(var(values))
+      "SUM" -> Enum.sum(values)
+    end
+  end
+
+  # calculate fixture aggregation
+  defp aggr(values, function) when is_number(values) do
+    aggr([values], function)
+  end
+  defp aggr(values, function) when is_list(values) do
+    aggr_function(function, values)
+  end
+
+  def fixture(:aggregate, samples_groups, assoc) do
+    from = case assoc[:from] do
+             nil -> epoch()
+             f -> f |> parse_date!
+           end
+    to = case assoc[:to] do
+           nil -> Timex.now
+           t -> t |> parse_date!
+         end
+    period = assoc[:series][:period]
+    granularity = assoc[:granularity] || Timex.diff(to, from, :seconds)
+    function = assoc[:function]
+
+    where_from = Timex.shift(from, seconds: period)
+
+    chunks = samples_groups
+    |> Enum.concat()
+    |> Enum.filter(fn s ->
+      (Timex.compare(s.timestamp, to) < 1) && (Timex.compare(s.timestamp, where_from) > -1)
+    end)
+    |> Enum.sort_by(fn s -> s.timestamp end, &(Timex.compare(&1, &2) > -1))
+    |> Enum.group_by(fn s -> timestamp_for_chunk(s, from, granularity) end)
+
+    samples = chunks
+    |> Map.keys
+    |> Enum.sort
+    |> Enum.map(fn t
+      -> %Sample{
+        timestamp: t,
+        value: chunks |> Map.get(t) |> Enum.map(fn s -> s.value end) |> aggr(function)}
     end)
   end
 end

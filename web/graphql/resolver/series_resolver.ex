@@ -24,43 +24,57 @@
 defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
   use CaosTsdb.Web, :resolver
 
-  alias CaosTsdb.Series
-  alias CaosTsdb.Tag
-  alias CaosTsdb.Metric
+  defp find_tags_ids(tags_args) when is_list(tags_args) do
+    tags_args
+    |> Enum.map(fn args ->
+      TagResolver.find_all(args)
+      |> Enum.map(fn tag -> tag.id end)
+    end)
+    |> List.flatten
+    |> Enum.sort
+    |> Enum.uniq
+  end
+
+  defp base_query(args) do
+    Series
+    |> QueryFilter.filter(%Series{}, args, [:id, %{metric_name: [:metric, :name]}, :period])
+  end
+
+  defp query_for(args = %{tags: tags}) do
+    tags_ids = find_tags_ids(tags)
+
+    target = tags_ids |> Enum.join(",")
+
+    series_ids = SeriesTag
+    |> group_by([st], st.series_id)
+    |> having([st], fragment("GROUP_CONCAT(? ORDER BY ? ASC SEPARATOR ',') = ?",
+              st.tag_id, st.tag_id, ^target)
+    )
+    |> Repo.all()
+    |> Enum.map(fn s -> s.series_id end)
+
+    base_query(args)
+    |> where([s], s.id in ^series_ids)
+  end
+
+  defp query_for(args = %{tag: tag}) do
+    tags_ids = find_tags_ids([tag,])
+
+    base_query(args)
+    |> join(:inner, [s], t in assoc(s, :tags))
+    |> where([_, t], t.id in ^tags_ids)
+  end
+
+  defp query_for(args) do
+    base_query(args)
+  end
 
   def get_one(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end
 
-  def get_one(args = %{id: _id} , _) do
-    try do
-      case Repo.get_by(Series, args) do
-        nil -> graphql_error(:not_found, "Series")
-        series -> {:ok, series}
-      end
-    rescue
-      Ecto.MultipleResultsError -> graphql_error(:multiple_results)
-    end
-  end
-
-  def get_one(_args = %{period: period, metric: %{name: metric_name}, tags: tags}, _) do
-    tag_ids = tags
-    |> Enum.map(fn tag_args ->
-      tag = Tag
-      |> select([:id])
-      |> Repo.get_by(tag_args)
-
-      tag.id
-    end)
-
-    query = Series
-    |> where(period: ^period)
-    |> where(metric_name: ^metric_name)
-    |> join(:inner, [s], t in assoc(s, :tags))
-    |> where([_, t], t.id in ^tag_ids)
-    |> group_by([s, _], s.id)
-    |> having([s, _], count(s.id) == ^length(tag_ids))
-    |> preload([_, t], [tags: t])
+  def get_one(args, _) do
+    query = query_for(args)
 
     try do
       case Repo.one(query) do
@@ -71,18 +85,81 @@ defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
       Ecto.MultipleResultsError -> graphql_error(:multiple_results)
     end
   end
-  def metric_by_series(_, metric_names) do
-    Metric
-    |> where([m], m.name in ^metric_names)
+
+  def get_all(args, _) do
+    serieses = query_for(args)
     |> Repo.all
-    |> Map.new(&{&1.name, &1})
+
+    {:ok, serieses}
   end
 
-  def tags_by_series(_, series_ids) do
-    Series
-    |> where([s], s.id in ^series_ids)
-    |> join(:inner, [s], t in assoc(s, :tags))
-    |> preload([s, t], [tags: t])
+  def batch_by_tag(_args, tag_ids) do
+    Tag
+    |> where([t], t.id in ^tag_ids)
+    |> join(:inner, [t], s in assoc(t, :series))
+    |> preload([_, s], [series: s])
     |> Repo.all
-    |> Map.new(&{&1.id, &1.tags})
+    |> Map.new(&{&1.id, &1.series})
   end
+
+  def batch_by_metric(_, metric_names) do
+    Metric
+    |> where([m], m.name in ^metric_names)
+    |> join(:inner, [m], s in assoc(m, :series))
+    |> preload([_, s], [series: s])
+    |> Repo.all
+    |> Map.new(&{&1.name, &1.series})
+  end
+
+  defp associate_tags_to_series(series, tags) do
+    tags = tags
+    |> Enum.map(fn t ->
+      Repo.get_by(Tag, t)
+    end)
+
+    series
+    |> Repo.preload(:tags)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> Repo.update
+  end
+
+  def create(args, _) when args == %{} do
+    graphql_error(:no_arguments_given)
+  end
+
+  def create(_args = %{period: period, metric: %{name: metric_name}, tags: tags}, _) do
+    changeset_args = %{period: period, metric_name: metric_name}
+
+    changeset = %Series{}
+    |> Series.changeset(changeset_args)
+
+    with {:ok, series} <- Repo.insert(changeset),
+         {:ok, series} <- associate_tags_to_series(series, tags) do
+      {:ok, series}
+    end
+    |> changeset_to_graphql
+  end
+
+  def get_or_create(args, context) do
+    query = query_for(args)
+
+    try do
+      case Repo.one(query) do
+        nil -> create(args, context)
+        series -> {:ok, series}
+      end
+    rescue
+      Ecto.MultipleResultsError -> graphql_error(:multiple_results)
+    end
+  end
+
+  def batch_by_sample(_, series_ids) do
+    ids = series_ids |> Enum.uniq
+
+    Series
+    |> where([s], s.id in ^ids)
+    |> Repo.all
+    |> Map.new(&{&1.id, &1})
+  end
+end
