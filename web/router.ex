@@ -39,7 +39,7 @@ defmodule CaosTsdb.Router do
   end
 
   pipeline :v1 do
-    plug APIVersion, version: "v1.1"
+    plug APIVersion, version: "v1.2"
   end
 
   scope "/api/v1", CaosTsdb do

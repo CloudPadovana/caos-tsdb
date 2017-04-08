@@ -28,7 +28,7 @@ defmodule CaosTsdb.StatusControllerTest do
   @status %{"status" => "online",
             "auth" => "no",
             "last_sample_timestamp" => nil,
-            "api_version" => "v1.1",
+            "api_version" => "v1.2",
             "version" => CaosTsdb.Version.version}
 
   setup %{conn: conn} do

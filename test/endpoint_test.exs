@@ -62,7 +62,7 @@ defmodule CaosTsdb.EndpointTest do
     @expected_status %{"status" => "online",
                        "auth" => nil,
                        "last_sample_timestamp" => nil,
-                       "api_version" => "v1.1",
+                       "api_version" => "v1.2",
                        "version" => CaosTsdb.Version.version}
 
     test "without token", %{conn: conn} do
