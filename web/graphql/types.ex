@@ -31,7 +31,10 @@ defmodule CaosTsdb.Graphql.Types do
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
   alias CaosTsdb.Graphql.Resolver.SampleResolver
 
+  alias CaosTsdb.Metric
+  alias CaosTsdb.Series
   alias CaosTsdb.Sample
+  alias CaosTsdb.TagMetadata
 
   scalar :datetime, description: "ISOz datetime" do
     parse &Timex.parse(&1.value, "%FT%TZ", :strftime)
@@ -63,7 +66,7 @@ defmodule CaosTsdb.Graphql.Types do
     field :last_metadata, :tag_metadata do
       resolve fn tag, _, _ ->
         batch({TagResolver, :batch_last_metadata_by_tag}, tag.id, fn batch_results ->
-          {:ok, Map.get(batch_results, tag.id, %{})}
+          {:ok, Map.get(batch_results, tag.id, %TagMetadata{})}
         end)
       end
     end
@@ -175,7 +178,7 @@ defmodule CaosTsdb.Graphql.Types do
     field :metric, :metric do
       resolve fn series, _, _ ->
         batch({MetricResolver, :batch_by_series}, series.metric_name, fn batch_results ->
-          {:ok, Map.get(batch_results, series.metric_name, %{})}
+          {:ok, Map.get(batch_results, series.metric_name, %Metric{})}
         end)
       end
     end
@@ -225,7 +228,7 @@ defmodule CaosTsdb.Graphql.Types do
     field :series, :series do
       resolve fn sample, _, _ ->
         batch({SeriesResolver, :batch_by_sample}, sample.series_id, fn batch_results ->
-          {:ok, Map.get(batch_results, sample.series_id, %{})}
+          {:ok, Map.get(batch_results, sample.series_id, %Series{})}
         end)
       end
     end
