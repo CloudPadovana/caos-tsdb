@@ -178,7 +178,19 @@ defmodule CaosTsdb.Fixtures do
            nil -> Timex.now
            t -> t |> parse_date!
          end
-    period = assoc[:series][:period]
+    period = case assoc[:series][:period] do
+               nil ->
+                 samples_groups
+                 |> List.flatten
+                 |> Enum.map(fn s -> s.series_id end)
+                 |> Enum.uniq
+                 |> Enum.map(fn id -> Repo.get(Series, id) end)
+                 |> Enum.map(fn s -> s.period end)
+                 |> Enum.uniq
+                 |> Enum.at(0)
+               n -> n
+             end
+
     granularity = assoc[:granularity] || Timex.diff(to, from, :seconds)
     function = assoc[:function]
 

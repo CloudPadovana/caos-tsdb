@@ -97,6 +97,10 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
       true -> {:ok, period}
     end
   end
+  defp check_periods(series, _args = %{id: series_id}) do
+    period = series |> Enum.find(fn s -> s.id == series_id end) |> Map.get(:period)
+    check_periods(series, %{period: period})
+  end
 
   def aggregate(args = %{series: series_args, from: from, to: to}, context) do
     with {:ok, series} <- SeriesResolver.get_all(series_args, context),

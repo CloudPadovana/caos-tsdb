@@ -30,6 +30,7 @@ defmodule CaosTsdb.Graphql.Types do
   alias CaosTsdb.Graphql.Resolver.MetricResolver
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
   alias CaosTsdb.Graphql.Resolver.SampleResolver
+  alias CaosTsdb.Graphql.Resolver.AggregateResolver
 
   alias CaosTsdb.Metric
   alias CaosTsdb.Series
@@ -217,6 +218,17 @@ defmodule CaosTsdb.Graphql.Types do
         batch({SampleResolver, :batch_last_by_series}, series.id, fn batch_results ->
           {:ok, Map.get(batch_results, series.id, %Sample{})}
         end)
+      end
+    end
+
+    field :aggregate, list_of(:sample) do
+      arg :from, :datetime, default_value: epoch()
+      arg :to, :datetime, default_value: Timex.now
+      arg :granularity, :integer
+      arg :function, :aggregate_function, default_value: :count
+
+      resolve fn series, args, context ->
+        AggregateResolver.aggregate(args |> put_in([:series], Map.take(series, [:id])) , context)
       end
     end
   end
