@@ -31,6 +31,8 @@ defmodule CaosTsdb.Graphql.Types do
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
   alias CaosTsdb.Graphql.Resolver.SampleResolver
 
+  alias CaosTsdb.Sample
+
   scalar :datetime, description: "ISOz datetime" do
     parse &Timex.parse(&1.value, "%FT%TZ", :strftime)
     serialize &Timex.format!(&1, "%FT%TZ", :strftime)
@@ -202,7 +204,7 @@ defmodule CaosTsdb.Graphql.Types do
 
       resolve fn series, args, _ ->
         batch({SampleResolver, :batch_by_series, args}, series.id, fn batch_results ->
-          {:ok, Map.get(batch_results, series.id, %{})}
+          {:ok, Map.get(batch_results, series.id, %Sample{})}
         end)
       end
     end
@@ -210,7 +212,7 @@ defmodule CaosTsdb.Graphql.Types do
     field :last_sample, :sample do
       resolve fn series, _, _ ->
         batch({SampleResolver, :batch_last_by_series}, series.id, fn batch_results ->
-          {:ok, Map.get(batch_results, series.id, [])}
+          {:ok, Map.get(batch_results, series.id, %Sample{})}
         end)
       end
     end

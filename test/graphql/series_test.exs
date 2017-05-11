@@ -24,6 +24,8 @@
 defmodule CaosTsdb.Graphql.SeriesTest do
   use CaosTsdb.ConnCase
 
+  import CaosTsdb.DateTime.Helpers
+
   setup %{conn: conn} do
     conn = conn
     |> put_req_header("accept", "application/json")
@@ -253,6 +255,100 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}, %{id: tag3.id}]}
       expected_json = %{"series" => series_to_json(series2)}
       assert json_response(conn, 200)["data"] == expected_json
+    end
+  end
+
+  describe "get series subfield" do
+    @query """
+    query($period: Int!, $metric: MetricPrimary!, $tags: [TagPrimary]!, $timestamp: Datetime!) {
+      series(period: $period, metric: $metric, tags: $tags) {
+        id
+        period
+        metric {
+          name
+        }
+        tags {
+          id
+          key
+          value
+        }
+        last_timestamp
+        ttl
+        sample(timestamp: $timestamp) {
+          timestamp
+          value
+          series {
+            id
+          }
+        }
+      }
+    }
+    """
+
+    @query_params %{period: 3600, metric: %{name: "metric1"}, tags: [], timestamp: nil}
+
+    test "should fail when there are no parameters", %{conn: conn} do
+      conn = graphql_query conn, @query
+      assert json_response(conn, 200)["errors"] != []
+    end
+
+    test "should fail when there are no series", %{conn: conn} do
+      conn = graphql_query conn, @query, @query_params
+      assert json_response(conn, 200)["errors"] != []
+    end
+
+    test "should not fail when sample is not found", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
+
+      t0 = "2016-08-08T16:00:00Z" |> parse_date!
+
+      _samples1 = fixture(:samples, from: t0, repeat: 100, series: series1, values: :linear)
+      _samples2 = fixture(:samples, from: t0, repeat: 100, series: series2, values: :linear)
+      _samples3 = fixture(:samples, from: t0, repeat: 100, series: series3, values: :linear)
+
+      query_params = @query_params
+      |> put_in([:tags], [%{id: tag1.id}])
+      |> put_in([:timestamp], epoch() |> format_date!)
+
+      conn = graphql_query conn, @query, query_params
+      assert json_response(conn, 200)["errors"] != []
+    end
+
+    test "when there are many series", %{conn: conn} do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      _metric2 = fixture(:metric, name: "metric2")
+
+      series1 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+      series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
+
+      t0 = "2016-08-08T16:00:00Z" |> parse_date!
+
+      _samples1 = fixture(:samples, from: t0, repeat: 100, series: series1, values: :linear)
+      samples2 = fixture(:samples, from: t0, repeat: 100, series: series2, values: :linear)
+      _samples3 = fixture(:samples, from: t0, repeat: 100, series: series3, values: :linear)
+
+      query_params = @query_params
+      |> put_in([:tags], [%{key: tag2.key, value: tag2.value}, %{id: tag1.id}])
+      |> put_in([:timestamp], t0 |> format_date!)
+
+      conn = graphql_query conn, @query, query_params
+
+      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)
+                                                   |> put_in(["sample"], sample_to_json(samples2 |> Enum.at(0)))}
     end
   end
 end

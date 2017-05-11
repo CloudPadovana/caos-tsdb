@@ -107,6 +107,8 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
     |> having([s, series], s.timestamp == ^timestamp)
     |> Repo.all
     |> Enum.group_by(&(&1.series_id))
+    |> Enum.to_list
+    |> Map.new(fn {series_id, samples} -> {series_id, samples |> Enum.at(0, %Sample{})} end)
   end
 
   def batch_by_series(_args = %{from: from, to: to}, series_ids) do
@@ -120,6 +122,11 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
     |> Enum.group_by(&(&1.id), &(&1.samples))
   end
 
+  def batch_by_series(_args, series_ids) do
+    series_ids
+    |> Map.new(fn id -> {id, %Sample{}} end)
+  end
+
   def batch_last_by_series(_, series_ids) do
     Sample
     |> where([s], s.series_id in ^series_ids)
@@ -128,6 +135,8 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
     |> having([s, series], s.timestamp == series.last_timestamp)
     |> Repo.all
     |> Enum.group_by(&(&1.series_id))
+    |> Enum.to_list
+    |> Map.new(fn {series_id, samples} -> {series_id, samples |> Enum.at(0, %Sample{})} end)
   end
 
   def create(args, _) when args == %{} do
