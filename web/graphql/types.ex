@@ -47,7 +47,7 @@ defmodule CaosTsdb.Graphql.Types do
     serialize &Timex.to_unix(&1)
   end
 
-  enum :aggregate_function, values: [:avg, :count, :min, :max, :sum, :std, :var]
+  enum :aggregate_function, values: [:none, :avg, :count, :min, :max, :sum, :std, :var]
 
   input_object :tag_primary do
     field :id, :id
@@ -231,6 +231,7 @@ defmodule CaosTsdb.Graphql.Types do
       arg :to, :datetime, default_value: Timex.now
       arg :granularity, :integer
       arg :function, :aggregate_function, default_value: :count
+      arg :downsample, :aggregate_function, default_value: :none
 
       resolve fn series, args, context ->
         AggregateResolver.aggregate(args |> put_in([:series], Map.take(series, [:id])) , context)

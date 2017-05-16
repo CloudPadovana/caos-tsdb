@@ -59,6 +59,14 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     aggregate_values(values, :var) |> :math.sqrt
   end
 
+  @spec aggregate_samples(Enumerable.t, atom) :: Sample.t
+  defp aggregate_samples(samples, function) do
+    %Sample{
+      timestamp: samples |> Enum.at(0) |> Map.get(:timestamp),
+      value: samples |> Enum.map(fn s -> s.value end) |> aggregate_values(function)
+    }
+  end
+
   @spec timestamp_for_chunk(Sample.t, DateTime.t, integer) :: DateTime.t
   defp timestamp_for_chunk(sample, epoch \\ epoch(), granularity \\ 1) do
     n = Timex.diff(sample.timestamp, epoch, :seconds)
@@ -69,18 +77,35 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     Timex.shift(epoch, seconds: n*granularity)
   end
 
-  @spec aggregate_stream(Enumerable.t, Map.t) :: Enumerable.t
-  defp aggregate_stream(stream, %{from: from, granularity: granularity, function: function}) do
+  @spec chunk_stream(Enumerable.t, Map.t) :: Enumerable.t
+  defp chunk_stream(stream, %{from: from, granularity: granularity}) do
     stream
-    |> Stream.map(fn sample -> %Sample{
-      timestamp: timestamp_for_chunk(sample, from, granularity),
-      value: sample.value}
+    |> Stream.map(fn
+      sample -> %{ sample | timestamp: timestamp_for_chunk(sample, from, granularity) }
     end)
     |> Stream.chunk_by(fn s -> s.timestamp end)
-    |> Stream.map(fn samples -> %Sample{
-      timestamp: samples |> Enum.at(0) |> Map.get(:timestamp),
-      value: samples |> Enum.map(fn s -> s.value end) |> aggregate_values(function)}
+  end
+
+  @spec downsample_stream(Enumerable.t, Map.t) :: Enumerable.t
+  defp downsample_stream(stream, %{downsample: :none}) do
+    stream
+  end
+  defp downsample_stream(stream, %{downsample: function}) do
+    stream
+    |> Stream.map(fn chunk ->
+      chunk
+      |> Enum.chunk_by(fn s -> s.series_id end)
+      |> Enum.map(&aggregate_samples(&1, function))
     end)
+  end
+
+  @spec aggregate_stream(Enumerable.t, Map.t) :: Enumerable.t
+  defp aggregate_stream(stream, %{function: :none}) do
+    stream
+  end
+  defp aggregate_stream(stream, %{function: function}) do
+    stream
+    |> Stream.map(&aggregate_samples(&1, function))
   end
 
   defp check_periods([], _args) do
@@ -111,13 +136,15 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
 
       stream = Sample
       |> where([s], s.series_id in ^series_ids)
-      |> where([s, series], s.timestamp >= ^where_from)
+      |> where([s], s.timestamp >= ^where_from)
       |> where([s], s.timestamp <= ^to)
-      |> order_by([s], [asc: s.timestamp])
+      |> order_by([s], [asc: s.timestamp, asc: s.series_id])
       |> Repo.stream()
 
       Repo.transaction(fn ->
         stream
+        |> chunk_stream(args)
+        |> downsample_stream(args)
         |> aggregate_stream(args)
         |> Enum.to_list()
       end)

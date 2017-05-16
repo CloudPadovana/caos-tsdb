@@ -85,6 +85,8 @@ defmodule CaosTsdb.Graphql.Schema do
       arg :to, :datetime, default_value: Timex.now
       arg :granularity, :integer
       arg :function, :aggregate_function, default_value: :count
+      arg :downsample, :aggregate_function, default_value: :none
+
       resolve &AggregateResolver.aggregate/2
     end
   end
