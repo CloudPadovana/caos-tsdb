@@ -42,6 +42,11 @@ defmodule CaosTsdb.Graphql.Types do
     serialize &Timex.format!(&1, "%FT%TZ", :strftime)
   end
 
+  scalar :unix_timestamp, description: "UNIX timestamp" do
+    parse &Timex.from_unix(&1.value)
+    serialize &Timex.to_unix(&1)
+  end
+
   enum :aggregate_function, values: [:avg, :count, :min, :max, :sum, :std, :var]
 
   input_object :tag_primary do
@@ -235,6 +240,9 @@ defmodule CaosTsdb.Graphql.Types do
 
   object :sample do
     field :timestamp, :datetime
+    field :unix_timestamp, :unix_timestamp do
+      resolve fn sample, _, _ -> {:ok, sample.timestamp} end
+    end
     field :value, :float
 
     field :series, :series do
