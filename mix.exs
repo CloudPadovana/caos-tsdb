@@ -42,18 +42,7 @@ defmodule CaosTsdb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {CaosTsdb, []},
-     applications: [:phoenix,
-                    :cowboy,
-                    :logger,
-                    :gettext,
-                    :timex,
-                    :timex_ecto,
-                    :phoenix_ecto,
-                    :mariaex,
-                    :guardian,
-                    :absinthe,
-                    :absinthe_plug,
-                   ]]
+     extra_applications: [:logger]]
   end
 
   # Specifies which paths to compile per environment.
@@ -81,8 +70,8 @@ defmodule CaosTsdb.Mixfile do
      {:guardian, "~> 0.14.0"},
      {:absinthe, "~> 1.2.0"},
      {:absinthe_plug, "~> 1.2.0"},
-     {:credo, "~> 0.6.0", only: [:dev, :test]},
-     {:distillery, "~> 1.1.0"},
+     {:credo, "~> 0.6.0", only: [:dev, :test], runtime: false},
+     {:distillery, "~> 1.1.0", runtime: false},
      {:conform, "~> 2.1.2"}]
   end
 
