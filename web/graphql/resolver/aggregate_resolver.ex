@@ -24,40 +24,7 @@
 defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
   use CaosTsdb.Web, :resolver
 
-  @spec aggregate_values(Enumerable.t, atom) :: number
-  defp aggregate_values([], :avg) do 0 end
-  defp aggregate_values(values, :avg) do
-    Enum.reduce(values, {0, 0}, fn
-      v, {sum, count} -> {sum + v, count + 1}
-    end)
-    |> (fn
-      {sum, count} -> sum / count
-    end).()
-  end
-  defp aggregate_values(values, :count) do Enum.count(values) end
-  defp aggregate_values(values, :min) do Enum.min(values) end
-  defp aggregate_values(values, :max) do Enum.max(values) end
-  defp aggregate_values(values, :sum) do Enum.sum(values) end
-  defp aggregate_values(values, :var) do
-    # Welford algorithm
-    Enum.reduce(values, {0, 0, 0}, fn
-      v, {n, mean, M2} ->
-        new_n = n + 1
-        delta = v - mean
-        new_mean = mean + (delta / new_n)
-        delta2 = v - new_mean
-        new_M2 = M2 + (delta*delta2)
-
-        {new_n, new_mean, new_M2}
-    end)
-    |> (fn
-      {n, _mean, _M2} when n < 2 -> 0
-      {n, _mean, M2} -> M2 / (n-1)
-    end).()
-  end
-  defp aggregate_values(values, :std) do
-    aggregate_values(values, :var) |> :math.sqrt
-  end
+  import CaosTsdb.Utils.AggregateValues, only: [aggregate_values: 2]
 
   @spec aggregate_samples(Enumerable.t, atom) :: Sample.t
   defp aggregate_samples(samples, function) do
