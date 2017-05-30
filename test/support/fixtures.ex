@@ -113,9 +113,10 @@ defmodule CaosTsdb.Fixtures do
     series = assoc[:series] || fixture(:series)
     t0 = assoc[:from] || epoch()
     n = assoc[:repeat] || 1
+    n0 = assoc[:start_value] || 0
     value_type = assoc[:values] || :rand
 
-    _samples = Range.new(0, n-1) |> Enum.map(fn(x) ->
+    _samples = Range.new(n0, n-1) |> Enum.map(fn(x) ->
       value = case value_type do
                 :rand -> :rand.uniform()
                 :linear -> x+1.0
@@ -162,6 +163,8 @@ defmodule CaosTsdb.Fixtures do
   end
 
   # calculate fixture aggregation
+  defp aggr([], :count) do 0 end
+  defp aggr([], function) do nil end
   defp aggr(values, function) when is_number(values) do
     aggr([values], function)
   end
@@ -193,24 +196,42 @@ defmodule CaosTsdb.Fixtures do
 
     granularity = assoc[:granularity] || Timex.diff(to, from, :seconds)
     function = assoc[:function]
+    downsample = assoc[:downsample] || "NONE"
 
     where_from = Timex.shift(from, seconds: period)
 
-    chunks = samples_groups
+    samples_groups
     |> Enum.concat()
     |> Enum.filter(fn s ->
       (Timex.compare(s.timestamp, to) < 1) && (Timex.compare(s.timestamp, where_from) > -1)
     end)
-    |> Enum.sort_by(fn s -> s.timestamp end, &(Timex.compare(&1, &2) > -1))
-    |> Enum.group_by(fn s -> timestamp_for_chunk(s, from, granularity) end)
-
-    samples = chunks
-    |> Map.keys
-    |> Enum.sort
-    |> Enum.map(fn t
-      -> %Sample{
-        timestamp: t,
-        value: chunks |> Map.get(t) |> Enum.map(fn s -> s.value end) |> aggr(function)}
+    |> Enum.map(fn sample
+      -> %{ sample | timestamp: timestamp_for_chunk(sample, from, granularity) }
     end)
+    |> Enum.group_by(fn s -> s.series_id end)
+    |> Enum.flat_map(fn {series_id, samples} ->
+      if downsample == "NONE" do
+        samples
+      else
+        samples
+        |> Enum.group_by(fn s -> s.timestamp end)
+        |> Enum.flat_map(fn {timestamp, samples} ->
+          [%Sample{
+            timestamp: timestamp,
+            value: samples |> Enum.map(fn s -> s.value end) |> aggr(downsample)}]
+        end)
+      end
+    end)
+    |> Enum.group_by(fn s -> s.timestamp end)
+    |> Enum.flat_map(fn {timestamp, samples} ->
+      if function == "NONE" do
+        samples
+      else
+        [%Sample{
+          timestamp: timestamp,
+          value: samples |> Enum.map(fn s -> s.value end) |> aggr(function)}]
+      end
+    end)
+    |> Enum.sort_by(fn s -> s.timestamp end, &(Timex.compare(&2, &1) > -1))
   end
 end
