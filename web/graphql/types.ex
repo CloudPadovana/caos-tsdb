@@ -31,6 +31,7 @@ defmodule CaosTsdb.Graphql.Types do
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
   alias CaosTsdb.Graphql.Resolver.SampleResolver
   alias CaosTsdb.Graphql.Resolver.AggregateResolver
+  alias CaosTsdb.Graphql.Resolver.ExpressionResolver
 
   alias CaosTsdb.Metric
   alias CaosTsdb.Series
@@ -172,6 +173,14 @@ defmodule CaosTsdb.Graphql.Types do
     import_fields :series_primary
 
     field :tag, :tag_primary
+  end
+
+  input_object :expression_term do
+    field :name, :string
+
+    field :series, non_null(:series_group)
+    field :function, :aggregate_function, default_value: :count
+    field :downsample, :aggregate_function, default_value: :none
   end
 
   object :series do

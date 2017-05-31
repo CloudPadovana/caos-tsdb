@@ -50,7 +50,9 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     |> Float.ceil()
     |> Kernel.trunc()
 
-    Timex.shift(epoch, seconds: n*granularity)
+    epoch
+    |> Timex.shift(seconds: n*granularity)
+    |> Timex.to_datetime()
   end
 
   @spec chunk_stream(Enumerable.t, Map.t) :: Enumerable.t
@@ -108,7 +110,7 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     end
   end
 
-  def aggregate(args = %{downsample: downsample_function, function: function}, context) do
+  def aggregate_term(args = %{downsample: downsample_function, function: function}, context) do
     with {:ok, stream} <- build_stream(args, context) do
 
       Repo.transaction(fn ->
@@ -127,5 +129,20 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     else
       {:error, error} -> {:error, error}
     end
+  end
+
+  @expression_term_name "x"
+
+  def aggregate(args, context) do
+    term_args = args
+    |> Map.take([:series, :function, :downsample])
+    |> put_in([:name], @expression_term_name)
+
+    expr_args = args
+    |> Map.take([:from, :to, :granularity])
+    |> put_in([:terms], [term_args])
+    |> put_in([:expression], @expression_term_name)
+
+    ExpressionResolver.expression(expr_args, context)
   end
 end

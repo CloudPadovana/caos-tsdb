@@ -31,6 +31,7 @@ defmodule CaosTsdb.Graphql.Schema do
   alias CaosTsdb.Graphql.Resolver.SeriesResolver
   alias CaosTsdb.Graphql.Resolver.SampleResolver
   alias CaosTsdb.Graphql.Resolver.AggregateResolver
+  alias CaosTsdb.Graphql.Resolver.ExpressionResolver
 
   query do
     field :tag, :tag do
@@ -88,6 +89,17 @@ defmodule CaosTsdb.Graphql.Schema do
       arg :downsample, :aggregate_function, default_value: :none
 
       resolve &AggregateResolver.aggregate/2
+    end
+
+    field :expression, list_of(:sample) do
+      arg :from, :datetime, default_value: epoch()
+      arg :to, :datetime, default_value: Timex.now
+      arg :granularity, :integer
+
+      arg :expression, non_null(:string)
+      arg :terms, list_of(:expression_term)
+
+      resolve &ExpressionResolver.expression/2
     end
   end
 

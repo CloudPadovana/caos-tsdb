@@ -136,6 +136,7 @@ defmodule CaosTsdb.Fixtures do
     |> Kernel.trunc()
 
     Timex.shift(epoch, seconds: n*granularity)
+    |> Timex.to_datetime()
   end
 
   # emulate AVG
@@ -233,5 +234,63 @@ defmodule CaosTsdb.Fixtures do
       end
     end)
     |> Enum.sort_by(fn s -> s.timestamp end, &(Timex.compare(&2, &1) > -1))
+  end
+
+  def fixture(:expression, terms_samples_groups, assoc) do
+    from = case assoc[:from] do
+             nil -> epoch()
+             f -> f |> parse_date!
+           end
+    to = case assoc[:to] do
+           nil -> Timex.now
+           t -> t |> parse_date!
+         end
+    granularity = assoc[:granularity] || Timex.diff(to, from, :seconds)
+    expression = assoc[:expression]
+
+    samples_map = terms_samples_groups
+    |> Enum.map(fn {name, samples_group} ->
+      aggr_params = assoc
+      |> Map.take([:from, :to, :granularity])
+      |> Map.merge(Enum.find(assoc[:terms], fn t -> t.name == name end))
+
+      {name, fixture(:aggregate, samples_group, aggr_params)}
+    end)
+
+    real_from = samples_map
+    |> Enum.map(fn {_, samples} ->
+      samples
+      |> Enum.map(fn s -> s.timestamp end)
+      |> Enum.min_by(&Timex.to_unix/1)
+    end)
+    |> Enum.concat([from])
+    |> Enum.max_by(&Timex.to_unix/1)
+
+    real_to = samples_map
+    |> Enum.map(fn {_, samples} ->
+      samples
+      |> Enum.map(fn s -> s.timestamp end)
+      |> Enum.max_by(&Timex.to_unix/1)
+    end)
+    |> Enum.concat([to])
+    |> Enum.min_by(&Timex.to_unix/1)
+
+    Timex.Interval.new(from: real_from, until: real_to, step: [seconds: granularity], right_open: false, left_open: false)
+    |> Enum.map(&Timex.to_datetime/1)
+    |> Enum.map(fn ts ->
+      vars = samples_map
+      |> Enum.map(fn {name, samples} ->
+        sample = Enum.filter(samples, fn s -> s.timestamp == ts end)
+
+        if length(sample) != 1 do raise "Samples Count Error "end
+
+        {name, Map.get(List.first(sample), :value)}
+      end)
+      |> Map.new()
+
+      {:ok, value} = Abacus.eval(expression, vars)
+
+      %Sample{timestamp: ts, value: value}
+    end)
   end
 end

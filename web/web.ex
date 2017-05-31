@@ -117,6 +117,7 @@ defmodule CaosTsdb.Web do
       alias CaosTsdb.Graphql.Resolver.SeriesResolver
       alias CaosTsdb.Graphql.Resolver.SampleResolver
       alias CaosTsdb.Graphql.Resolver.AggregateResolver
+      alias CaosTsdb.Graphql.Resolver.ExpressionResolver
 
       alias CaosTsdb.Tag
       alias CaosTsdb.TagMetadata

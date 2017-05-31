@@ -1,4 +1,5 @@
-%{"absinthe": {:hex, :absinthe, "1.2.6", "463075e09ce685e44537702363257926b94583b75e4365db640828181d733449", [:mix], [], "hexpm"},
+%{"abacus": {:hex, :abacus, "0.3.2", "ab81e97417c9ab8daa502f678b31377c76cb7ed8a5211a323d4d44a2228a46d2", [:mix], [], "hexpm"},
+  "absinthe": {:hex, :absinthe, "1.2.6", "463075e09ce685e44537702363257926b94583b75e4365db640828181d733449", [:mix], [], "hexpm"},
   "absinthe_plug": {:hex, :absinthe_plug, "1.2.5", "6c73d8be6c949aebef9f7c9c6ae7c9d3488b7e1b05c2397c63dab61a359ff824", [:mix], [{:absinthe, "~> 1.2.6", [hex: :absinthe, repo: "hexpm", optional: false]}, {:plug, "~> 1.3.2 or ~> 1.4", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
   "base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], [], "hexpm"},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], [], "hexpm"},

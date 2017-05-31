@@ -70,6 +70,7 @@ defmodule CaosTsdb.Mixfile do
      {:guardian, "~> 0.14.0"},
      {:absinthe, "~> 1.2.0"},
      {:absinthe_plug, "~> 1.2.0"},
+     {:abacus, "~> 0.3.2"},
      {:credo, "~> 0.6.0", only: [:dev, :test], runtime: false},
      {:distillery, "~> 1.1.0", runtime: false},
      {:conform, "~> 2.1.2"}]
