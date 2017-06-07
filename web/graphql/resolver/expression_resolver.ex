@@ -73,14 +73,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     end
   end
 
-  defp timebase(_args = %{from: from, to: to, granularity: granularity}, mapped_terms) do
-    bounds = mapped_terms
-    |> Enum.map(fn ({_name, mapped_samples}) ->
-      mapped_samples
-      |> Map.keys()
-      |> Enum.min_max
-    end)
-
+  defp timebase_interval(_args = %{from: from, to: to, granularity: granularity}, bounds) do
     real_from = bounds
     |> Enum.map(fn {x, _y} -> x end)
     |> (&Enum.concat([Timex.to_unix(from)], &1)).()
@@ -97,6 +90,26 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
       step: [seconds: granularity], right_open: false, left_open: false)
   end
 
+  defp timebase(args, mapped_terms) do
+    bounds = mapped_terms
+    |> Enum.map(fn
+      {_name, mapped_samples} when map_size(mapped_samples) == 0 -> []
+
+      {_name, mapped_samples} ->
+        mapped_samples
+        |> Map.keys()
+        |> Enum.min_max
+    end)
+
+    if Enum.empty?(List.flatten(bounds)) do
+      []
+    else
+      timebase_interval(args, bounds)
+    end
+  end
+
+  defp eval_expression(_expression, vars) when map_size(vars) == 0 do nil end
+
   defp eval_expression(expression, vars) do
     case Abacus.eval(expression, vars) do
       {:ok, value} -> value
@@ -110,7 +123,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     |> List.first()
 
     mapped_samples
-    |> Map.get(unix_ts)
+    |> Map.get(unix_ts, [])
     |> Enum.map(fn s -> %{name => s.value} end)
   end
 
@@ -118,7 +131,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     mapped_terms
     |> Enum.flat_map(fn {name, mapped_samples} ->
       mapped_samples
-      |> Map.get(unix_ts)
+      |> Map.get(unix_ts, [])
       |> Enum.map(fn s -> {name, s.value} end)
     end)
     |> Map.new
