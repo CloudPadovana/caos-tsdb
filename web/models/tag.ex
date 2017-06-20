@@ -24,8 +24,8 @@
 defmodule CaosTsdb.Tag do
   use CaosTsdb.Web, :model
 
-  @tag_key_regex ~r|^[[:alpha:]][[:alnum:]_./]*$|
-  @tag_value_regex ~r|^[[:alpha:]][[:alnum:]_./]*$|
+  @tag_key_regex ~r|^[[:alpha:]][[:alnum:]-_./]*$|
+  @tag_value_regex ~r|^[[:alnum:]][[:alnum:]-_./]*$|
 
   @primary_key {:id, :id, autogenerate: true}
   @derive {Phoenix.Param, key: :id}

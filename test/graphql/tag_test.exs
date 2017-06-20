@@ -312,28 +312,44 @@ defmodule CaosTsdb.Graphql.TagTest do
       }
     }
     """
-    @valid_args %{key: "a_name", value: "a.value"}
-    @invalid_args %{key: "", value: "a value"}
-
+    @valid_args [
+      %{key: "a_name", value: "a.value"},
+      %{key: "key1", value: "a_value"},
+      %{key: "key", value: "823az5"},
+    ]
+    @invalid_args [
+      %{key: "", value: "a value"},
+      %{key: "", value: "value"},
+      %{key: "832dd", value: "value"},
+      %{key: "=326", value: "value"},
+      %{key: "key1", value: "=value"}
+    ]
     test "when data is valid", %{conn: conn} do
-      conn = graphql_query conn, @query, @valid_args
+      @valid_args |> Enum.each(fn args ->
+        new_conn = graphql_query conn, @query, args
+        tag = json_response(new_conn, 200)["data"]["create_tag"] |> json_to_tag
 
-      tag = json_response(conn, 200)["data"]["create_tag"] |> json_to_tag
+        refute json_response(new_conn, 200)["errors"]
 
-      assert Map.take(tag, [:key, :value]) == @valid_args
-      assert Repo.get_by(Tag, @valid_args)
+        assert Map.take(tag, [:key, :value]) == args
+        assert Repo.get_by(Tag, args)
+      end)
     end
 
     test "should fail when data is invalid", %{conn: conn} do
-      conn = graphql_query conn, @query, @invalid_args
-      assert json_response(conn, 200)["errors"] != []
+      @invalid_args |> Enum.each(fn args ->
+        new_conn = graphql_query conn, @query, args
+        assert json_response(new_conn, 200)["errors"] != []
+      end)
     end
 
     test "returns already existent tag", %{conn: conn} do
-      tag1 = fixture(:tag, key: @valid_args.key, value: @valid_args.value)
-      conn = graphql_query conn, @query, @valid_args
+      @valid_args |> Enum.each(fn args ->
+        tag1 = fixture(:tag, key: args.key, value: args.value)
+        new_conn = graphql_query conn, @query, args
 
-      assert json_response(conn, 200)["data"] == %{"create_tag" => tag_to_json(tag1)}
+        assert json_response(new_conn, 200)["data"] == %{"create_tag" => tag_to_json(tag1)}
+      end)
     end
   end
 end
