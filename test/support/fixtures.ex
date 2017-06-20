@@ -41,27 +41,29 @@ defmodule CaosTsdb.Fixtures do
   end
 
   def fixture(:tag, assoc) do
-    Repo.insert! %Tag{
+    Tag.changeset(%Tag{}, %{
       key: assoc[:key] || "tag1",
       value: assoc[:value] || "value1",
       extra: %{"data key1" => "data value1"}
-    }
+    })
+    |> Repo.insert!
   end
 
   def fixture(:tags, assoc) do
     [fixture(:tag),
      fixture(:tag,
        key: "tag2",
-       value: "value 2",
+       value: "value_2",
        extra: %{"data key1" => "data value1",
                 "data key2" => "data value2"})]
   end
 
   def fixture(:metric, assoc) do
-    Repo.insert! %Metric{
+    Metric.changeset(%Metric{}, %{
       name: assoc[:name] || "metric1",
       type: assoc[:type] || "type1"
-    }
+    })
+    |> Repo.insert!
     |> Repo.preload(:series)
   end
 
@@ -70,10 +72,10 @@ defmodule CaosTsdb.Fixtures do
     period = assoc[:period] || 3600
     tags = assoc[:tags] || [fixture(:tag)]
 
-    series = %Series{
+    Series.changeset(%Series{}, %{
       metric_name: metric.name,
       period: period
-    }
+    })
     |> Repo.insert!
     |> Repo.preload(:tags)
     |> Ecto.Changeset.change()
@@ -92,10 +94,11 @@ defmodule CaosTsdb.Fixtures do
                 :rand -> :rand.uniform()
                 :linear -> x+1.0
               end
-      sample = %Sample{series_id: series.id,
-                       timestamp: t0 |> Timex.shift(seconds: x*series.period),
-                       value: value}
-      Repo.insert! sample
+      sample = Sample.changeset(%Sample{}, %{
+        series_id: series.id,
+        timestamp: t0 |> Timex.shift(seconds: x*series.period),
+        value: value})
+      |> Repo.insert!
     end)
   end
 end

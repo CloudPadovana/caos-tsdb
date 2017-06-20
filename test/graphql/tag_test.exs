@@ -76,8 +76,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       _tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      _tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a_new_key")
+      _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{id: tag2.id}
       assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
@@ -123,8 +123,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       _tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      _tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a/new/key")
+      _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{key: tag2.key, value: tag2.value}
       assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
@@ -154,8 +154,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a-new-key")
+      tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query
       assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3], [:id])}
@@ -187,8 +187,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a.new/key")
+      tag3 = fixture(:tag, key: "another_new-key")
 
       conn = graphql_query conn, @query
       assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3])}
@@ -312,7 +312,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       }
     }
     """
-    @valid_args %{key: "a name", value: "a value"}
+    @valid_args %{key: "a_name", value: "a.value"}
     @invalid_args %{key: "", value: "a value"}
 
     test "when data is valid", %{conn: conn} do

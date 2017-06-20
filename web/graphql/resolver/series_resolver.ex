@@ -86,3 +86,4 @@ defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
     |> Repo.all
     |> Map.new(&{&1.id, &1.tags})
   end
+end

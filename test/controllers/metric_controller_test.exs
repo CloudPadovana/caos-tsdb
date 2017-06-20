@@ -25,7 +25,7 @@ defmodule CaosTsdb.MetricControllerTest do
   use CaosTsdb.ConnCase
 
   alias CaosTsdb.Metric
-  @valid_attrs %{name: "a name", type: "a type"}
+  @valid_attrs %{name: "a_name", type: "a type"}
   @metric struct(Metric, @valid_attrs)
   @invalid_attrs %{name: "a new name", type: "a type"}
 

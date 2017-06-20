@@ -26,11 +26,11 @@ defmodule CaosTsdb.TagControllerTest do
 
   alias CaosTsdb.Tag
 
-  @valid_attrs %{key: "a name",
-                 value: "a value",
+  @valid_attrs %{key: "a_name",
+                 value: "a_value",
                  extra: %{"a key" => "a value",
                           "another key" => "another value"}}
-  @invalid_attrs %{key: "", value: "a value"}
+  @invalid_attrs %{key: "a space", value: "a value"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}

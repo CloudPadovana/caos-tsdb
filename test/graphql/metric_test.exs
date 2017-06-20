@@ -259,7 +259,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       }
     }
     """
-    @valid_args %{name: "a name", type: "a type"}
+    @valid_args %{name: "a_name", type: "a type"}
     @invalid_args %{name: "", type: "a type"}
 
     test "when data is valid", %{conn: conn} do
@@ -293,8 +293,8 @@ defmodule CaosTsdb.Graphql.MetricTest do
       }
     }
     """
-    @valid_args %{name: "a name", type: "a type"}
-    @invalid_args %{name: "", type: "a type"}
+    @valid_args %{name: "a_name", type: "a type"}
+    @invalid_args %{name: "a name", type: "a type"}
 
     test "when data is valid", %{conn: conn} do
       _metric1 = fixture(:metric, name: @valid_args.name, type: "old #{@valid_args.type}")

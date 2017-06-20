@@ -183,3 +183,4 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
     end
   end
+end

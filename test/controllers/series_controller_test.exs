@@ -97,7 +97,7 @@ defmodule CaosTsdb.SeriesControllerTest do
   describe "tags support:" do
     test "shows tags of chosen resource", %{conn: conn} do
       tags = fixture(:tags)
-      _tag3 = fixture(:tag, key: "another tag", value: "a value", extra: %{key: " another value"})
+      _tag3 = fixture(:tag, key: "another_tag", value: "a_value", extra: %{key: " another value"})
       series = fixture(:series, tags: tags)
 
       conn = get conn, series_path(conn, :show, series)
@@ -113,8 +113,8 @@ defmodule CaosTsdb.SeriesControllerTest do
       series = fixture(:series, tags: [])
 
       tag = fixture(:tag,
-        key: "a tag",
-        value: "a value",
+        key: "a_tag",
+        value: "a_value",
         extra: %{key: " another value"})
 
       conn1 = get conn, series_path(conn, :show, series)
@@ -130,8 +130,8 @@ defmodule CaosTsdb.SeriesControllerTest do
                                       "value" => t.value,
                                       "extra" => t.extra} end)
       tag2 = fixture(:tag,
-        key: "a tag2",
-        value: "a value2",
+        key: "a_tag2",
+        value: "a_value2",
         extra: %{key: " another value2"})
 
       conn4 = put conn, series_path(conn, :update, series), tag: %{"id" => tag2.id}
