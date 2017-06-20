@@ -78,8 +78,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       _tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      _tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a_new_key")
+      _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{id: tag2.id}
       assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
@@ -125,8 +125,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       _tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      _tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a/new/key")
+      _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{key: tag2.key, value: tag2.value}
       assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
@@ -156,8 +156,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a-new-key")
+      tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query
       assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3], [:id])}
@@ -189,8 +189,8 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are many tags", %{conn: conn} do
       tag1 = fixture(:tag)
-      tag2 = fixture(:tag, key: "a new key")
-      tag3 = fixture(:tag, key: "another new key")
+      tag2 = fixture(:tag, key: "a.new/key")
+      tag3 = fixture(:tag, key: "another_new-key")
 
       conn = graphql_query conn, @query
       assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3])}
@@ -383,28 +383,45 @@ defmodule CaosTsdb.Graphql.TagTest do
       }
     }
     """
-    @valid_args %{key: "a.valid/name", value: "a/valid1/value"}
-    @invalid_args %{key: "", value: "a value"}
+    @valid_args [
+      %{key: "a_name", value: "a.value"},
+      %{key: "key1", value: "a_value"},
+      %{key: "key", value: "823az5"},
+    ]
+    @invalid_args [
+      %{key: "", value: "a value"},
+      %{key: "", value: "value"},
+      %{key: "832dd", value: "value"},
+      %{key: "=326", value: "value"},
+      %{key: "key1", value: "=value"}
+    ]
 
     test "when data is valid", %{conn: conn} do
-      conn = graphql_query conn, @query, @valid_args
+      @valid_args |> Enum.each(fn args ->
+        new_conn = graphql_query conn, @query, args
+        tag = json_response(new_conn, 200)["data"]["create_tag"] |> json_to_tag
 
-      tag = json_response(conn, 200)["data"]["create_tag"] |> json_to_tag
+        refute json_response(new_conn, 200)["errors"]
 
-      assert Map.take(tag, [:key, :value]) == @valid_args
-      assert Repo.get_by(Tag, @valid_args)
+        assert Map.take(tag, [:key, :value]) == args
+        assert Repo.get_by(Tag, args)
+      end)
     end
 
     test "should fail when data is invalid", %{conn: conn} do
-      conn = graphql_query conn, @query, @invalid_args
-      assert json_response(conn, 200)["errors"] != []
+      @invalid_args |> Enum.each(fn args ->
+        new_conn = graphql_query conn, @query, args
+        assert json_response(new_conn, 200)["errors"] != []
+      end)
     end
 
     test "returns already existent tag", %{conn: conn} do
-      tag1 = fixture(:tag, key: @valid_args.key, value: @valid_args.value)
-      conn = graphql_query conn, @query, @valid_args
+      @valid_args |> Enum.each(fn args ->
+        tag1 = fixture(:tag, key: args.key, value: args.value)
+        new_conn = graphql_query conn, @query, args
 
-      assert json_response(conn, 200)["data"] == %{"create_tag" => tag_to_json(tag1)}
+        assert json_response(new_conn, 200)["data"] == %{"create_tag" => tag_to_json(tag1)}
+      end)
     end
   end
 end

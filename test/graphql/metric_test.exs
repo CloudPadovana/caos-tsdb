@@ -259,6 +259,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       }
     }
     """
+
     @valid_args %{name: "a/valid.name", type: "a type"}
     @invalid_args %{name: "", type: "a type"}
 
