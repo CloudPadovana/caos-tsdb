@@ -1,0 +1,13 @@
+*
+!credo.exs
+!LICENSE
+!README.md
+!config
+!lib
+!migration_test
+!mix.exs
+!mix.lock
+!priv
+!rel
+!test
+!web
