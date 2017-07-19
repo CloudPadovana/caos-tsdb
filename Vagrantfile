@@ -39,7 +39,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.name = "caos-tsdb-db"
       d.has_ssh = false
       d.image = "mysql/mysql-server:5.7"
-      d.create_args = [ "-e", "MYSQL_ALLOW_EMPTY_PASSWORD=yes" ]
+      d.create_args = [
+        "-e", "MYSQL_ALLOW_EMPTY_PASSWORD=yes",
+        "-e", "MYSQL_ROOT_HOST=172.17.0.%",
+      ]
     end
   end
 
