@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-FROM buildpack-deps:jessie
+FROM buildpack-deps:stretch
 
 LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
 
