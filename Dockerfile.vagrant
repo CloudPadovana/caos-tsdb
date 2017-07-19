@@ -66,7 +66,8 @@ RUN rm -f /erlang-solutions_1.0_all.deb
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install -y \
             esl-erlang \
-            elixir
+            elixir \
+            mysql-client
 
 RUN echo "cd /vagrant" >> /home/vagrant/.profile
 
