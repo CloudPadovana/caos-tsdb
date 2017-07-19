@@ -148,10 +148,14 @@ docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${contain
 say "Compilation done\n"
 
 docker cp "${container_id}:/${archive_prefix}/_build/prod/rel/caos_tsdb/releases/${semver}/caos_tsdb.tar.gz" ${releases_dir}/${release_fname}
-say "Grabbed release to %s\n" ${releases_dir}//${release_fname}
+say "Grabbed release to %s\n" ${releases_dir}/${release_fname}
 
 docker stop ${container_id}
 say "Stopped container: %s\n" ${container_id}
 
 docker rm ${container_id}
 say "Removed container: %s\n" ${container_id}
+
+say "Building docker release"
+docker build -t caos-tsdb:${git_version} --build-arg RELEASE_FILE=${release_fname} --build-arg RELEASES_DIR=${releases_dir} .
+say "Docker release built\n"

@@ -9,5 +9,6 @@
 !mix.lock
 !priv
 !rel
+!releases
 !test
 !web
