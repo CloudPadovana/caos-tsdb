@@ -26,57 +26,44 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
+# disable parallel spawing of containers, otherwise 'vagrant up' will
+# fail due to docker linking order
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.provider "virtualbox" do |v|
-    v.memory = 512
-    v.cpus = 2
-    v.linked_clone = true
+  config.vm.define "caos-tsdb-db" do |db|
+    db.vm.hostname = "db"
+    db.vm.synced_folder ".", "/vagrant", disabled: true
+
+    db.vm.provider :docker do |d|
+      d.name = "caos-tsdb-db"
+      d.has_ssh = false
+      d.image = "mysql/mysql-server:5.7"
+      d.create_args = [
+        "-e", "MYSQL_ALLOW_EMPTY_PASSWORD=yes",
+        "-e", "MYSQL_ROOT_HOST=172.17.0.%",
+      ]
+    end
   end
 
-  config.vm.box = "centos/7"
+  config.vm.define "caos-tsdb", primary: true do |tsdb|
+    tsdb.vm.hostname = "caos-tsdb"
+    tsdb.ssh.username = "vagrant"
+    tsdb.ssh.password = "vagrant"
 
-  config.vm.synced_folder ".", "/vagrant", disabled: true
+    tsdb.vm.provider :docker do |d|
+      d.name = "caos-tsdb"
+      d.has_ssh = true
+      d.build_dir = "."
+      d.dockerfile = "Dockerfile.vagrant"
+      d.build_args = [ "-t", "vagrant-caos-tsdb" ]
 
-  config.vm.synced_folder ".", "/vagrant",
-                          create: true,
-                          type: "virtualbox"
+      d.ports = [
+        # phoenix server
+        '4000:4000',
+      ]
 
-  # phoenix server
-  config.vm.network :forwarded_port, guest: 4000, host: 4000
-
-  config.vm.hostname = "tsdb.caos.vagrant.localhost"
-
-  $script = <<SCRIPT
-sed -i 's/AcceptEnv/# AcceptEnv/' /etc/ssh/sshd_config
-localectl set-locale "LANG=en_US.utf8"
-systemctl reload sshd.service
-
-echo "cd /vagrant" >> /home/vagrant/.bash_profile
-
-yum update -v -y
-yum install -v -y epel-release wget unzip
-
-### ERLANG
-rm -f erlang-solutions-1.0-1.noarch.rpm
-wget https://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
-rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
-yum install -v -y esl-erlang
-
-rm -rf /opt/elixir && mkdir -p /opt/elixir
-(
-  cd /opt/elixir
-  wget https://github.com/elixir-lang/elixir/releases/download/v1.4.0/Precompiled.zip
-  unzip Precompiled.zip
-)
-echo 'export PATH=$PATH:/opt/elixir/bin' >> /home/vagrant/.bash_profile
-
-### mysql
-yum install -v -y mariadb-server
-systemctl enable mariadb
-systemctl start mariadb
-
-SCRIPT
-
-  config.vm.provision :shell, :inline => $script
+      d.link "caos-tsdb-db:db"
+    end
+  end
 end
-

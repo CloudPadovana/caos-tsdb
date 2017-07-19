@@ -25,7 +25,7 @@ use Mix.Releases.Config,
   # This sets the default release built by `mix release`
   default_release: :caos_tsdb,
   # This sets the default environment used by `mix release`
-  default_environment: :prod
+  default_environment: Mix.env
 
 # For a full list of config options for both releases
 # and environments, visit https://hexdocs.pm/distillery/configuration.html
@@ -39,11 +39,11 @@ environment :prod do
   # This setting is necessary to suppress errors on release
   # generation.  Distillery checks for the presence of the cookie
   # parameter, even if we provide our custom value in "vm.args".
-  set cookie: "cookie"
+  set cookie: :prod
 end
 
 release :caos_tsdb do
-  set version: current_version(:caos_tsdb)
+  set version: System.get_env("CAOS_TSDB_RELEASE_VERSION") || current_version(:caos_tsdb)
 
   plugin Conform.ReleasePlugin
 end

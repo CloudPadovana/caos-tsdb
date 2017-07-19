@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,21 +21,20 @@
 #
 ################################################################################
 
-use Mix.Config
+FROM debian:stretch
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
-config :caos_tsdb, CaosTsdb.Endpoint,
-  http: [port: 4001],
-  server: false
+LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
 
-config :logger, :console, level: :warn, format: "[$level] $message\n"
+ARG RELEASES_DIR
+ARG RELEASE_FILE
 
-# Configure your database
-config :caos_tsdb, CaosTsdb.Repo,
-  adapter: Ecto.Adapters.MySQL,
-  username: "root",
-  password: "",
-  database: "caos_tsdb_test",
-  hostname: "caos-tsdb-db",
-  pool: Ecto.Adapters.SQL.Sandbox
+WORKDIR /caos-tsdb
+
+COPY $RELEASES_DIR/$RELEASE_FILE /
+
+RUN tar xfvz /$RELEASE_FILE
+
+ENV LANG=C.UTF-8
+
+ENTRYPOINT [ "bin/caos_tsdb" ]
+CMD [ "--help" ]
