@@ -38,7 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     db.vm.provider :docker do |d|
       d.name = "caos-tsdb-db"
       d.has_ssh = false
-      d.image = "mysql/mysql-server"
+      d.image = "mysql/mysql-server:5.7"
       d.create_args = [ "-e", "MYSQL_ALLOW_EMPTY_PASSWORD=yes" ]
     end
   end
