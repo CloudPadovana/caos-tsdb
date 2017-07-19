@@ -72,8 +72,8 @@ defmodule CaosTsdb.Mixfile do
      {:absinthe_plug, "~> 1.2.0"},
      {:abacus, "~> 0.3.2"},
      {:credo, "~> 0.6.0", only: [:dev, :test], runtime: false},
-     {:distillery, "~> 1.1.0", runtime: false},
-     {:conform, "~> 2.1.2"}]
+     {:distillery, "~> 1.4.1", runtime: false},
+     {:conform, "~> 2.4.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
