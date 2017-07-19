@@ -128,7 +128,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "port": [
       commented: false,
       datatype: :integer,
-      default: 4000,
+      default: 80,
       doc: "Server port.",
       hidden: false,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
@@ -153,13 +153,13 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.render_errors.accepts"
     ],
-    "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port": [
+    "caos_tsdb.Elixir.CaosTsdb.Endpoint.url.port": [
       commented: false,
-      datatype: {:atom, :binary},
-      default: {:system, "PORT"},
+      datatype: :integer,
+      default: 80,
       doc: "Provide documentation for caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port here.",
       hidden: true,
-      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.http.port"
+      to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.url.port"
     ],
     "caos_tsdb.Elixir.CaosTsdb.Endpoint.server": [
       commented: false,
@@ -227,7 +227,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "db.pool_size": [
       commented: false,
       datatype: :integer,
-      default: 1,
+      default: 5,
       doc: "DB connection pool size.",
       hidden: false,
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.pool_size"
@@ -243,7 +243,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "auth.secret_key": [
       commented: false,
       datatype: :binary,
-      default: "vUczE4q9U0SF2eQIUTMJvw==",
+      default: "<secret>",
       doc: "Token secret key.",
       hidden: false,
       to: "guardian.Elixir.Guardian.secret_key"

@@ -54,7 +54,7 @@ config :guardian, Guardian,
   ttl: { 3600, :seconds },
   verify_issuer: true,
   secret_key: %{
-    "k" => "vUczE4q9U0SF2eQIUTMJvw==",
+    "k" => :crypto.strong_rand_bytes(64) |> Base.encode64 |> binary_part(0, 64),
     "kty" => "oct"
   },
   serializer: CaosTsdb.GuardianSerializer
