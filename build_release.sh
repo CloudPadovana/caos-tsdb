@@ -139,10 +139,12 @@ function docker_exec () {
 docker_exec ${container_id} tar xfz /${archive_fname} --strip-components=1
 say "Deployed sources\n"
 
-say "Starting compilation"
-docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${container_id} mix local.hex --force
-docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${container_id} mix local.rebar --force
-docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${container_id} mix deps.get --only
+say "Installing deps"
+docker_exec ${container_id} mix local.hex --force
+docker_exec ${container_id} mix local.rebar --force
+docker_exec ${container_id} mix deps.get --only prod
+
+say "Building release"
 docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${container_id} mix compile
 docker_exec -e "CAOS_TSDB_RELEASE_VERSION=${semver}" -e "MIX_ENV=prod" ${container_id} mix release --verbose
 say "Compilation done\n"
