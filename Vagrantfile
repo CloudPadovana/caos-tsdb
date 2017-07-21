@@ -82,5 +82,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     SCRIPT
 
     tsdb.vm.provision :shell, privileged: true, inline: $script
+
+    $script = <<~SCRIPT
+      mix local.hex --force
+      mix local.rebar --force
+      mix deps.get
+    SCRIPT
+
+    tsdb.vm.provision :shell, privileged: false, inline: $script
   end
 end
