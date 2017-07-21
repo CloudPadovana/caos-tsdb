@@ -30,6 +30,13 @@ defmodule CaosTsdb.Mixfile do
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      test_paths: test_paths(Mix.env),
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: [
+       "coveralls": :test,
+       "coveralls.detail": :test,
+       "coveralls.post": :test,
+       "coveralls.html": :test,
+     ],
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -72,6 +79,7 @@ defmodule CaosTsdb.Mixfile do
      {:absinthe_plug, "~> 1.3"},
      {:abacus, "~> 0.3.2"},
      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+     {:excoveralls, "~> 0.7", only: :test},
      {:distillery, "~> 1.4.1", runtime: false},
      {:conform, "~> 2.4.0"}]
   end
