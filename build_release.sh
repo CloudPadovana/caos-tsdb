@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+DOCKER_BUILD_IMAGE="elixir:1.4"
+
 SCRIPT=$(basename "$0")
 USAGE="$SCRIPT [<options>]
   Options:
@@ -126,7 +128,7 @@ archive_prefix="caos-tsdb/"
 git archive --prefix=${archive_prefix} -o ${releases_dir}/${archive_fname} ${git_version}
 say "Created archive: %s\n" ${archive_fname}
 
-container_id=$(docker run -t -d -v /${archive_prefix} -w /${archive_prefix} -v $(readlink -e ${releases_dir}/${archive_fname}):/${archive_fname}:ro --entrypoint /bin/bash elixir:1.4)
+container_id=$(docker run -t -d -v /${archive_prefix} -w /${archive_prefix} -v $(readlink -e ${releases_dir}/${archive_fname}):/${archive_fname}:ro --entrypoint /bin/bash ${DOCKER_BUILD_IMAGE})
 say "Started container: %s\n" ${container_id}
 
 function docker_exec () {
