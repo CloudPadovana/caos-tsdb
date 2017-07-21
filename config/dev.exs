@@ -50,5 +50,5 @@ config :caos_tsdb, CaosTsdb.Repo,
   username: "root",
   password: "",
   database: "caos_tsdb_dev",
-  hostname: "caos-tsdb-db",
+  hostname: System.get_env("CAOS_TSDB_DB_HOSTNAME") || "localhost",
   pool_size: 10

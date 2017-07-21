@@ -57,6 +57,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.build_dir = "."
       d.dockerfile = "Dockerfile.vagrant"
       d.build_args = [ "-t", "vagrant-caos-tsdb" ]
+      d.create_args = [
+        "-e", "CAOS_TSDB_DB_HOSTNAME=caos-tsdb-db",
+      ]
 
       d.ports = [
         # phoenix server
