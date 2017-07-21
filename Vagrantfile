@@ -68,5 +68,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       d.link "caos-tsdb-db:db"
     end
+
+    $script = <<~SCRIPT
+      wget -O /erlang-solutions_1.0_all.deb https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+      dpkg -i /erlang-solutions_1.0_all.deb
+      rm -f /erlang-solutions_1.0_all.deb
+
+      DEBIAN_FRONTEND=noninteractive apt-get update && \
+        apt-get install --no-install-recommends -y \
+          esl-erlang \
+          elixir \
+          mysql-client
+    SCRIPT
+
+    tsdb.vm.provision :shell, privileged: true, inline: $script
   end
 end
