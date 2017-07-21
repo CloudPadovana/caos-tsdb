@@ -59,4 +59,5 @@ RUN echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN echo "cd /vagrant" >> /home/vagrant/.profile
 
-CMD ["/usr/sbin/sshd", "-D"]
+# https://github.com/moby/moby/issues/2569#issuecomment-27973910
+CMD ["/bin/sh", "-c", "env | grep _ >> /etc/environment && /usr/sbin/sshd -D"]
