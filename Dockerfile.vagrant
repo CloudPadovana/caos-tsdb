@@ -59,5 +59,8 @@ RUN echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN echo "cd /vagrant" >> /home/vagrant/.profile
 
+ENV LANG=C.UTF-8
+
 # https://github.com/moby/moby/issues/2569#issuecomment-27973910
+RUN echo "LANG=${LANG}" >> /etc/environment
 CMD ["/bin/sh", "-c", "env | grep _ >> /etc/environment && /usr/sbin/sshd -D"]
