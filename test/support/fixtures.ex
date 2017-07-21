@@ -33,6 +33,12 @@ defmodule CaosTsdb.Fixtures do
 
   def fixture(_, assoc \\ [])
 
+  def fixture(:timestamp, _assoc) do
+    Timex.now
+    |> format_date!
+    |> parse_date!
+  end
+
   def fixture(:token, assoc) do
     username = assoc[:username] || "some_user"
     claims = assoc[:claims] || %{}

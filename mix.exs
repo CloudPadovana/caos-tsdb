@@ -26,7 +26,7 @@ defmodule CaosTsdb.Mixfile do
 
   def project do
     [app: :caos_tsdb,
-     version: "0.0.5",
+     version: "0.0.6",
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      test_paths: test_paths(Mix.env),
@@ -68,10 +68,10 @@ defmodule CaosTsdb.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:guardian, "~> 0.14.0"},
-     {:absinthe, "~> 1.2.0"},
-     {:absinthe_plug, "~> 1.2.0"},
+     {:absinthe, "~> 1.3"},
+     {:absinthe_plug, "~> 1.3"},
      {:abacus, "~> 0.3.2"},
-     {:credo, "~> 0.6.0", only: [:dev, :test], runtime: false},
+     {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
      {:distillery, "~> 1.4.1", runtime: false},
      {:conform, "~> 2.4.0"}]
   end

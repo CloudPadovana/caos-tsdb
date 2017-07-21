@@ -76,6 +76,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   import: [],
   mappings: [
     "logger.level": [
+      env_var: "CAOS_TSDB_LOGGER_LEVEL",
       commented: false,
       datatype: :atom,
       default: :info,
@@ -118,6 +119,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.ecto_repos"
     ],
     "hostname": [
+      env_var: "CAOS_TSDB_HOSTNAME",
       commented: false,
       datatype: :binary,
       default: "localhost",
@@ -126,6 +128,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.url.host"
     ],
     "port": [
+      env_var: "CAOS_TSDB_PORT",
       commented: false,
       datatype: :integer,
       default: 80,
@@ -186,6 +189,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.adapter"
     ],
     "db.username": [
+      env_var: "CAOS_TSDB_DB_USERNAME",
       commented: false,
       datatype: :binary,
       default: "caos",
@@ -194,6 +198,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.username"
     ],
     "db.password": [
+      env_var: "CAOS_TSDB_DB_PASSWORD",
       commented: false,
       datatype: :binary,
       doc: "DB password.",
@@ -201,6 +206,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.password"
     ],
     "db.name": [
+      env_var: "CAOS_TSDB_DB_NAME",
       commented: false,
       datatype: :binary,
       default: "caos",
@@ -209,6 +215,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.database"
     ],
     "db.hostname": [
+      env_var: "CAOS_TSDB_DB_HOSTNAME",
       commented: false,
       datatype: :binary,
       default: "localhost",
@@ -217,6 +224,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.hostname"
     ],
     "db.port": [
+      env_var: "CAOS_TSDB_DB_PORT",
       commented: false,
       datatype: :integer,
       default: 3306,
@@ -225,6 +233,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.port"
     ],
     "db.pool_size": [
+      env_var: "CAOS_TSDB_DB_POOL_SIZE",
       commented: false,
       datatype: :integer,
       default: 5,
@@ -233,6 +242,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.pool_size"
     ],
     "auth.token_ttl": [
+      env_var: "CAOS_TSDB_AUTH_TOKEN_TTL",
       commented: false,
       datatype: :integer,
       default: 86400,
@@ -241,6 +251,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "guardian.Elixir.Guardian.ttl"
     ],
     "auth.secret_key": [
+      env_var: "CAOS_TSDB_AUTH_SECRET_KEY",
       commented: false,
       datatype: :binary,
       default: "<secret>",
@@ -249,6 +260,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "guardian.Elixir.Guardian.secret_key"
     ],
     "auth.identity.username": [
+      env_var: "CAOS_TSDB_AUTH.IDENTITY_USERNAME",
       commented: false,
       datatype: :binary,
       default: "admin",
@@ -257,6 +269,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.Auth.identity.username"
     ],
     "auth.identity.password": [
+      env_var: "CAOS_TSDB_AUTH.IDENTITY_PASSWORD",
       commented: false,
       datatype: :binary,
       default: "ADMIN_PASS",

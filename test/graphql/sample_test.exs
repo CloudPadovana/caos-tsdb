@@ -44,7 +44,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
     }
     """
 
-    @a_timestamp Timex.now
+    @a_timestamp fixture(:timestamp)
     @a_value 322.3
     @query_params %{series: %{id: nil},
                     timestamp: @a_timestamp |> format_date!}
@@ -85,7 +85,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
     }
     """
 
-    @a_timestamp Timex.now |> Timex.shift(seconds: -100*3600)
+    @a_timestamp fixture(:timestamp) |> Timex.shift(seconds: -100*3600)
     @a_value 322.3
     @query_params %{series: %{id: nil},
                     from: @a_timestamp |> format_date!,
@@ -152,7 +152,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
     }
     """
 
-    @a_timestamp Timex.now
+    @a_timestamp fixture(:timestamp)
     @a_value 322.3
     @query_params %{series: %{id: nil},
                     timestamp: @a_timestamp |> format_date!,

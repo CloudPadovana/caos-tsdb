@@ -50,6 +50,7 @@ defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
     |> having([st], fragment("GROUP_CONCAT(? ORDER BY ? ASC SEPARATOR ',') = ?",
               st.tag_id, st.tag_id, ^target)
     )
+    |> select([st], [:series_id])
     |> Repo.all()
     |> Enum.map(fn s -> s.series_id end)
 
