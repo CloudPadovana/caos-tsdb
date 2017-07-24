@@ -57,19 +57,10 @@ RUN echo "vagrant:vagrant" | chpasswd
 # setup SUDO
 RUN echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-### provisioning
-
-# ERLANG
-ADD https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb /
-RUN dpkg -i erlang-solutions_1.0_all.deb
-RUN rm -f /erlang-solutions_1.0_all.deb
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install --no-install-recommends -y \
-            esl-erlang \
-            elixir \
-            mysql-client
-
 RUN echo "cd /vagrant" >> /home/vagrant/.profile
 
-CMD ["/usr/sbin/sshd", "-D"]
+ENV LANG=C.UTF-8
+
+# https://github.com/moby/moby/issues/2569#issuecomment-27973910
+RUN echo "LANG=${LANG}" >> /etc/environment
+CMD ["/bin/sh", "-c", "env | grep _ >> /etc/environment && /usr/sbin/sshd -D"]

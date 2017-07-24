@@ -57,6 +57,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.build_dir = "."
       d.dockerfile = "Dockerfile.vagrant"
       d.build_args = [ "-t", "vagrant-caos-tsdb" ]
+      d.create_args = [
+        "-e", "CAOS_TSDB_DB_HOSTNAME=caos-tsdb-db",
+      ]
 
       d.ports = [
         # phoenix server
@@ -65,5 +68,27 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       d.link "caos-tsdb-db:db"
     end
+
+    $script = <<~SCRIPT
+      wget -O /erlang-solutions_1.0_all.deb https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+      dpkg -i /erlang-solutions_1.0_all.deb
+      rm -f /erlang-solutions_1.0_all.deb
+
+      DEBIAN_FRONTEND=noninteractive apt-get update && \
+        apt-get install --no-install-recommends -y \
+          esl-erlang \
+          elixir \
+          mysql-client
+    SCRIPT
+
+    tsdb.vm.provision :shell, privileged: true, inline: $script
+
+    $script = <<~SCRIPT
+      mix local.hex --force
+      mix local.rebar --force
+      mix deps.get
+    SCRIPT
+
+    tsdb.vm.provision :shell, privileged: false, inline: $script
   end
 end
