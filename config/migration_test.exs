@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,4 +37,4 @@ config :caos_tsdb, CaosTsdb.Repo,
   username: "root",
   password: "",
   database: "caos_tsdb_migration_test",
-  hostname: "localhost"
+  hostname: System.get_env("CAOS_TSDB_DB_HOSTNAME") || "localhost"
