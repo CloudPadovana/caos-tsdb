@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 defmodule CaosTsdb.MigrationTest.AssociateTagsToSeriesTest do
   use CaosTsdb.MigrationTest.MigrationCase, target_migration: 20161216111523
 
+  import CaosTsdb.DateTime.Helpers
+
   test "Migration on empty DB", _context do
     tags = Tag |> Repo.all
     assert tags == []
@@ -35,12 +37,14 @@ defmodule CaosTsdb.MigrationTest.AssociateTagsToSeriesTest do
     assert series_tags == []
   end
 
-  def before_migration(20161213154617) do
-    Repo.insert_all "projects", [%{id: "id1", name: "name1"},
-                                 %{id: "id2", name: "name2"}]
+  @a_timestamp Timex.now |> format_date! |> parse_date!
 
-    Repo.insert_all "metrics", [%{name: "metric1"},
-                                %{name: "metric2"}]
+  def before_migration(20161213154617) do
+    Repo.insert_all "projects", [%{id: "id1", name: "name1", inserted_at: @a_timestamp, updated_at: @a_timestamp},
+                                 %{id: "id2", name: "name2", inserted_at: @a_timestamp, updated_at: @a_timestamp}]
+
+    Repo.insert_all "metrics", [%{name: "metric1", inserted_at: @a_timestamp, updated_at: @a_timestamp},
+                                %{name: "metric2", inserted_at: @a_timestamp, updated_at: @a_timestamp}]
 
     s1 = Repo.insert! %Series{project_id: "id1", metric_name: "metric1", period: 3600}
     s2 = Repo.insert! %Series{project_id: "id1", metric_name: "metric2", period: 3600}
