@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ################################################################################
 #
 # caos-tsdb - CAOS Time-Series DB
@@ -21,16 +23,16 @@
 #
 ################################################################################
 
-FROM debian:stretch
+source ${CI_PROJECT_DIR}/ci-tools/common.sh
 
-LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
+git_version=$(ci-tools/git-describe.sh) || die
 
-ARG RELEASE_FILE
-ADD $RELEASE_FILE /caos-tsdb
+version=$(echo ${git_version} | awk '{ split($0, r, "-"); print r[1] }' | sed -e 's/^v//' )
+count=$(echo ${git_version} | awk '{ split($0, r, "-"); print r[2] }' )
+sha=$(echo ${git_version} | awk '{ split($0, r, "-"); print r[3] }' )
 
-WORKDIR /caos-tsdb
-
-ENV LANG=C.UTF-8
-
-ENTRYPOINT [ "bin/caos_tsdb" ]
-CMD [ "--help" ]
+if [ ${count} == 0 ] ; then
+    echo "${version}"
+else
+    echo "${version}.${count}+${sha}"
+fi

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ################################################################################
 #
 # caos-tsdb - CAOS Time-Series DB
@@ -21,16 +23,12 @@
 #
 ################################################################################
 
-FROM debian:stretch
+source ${CI_PROJECT_DIR}/ci-tools/common.sh
 
-LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
+GIT_SHA=${CI_COMMIT_SHA:-${CI_COMMIT_REF}}
 
-ARG RELEASE_FILE
-ADD $RELEASE_FILE /caos-tsdb
+if [ -z ${GIT_SHA} ] ; then
+    die "GIT_SHA not set"
+fi
 
-WORKDIR /caos-tsdb
-
-ENV LANG=C.UTF-8
-
-ENTRYPOINT [ "bin/caos_tsdb" ]
-CMD [ "--help" ]
+git describe --long ${GIT_SHA}
