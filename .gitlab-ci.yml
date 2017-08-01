@@ -126,7 +126,7 @@ release:build:
   <<: *release_template
   artifacts:
     paths:
-      - caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
+      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
     expire_in: 1 day
   except:
     - master
@@ -135,7 +135,7 @@ release:master:
   <<: *release_template
   artifacts:
     paths:
-      - caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
+      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
   only:
     - master
 

@@ -49,7 +49,7 @@ CAOS_TSDB_DOCKER_IMAGE_TAG=${CI_REGISTRY_IMAGE}:${CAOS_TSDB_RELEASE_GIT_VERSION}
 say_yellow  "Building docker container"
 docker build \
        --tag ${CAOS_TSDB_DOCKER_IMAGE_TAG} \
-       --build-arg RELEASE_FILE="${CI_PROJECT_DIR}/caos_tsdb-${CAOS_TSDB_RELEASE_VERSION}.tar.gz" \
+       --build-arg RELEASE_FILE="releases/caos_tsdb-${CAOS_TSDB_RELEASE_VERSION}.tar.gz" \
        --pull=true .
 
 if [ "${DO_DOCKER_PUSH}" == true ] ; then

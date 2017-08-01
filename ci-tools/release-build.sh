@@ -41,5 +41,11 @@ fi
 say_yellow  "Building release"
 mix release --verbose
 
+RELEASES_DIR=${CI_PROJECT_DIR}/releases
+if [ ! -d "${RELEASES_DIR}" ] ; then
+    say_yellow  "Creating releases directory"
+    mkdir ${RELEASES_DIR}
+fi
+
 say_yellow  "Copying release file"
-cp -v _build/${MIX_ENV}/rel/caos_tsdb/releases/${CAOS_TSDB_RELEASE_VERSION}/caos_tsdb.tar.gz caos_tsdb-${CAOS_TSDB_RELEASE_VERSION}.tar.gz
+cp -v _build/${MIX_ENV}/rel/caos_tsdb/releases/${CAOS_TSDB_RELEASE_VERSION}/caos_tsdb.tar.gz ${RELEASES_DIR}/caos_tsdb-${CAOS_TSDB_RELEASE_VERSION}.tar.gz
