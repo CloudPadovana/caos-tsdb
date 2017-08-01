@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ################################################################################
 #
 # caos-tsdb - CAOS Time-Series DB
@@ -21,16 +23,31 @@
 #
 ################################################################################
 
-FROM debian:stretch
+set -e
 
-LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
+source ${CI_PROJECT_DIR}/ci-tools/common.sh
 
-ARG RELEASE_FILE
-ADD $RELEASE_FILE /caos-tsdb
+if [ -z "${MIX_ENV}" ] ; then
+    die "MIX_ENV not set."
+fi
 
-WORKDIR /caos-tsdb
+export CAOS_TSDB_RELEASE_VERSION=$(ci-tools/git-semver.sh)
 
-ENV LANG=C.UTF-8
+if [ -z "${CAOS_TSDB_RELEASE_VERSION}" ] ; then
+    die "CAOS_TSDB_RELEASE_VERSION not set."
+fi
 
-ENTRYPOINT [ "bin/caos_tsdb" ]
-CMD [ "--help" ]
+say_yellow  "Installing hex"
+mix local.hex --force
+
+say_yellow  "Installing rebar"
+mix local.rebar --force
+
+say_yellow  "Getting deps"
+mix deps.get --only ${MIX_ENV}
+
+say_yellow  "Compiling deps"
+mix deps.compile
+
+say_yellow  "Compiling"
+mix compile

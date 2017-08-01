@@ -29,22 +29,18 @@ PROJECT_DIR=$(dirname $(readlink -f $0))
 source ${PROJECT_DIR}/ci-tools/common.sh
 
 GIT_SHA=$(git rev-parse --verify HEAD)
-DOCKER_BUILD_IMAGE="elixir:1.4"
+DOCKER_BUILD_IMAGE="docker:17.06-dind"
 
 releases_dir=releases
-if [ ! -d ${releases_dir} ] ; then
-    say "Creating %s" ${releases_dir}
-    mkdir -p ${releases_dir}
-fi
 
-container_id=$(docker run -t -d -v $(readlink -e $(pwd)):/origin:ro -v /build -w /build ${DOCKER_BUILD_IMAGE})
+container_id=$(docker run --privileged -t -d -v $(readlink -e $(pwd)):/origin:ro -v /build -w /build ${DOCKER_BUILD_IMAGE})
 say "Started container: %s\n" ${container_id}
 
 function docker_exec () {
     docker exec \
-           -e "MIX_ENV=prod" \
            -e "CI_PROJECT_DIR=/build" \
            -e "CI_COMMIT_SHA=${GIT_SHA}" \
+           -e "CI_REGISTRY_IMAGE=caos-tsdb" \
            "$@"
 
     if [ $? != 0 ] ; then
@@ -52,14 +48,19 @@ function docker_exec () {
     fi
 }
 
+fname=${releases_dir}/caos_tsdb-$(CI_PROJECT_DIR=. CI_COMMIT_SHA=${GIT_SHA} ci-tools/git-semver.sh).tar.gz
+if [ ! -f ${fname} ] ; then
+    die "File ${fname} not found"
+fi
+
+docker_exec ${container_id} apk add --no-cache bash git
+
 docker_exec ${container_id} git clone --no-checkout --no-hardlinks /origin /build
 docker_exec ${container_id} git checkout -f ${GIT_SHA}
 
-docker_exec ${container_id} ci-tools/prepare.sh
-docker_exec ${container_id} ci-tools/release-build.sh
+docker cp ${fname} ${container_id}:/build/
 
-fname=${container_id}:/build/caos_tsdb-$(CI_PROJECT_DIR=. CI_COMMIT_SHA=${GIT_SHA} ci-tools/git-semver.sh).tar.gz
-docker cp ${fname} ${releases_dir}/
+docker_exec ${container_id} /bin/bash ci-tools/docker-build.sh
 
 docker stop ${container_id}
 say "Stopped container: %s\n" ${container_id}

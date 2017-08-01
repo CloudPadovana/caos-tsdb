@@ -11,23 +11,16 @@ The API is exposed at [`localhost:4000/api`](http://localhost:4000/api).
 
 ## How to build a release
 
-Releases can be made by using the script `build_release.sh`. To make a
-release for HEAD just run `build_release.sh` without arguments. It will
-generate two `.tar.gz` archive under the `releases` directory: a
-`caos-tsdb-src-<version>.tar.gz` (made through `git archive`) and a
-`caos-tsdb-<version>.tar.gz` containing binary distribution.
+Releases can be made by using the script `build_release.sh`, which
+builds a release for HEAD. It will generate the file
+`releases/caos-tsdb-<version>.tar.gz` containing the binary distribution.
 
-The same script can be used to generate a release for a tag or commit
-different from HEAD by using the `-t` argument: `build_release.sh -t
-<tag>` or `build_release.sh -t <commit>`.
-
-At the end the script generates also a minimal docker image to be used
+The script `build_docker.sh` generates a minimal docker image to be used
 for deployment.
 
 ## How to run in production
 
-Generate a release with the `build_release.sh` script and push the
-image. To run the container:
+To run the container:
 ```
 docker run -p 8080:80 --name caos-tsdb \
     -v <path to caos_tsdb.conf>:/caos-tsdb/caos_tsdb.conf:ro \

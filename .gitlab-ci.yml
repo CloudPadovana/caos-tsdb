@@ -24,50 +24,152 @@
 image: elixir:1.4
 
 stages:
+  - build
   - test
+  - release
+  - docker
 
-.job_template: &job_template
-  stage: test
-  variables: &job_template_variables
-    MIX_ENV: test
-  before_script:
-    - DEBIAN_FRONTEND=noninteractive apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y mysql-client
-    - mix local.hex --force
-    - mix local.rebar --force
-    - mix deps.get --only test
-    - mix compile
+variables: &variables
+  CI_DEBUG_TRACE: "true"
 
-.job_test_template: &job_test_template
-  <<: *job_template
-  services:
-    - mysql/mysql-server:5.7
-  variables: &job_test_template_variables
-    <<: *job_template_variables
-    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    MYSQL_ROOT_HOST: "172.17.0.%"
-    CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
-
-test:
-  <<: *job_test_template
+.build_template: &build_template
+  stage: build
+  variables: &build_template_variables
+    <<: *variables
   script:
-    - mix ecto.drop
-    - mix coveralls.html
+    - ci-tools/prepare.sh
+  artifacts:
+    paths:
+      - deps
+      - _build/${MIX_ENV}
+    expire_in: 1 day
+
+build:test:
+  <<: *build_template
+  variables:
+    <<: *build_template_variables
+    MIX_ENV: test
+
+build:migration_test:
+  <<: *build_template
+  variables:
+    <<: *build_template_variables
+    MIX_ENV: migration_test
+
+build:prod:
+  <<: *build_template
+  variables:
+    <<: *build_template_variables
+    MIX_ENV: prod
+
+.test_template: &test_template
+  stage: test
+  dependencies:
+    - build:test
+  services:
+     - mysql/mysql-server:5.7
+  variables: &test_template_variables
+     <<: *variables
+     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+     MYSQL_ROOT_HOST: "172.17.0.%"
+     CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
+  before_script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install --no-install-recommends -y mysql-client
+    - ci-tools/prepare.sh
+
+test:coverage:
+  <<: *test_template
+  variables:
+    <<: *test_template_variables
+    MIX_ENV: test
+  script:
+    - mix do ecto.drop, coveralls.html
   artifacts:
     paths:
       - cover
   coverage: '/\[TOTAL\]\s+(\d+\.\d+)%/'
 
-test migrations:
-  <<: *job_test_template
+test:migrations:
+  <<: *test_template
+  dependencies:
+    - build:migration_test
   variables:
-    <<: *job_test_template_variables
+    <<: *test_template_variables
     MIX_ENV: migration_test
   script:
     - mix test.migrations
 
 credo:
-  <<: *job_template
+  stage: test
+  dependencies:
+    - build:test
+  variables:
+     <<: *variables
+     MIX_ENV: test
   script:
     - mix credo
   allow_failure: true
+
+.release_template: &release_template
+  stage: release
+  dependencies:
+    - build:prod
+  variables:
+     <<: *variables
+     MIX_ENV: prod
+  before_script:
+    - ci-tools/prepare.sh
+  script:
+    - ci-tools/release-build.sh
+
+release:build:
+  <<: *release_template
+  artifacts:
+    paths:
+      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
+    expire_in: 1 day
+  except:
+    - master
+
+release:master:
+  <<: *release_template
+  artifacts:
+    paths:
+      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
+  only:
+    - master
+
+.docker_template: &docker_template
+  image: docker:17.06
+  stage: docker
+  services:
+    - docker:17.06-dind
+  tags:
+    - docker-dind
+  variables: &docker_template_variables
+    <<: *variables
+    DOCKER_DRIVER: vfs
+  before_script:
+    - docker info
+    - apk add --no-cache bash git
+  script:
+    - ci-tools/docker-build.sh
+
+docker:build:
+  <<: *docker_template
+  variables:
+    <<: *docker_template_variables
+  dependencies:
+    - release:build
+  except:
+    - master
+
+docker:master:
+  <<: *docker_template
+  variables:
+    <<: *docker_template_variables
+    DO_DOCKER_PUSH: "true"
+  dependencies:
+    - release:master
+  only:
+    - master

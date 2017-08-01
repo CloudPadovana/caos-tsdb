@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ################################################################################
 #
 # caos-tsdb - CAOS Time-Series DB
@@ -21,16 +23,41 @@
 #
 ################################################################################
 
-FROM debian:stretch
+set -ex
 
-LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
+ANSI_COLOR_GREEN="\033[32;1m"
+ANSI_COLOR_RED="\033[31;1m"
+ANSI_COLOR_YELLOW="\033[33;1m"
+ANSI_RESET="\033[0;m"
 
-ARG RELEASE_FILE
-ADD $RELEASE_FILE /caos-tsdb
+function die () {
+    format=${1:-""}
+    shift
+    printf >&2 "${ANSI_COLOR_RED}${format}${ANSI_RESET}\n" "$@"
+    exit 1
+}
 
-WORKDIR /caos-tsdb
+function say () {
+    format=${1:-""}
+    shift
+    printf "${format}\n" "$@"
+}
 
-ENV LANG=C.UTF-8
+function say_with_color () {
+    color=$1
+    format=$2
+    shift 2
+    say "${color}${format}${ANSI_RESET}" "$@"
+}
 
-ENTRYPOINT [ "bin/caos_tsdb" ]
-CMD [ "--help" ]
+function say_green () {
+    say_with_color ${ANSI_COLOR_GREEN} "$@"
+}
+
+function say_red () {
+    say_with_color ${ANSI_COLOR_RED} "$@"
+}
+
+function say_yellow () {
+    say_with_color ${ANSI_COLOR_YELLOW} "$@"
+}
