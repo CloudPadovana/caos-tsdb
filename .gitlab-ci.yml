@@ -30,7 +30,7 @@ stages:
   - docker
 
 variables: &variables
-  CI_DEBUG_TRACE: "true"
+  CI_DEBUG_TRACE: "false"
 
 .build_template: &build_template
   stage: build
