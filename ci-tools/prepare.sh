@@ -27,13 +27,13 @@ set -e
 
 source ${CI_PROJECT_DIR}/ci-tools/common.sh
 
-if [ -z ${MIX_ENV} ] ; then
+if [ -z "${MIX_ENV}" ] ; then
     die "MIX_ENV not set."
 fi
 
 export CAOS_TSDB_RELEASE_VERSION=$(ci-tools/git-semver.sh)
 
-if [ -z ${CAOS_TSDB_RELEASE_VERSION} ] ; then
+if [ -z "${CAOS_TSDB_RELEASE_VERSION}" ] ; then
     die "CAOS_TSDB_RELEASE_VERSION not set."
 fi
 

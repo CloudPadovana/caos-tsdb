@@ -27,7 +27,7 @@ source ${CI_PROJECT_DIR}/ci-tools/common.sh
 
 GIT_SHA=${CI_COMMIT_SHA:-${CI_COMMIT_REF}}
 
-if [ -z ${GIT_SHA} ] ; then
+if [ -z "${GIT_SHA}" ] ; then
     die "GIT_SHA not set"
 fi
 

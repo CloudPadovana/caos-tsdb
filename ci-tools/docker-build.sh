@@ -31,15 +31,15 @@ source ${CI_PROJECT_DIR}/ci-tools/common.sh
 export CAOS_TSDB_RELEASE_VERSION=$(ci-tools/git-semver.sh)
 export CAOS_TSDB_RELEASE_GIT_VERSION=$(ci-tools/git-describe.sh)
 
-if [ -z ${CAOS_TSDB_RELEASE_VERSION} ] ; then
+if [ -z "${CAOS_TSDB_RELEASE_VERSION}" ] ; then
     die "CAOS_TSDB_RELEASE_VERSION not set."
 fi
 
-if [ -z ${CAOS_TSDB_RELEASE_GIT_VERSION} ] ; then
+if [ -z "${CAOS_TSDB_RELEASE_GIT_VERSION}" ] ; then
     die "CAOS_TSDB_RELEASE_GIT_VERSION not set."
 fi
 
-if [ ${DO_DOCKER_PUSH} == true ] ; then
+if [ "${DO_DOCKER_PUSH}" == true ] ; then
     say_yellow  "docker login"
     docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
 fi
@@ -52,7 +52,7 @@ docker build \
        --build-arg RELEASE_FILE="${CI_PROJECT_DIR}/caos_tsdb-${CAOS_TSDB_RELEASE_VERSION}.tar.gz" \
        --pull=true .
 
-if [ ${DO_DOCKER_PUSH} == true ] ; then
+if [ "${DO_DOCKER_PUSH}" == true ] ; then
     say_yellow "Pushing container"
     docker push ${CAOS_TSDB_DOCKER_IMAGE_TAG}
 fi
