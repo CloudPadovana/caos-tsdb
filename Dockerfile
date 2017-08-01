@@ -32,5 +32,8 @@ WORKDIR /caos-tsdb
 
 ENV LANG=C.UTF-8
 
+VOLUME /etc/caos
+ENV CONFORM_CONF_PATH=/etc/caos/caos-tsdb.conf
+
 ENTRYPOINT [ "bin/caos_tsdb" ]
 CMD [ "--help" ]

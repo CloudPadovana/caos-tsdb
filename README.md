@@ -23,7 +23,7 @@ for deployment.
 To run the container:
 ```
 docker run -p 8080:80 --name caos-tsdb \
-    -v <path to caos_tsdb.conf>:/caos-tsdb/caos_tsdb.conf:ro \
+    -v <path to caos_tsdb.conf>:/etc/caos/caos-tsdb.conf:ro \
     caos-tsdb[:<tag>] <command>
 ```
 
