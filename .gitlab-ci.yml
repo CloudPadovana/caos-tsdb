@@ -140,10 +140,10 @@ release:master:
     - master
 
 .docker_template: &docker_template
-  image: docker:17.06
+  image: docker:stable
   stage: docker
   services:
-    - docker:17.06-dind
+    - docker:stable-dind
   tags:
     - docker-dind
   variables: &docker_template_variables
