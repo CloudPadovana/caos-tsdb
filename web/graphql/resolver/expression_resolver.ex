@@ -28,6 +28,24 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     defexception message: "Multiple samples for timestamp"
   end
 
+  defmodule TermNameError do
+    defexception [:message]
+
+    def exception(term) do
+      msg = "Term name `#{term.name}` has invalid format."
+      %TermNameError{message: msg}
+    end
+  end
+
+  # From https://github.com/narrowtux/abacus/blob/master/src/math_term.xrl#L9: [a-zA-Z_][a-zA-Z0-9_\-]*
+  @term_name_regex ~r|^[[:alpha:]_][[:alnum:]_\-]*$|
+
+  defp check_term_name(term) do
+    unless term.name =~ @term_name_regex do
+      raise TermNameError, term
+    end
+  end
+
   defp check_chunks(mapped_samples) do
     do_raise = mapped_samples
     |> Enum.map(fn {_unix_ts, samples} -> length(samples) end)
@@ -39,11 +57,13 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
   end
 
   defp resolve_term(term, args, context) do
+    check_term_name(term)
+
     term_args = args
     |> Map.take([:from, :to, :granularity])
     |> Map.merge(term)
 
-    with {:ok, samples} <-AggregateResolver.aggregate_term(term_args, context) do
+    with {:ok, samples} <- AggregateResolver.aggregate_term(term_args, context) do
       mapped_samples = samples
       |> Enum.group_by(fn s -> Timex.to_unix(s.timestamp) end)
 
@@ -70,6 +90,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
       {:ok, mapped_terms}
     rescue
       e in MultipleSamplesError -> {:error, e.message}
+      e in TermNameError -> {:error, e.message}
     end
   end
 
