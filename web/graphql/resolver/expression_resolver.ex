@@ -129,6 +129,29 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     end
   end
 
+  defp check_expression(expression, mapped_terms) do
+    with {:ok, expr} <- Abacus.parse(expression),
+         known_names <- Map.keys(mapped_terms),
+         {:ok, expr_vars} <- Abacus.variables(expr) do
+
+      s = expr_vars
+      |> MapSet.new()
+      |> MapSet.difference(MapSet.new(known_names))
+
+      case MapSet.size(s) do
+        0 -> {:ok, expr}
+        _ ->
+          name = s
+          |> MapSet.to_list()
+          |> List.first()
+
+          {:error, "Unknown term name `#{name}`"}
+      end
+    else
+      {:error, error} -> {:error, error}
+    end
+  end
+
   defp eval_expression(_expression, vars) when map_size(vars) == 0 do nil end
 
   defp eval_expression(expression, vars) do
@@ -161,6 +184,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
 
   def expression(args = %{expression: expression}, context) do
     with {:ok, mapped_terms} <- resolve_terms(args, context),
+         {:ok, expr} <- check_expression(expression, mapped_terms),
          timebase <- timebase(args, mapped_terms) do
 
       samples = timebase
@@ -168,7 +192,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
       |> Enum.flat_map(fn unix_ts ->
         vars_for_timestamp(unix_ts, mapped_terms)
         |> Enum.map(fn vars ->
-          v = eval_expression(expression, vars)
+          v = eval_expression(expr, vars)
           %Sample{timestamp: Timex.from_unix(unix_ts), value: v}
         end)
       end)

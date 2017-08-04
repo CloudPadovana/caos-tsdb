@@ -158,6 +158,34 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     assert json_response(new_conn, 200)["errors"] |> List.first |> Map.get("message") == "In field \"expression\": Term name `y/z` has invalid format."
   end
 
+  test "expression with unknown term", %{conn: conn} do
+    %{tags: tags, metrics: metrics, series: series, samples: samples, t0: t0} = my_fixture()
+
+    t1 = Timex.shift(t0, hours: 5)
+    t2 = Timex.shift(t0, hours: 35)
+
+    query_params = %{ @query_params |
+                      from: t1 |> format_date!,
+                      to: t2 |> format_date!,
+                      granularity: 60*60*2,
+                      expression: "_x + y",
+                      terms: [
+                        %{name: "_x",
+                          series: %{metric: %{name: metrics.m1.name}, period: 3600, tags: [%{id: tags.t11.id}]},
+                          function: "SUM",
+                          downsample: "NONE"},
+                        %{name: "z",
+                          series: %{metric: %{name: metrics.m2.name}, period: 3600, tags: [%{id: tags.t21.id}]},
+                          function: "SUM",
+                          downsample: "NONE"}
+                      ]
+                    }
+
+    new_conn = graphql_query conn, @query, query_params
+
+    assert json_response(new_conn, 200)["errors"] |> List.first |> Map.get("message") == "In field \"expression\": Unknown term name `y`"
+  end
+
   test "constant addition on a series", %{conn: conn} do
     %{tags: tags, metrics: metrics, series: series, samples: samples, t0: t0} = my_fixture()
 
