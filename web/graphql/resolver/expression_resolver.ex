@@ -129,9 +129,11 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     end
   end
 
-  defp check_expression(expression, mapped_terms) do
+  defp check_expression(expression, mapped_terms, consts) do
     with {:ok, expr} <- Abacus.parse(expression),
-         known_names <- Map.keys(mapped_terms),
+         terms_names <- Map.keys(mapped_terms),
+         consts_names <- Map.keys(consts),
+         known_names <- Enum.concat(terms_names, consts_names),
          {:ok, expr_vars} <- Abacus.variables(expr) do
 
       s = expr_vars
@@ -152,10 +154,12 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     end
   end
 
-  defp eval_expression(_expression, vars) when map_size(vars) == 0 do nil end
+  defp eval_expression(_expression, vars, _consts) when map_size(vars) == 0 do nil end
 
-  defp eval_expression(expression, vars) do
-    case Abacus.eval(expression, vars) do
+  defp eval_expression(expression, vars, consts) do
+    scope = Map.merge(consts, vars)
+
+    case Abacus.eval(expression, scope) do
       {:ok, value} -> value
       {:error, _} -> nil
     end
@@ -182,9 +186,14 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
     |> List.wrap
   end
 
+  defp consts_for_eval(_args = %{granularity: granularity}) do
+    %{"GRANULARITY" => granularity}
+  end
+
   def expression(args = %{expression: expression}, context) do
     with {:ok, mapped_terms} <- resolve_terms(args, context),
-         {:ok, expr} <- check_expression(expression, mapped_terms),
+         consts <- consts_for_eval(args),
+         {:ok, expr} <- check_expression(expression, mapped_terms, consts),
          timebase <- timebase(args, mapped_terms) do
 
       samples = timebase
@@ -192,7 +201,7 @@ defmodule CaosTsdb.Graphql.Resolver.ExpressionResolver do
       |> Enum.flat_map(fn unix_ts ->
         vars_for_timestamp(unix_ts, mapped_terms)
         |> Enum.map(fn vars ->
-          v = eval_expression(expr, vars)
+          v = eval_expression(expr, vars, consts)
           %Sample{timestamp: Timex.from_unix(unix_ts), value: v}
         end)
       end)
