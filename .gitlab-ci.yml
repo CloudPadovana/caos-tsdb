@@ -67,12 +67,12 @@ build:prod:
   dependencies:
     - build:test
   services:
-     - mysql/mysql-server:5.7
+    - mysql/mysql-server:5.7
   variables: &test_template_variables
-     <<: *variables
-     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-     MYSQL_ROOT_HOST: "172.17.0.%"
-     CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
+    <<: *variables
+    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    MYSQL_ROOT_HOST: "172.17.0.%"
+    CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
   before_script:
     - DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install --no-install-recommends -y mysql-client
     - ci-tools/prepare.sh
@@ -104,8 +104,8 @@ credo:
   dependencies:
     - build:test
   variables:
-     <<: *variables
-     MIX_ENV: test
+    <<: *variables
+    MIX_ENV: test
   script:
     - mix credo
   allow_failure: true
@@ -115,8 +115,8 @@ credo:
   dependencies:
     - build:prod
   variables:
-     <<: *variables
-     MIX_ENV: prod
+    <<: *variables
+    MIX_ENV: prod
   before_script:
     - ci-tools/prepare.sh
   script:
@@ -130,6 +130,7 @@ release:build:
     expire_in: 1 day
   except:
     - master
+    - tags
 
 release:master:
   <<: *release_template
@@ -138,6 +139,7 @@ release:master:
       - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
   only:
     - master
+    - tags
 
 .docker_template: &docker_template
   image: docker:stable
@@ -163,6 +165,7 @@ docker:build:
     - release:build
   except:
     - master
+    - tags
 
 docker:master:
   <<: *docker_template
@@ -173,3 +176,4 @@ docker:master:
     - release:master
   only:
     - master
+    - tags
