@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,16 +21,27 @@
 #
 ################################################################################
 
-# This file is based on the gist https://gist.github.com/jwarlander/809deb2bb06c2c43abafd471591b2dea
+# This file is based on the gist
+# https://gist.github.com/jwarlander/809deb2bb06c2c43abafd471591b2dea
+# and on
+# https://github.com/bitwalker/distillery/blob/master/docs/Running%20Migrations.md
 
-defmodule :dbtools do
+defmodule CaosTsdb.ReleaseTasks do
   @moduledoc ~S"""
   Mix is not available in a built release. Instead we define the tasks here,
   and invoke it using the application script generated in the release:
 
-      bin/caos_tsdb command dbtools check
-      bin/caos_tsdb command dbtools migrate
+      bin/caos_tsdb command Elixir.CaosTsdb.ReleaseTasks dbcheck
+      bin/caos_tsdb command Elixir.CaosTsdb.ReleaseTasks migrate
   """
+
+  @start_apps [
+    :logger,
+    :crypto,
+    :ssl,
+    :mariaex,
+    :ecto,
+  ]
 
   def migrate do
     repo = start_repo()
@@ -46,7 +57,7 @@ defmodule :dbtools do
     System.halt(0)
   end
 
-  def check do
+  def dbcheck do
     repo = start_repo()
     info "Checking migration status for #{inspect repo}.."
 
@@ -76,20 +87,31 @@ defmodule :dbtools do
 
   defp start_applications(apps) do
     Enum.each(apps, fn app ->
-      {:ok, _} = Application.ensure_all_started(app)
+      info "Starting #{app}.."
+      case Application.ensure_all_started(app) do
+        {:ok, _} -> info "Loaded #{app}"
+        {:error, rest} -> fatal "Error loading #{app}: #{rest}"
+      end
     end)
   end
 
   defp start_repo do
     :ok = load_app()
     [repo] = Application.get_env(:caos_tsdb, :ecto_repos)
-    {:ok, _} = repo.start_link()
+    {:ok, _} = repo.start_link(pool_size: 1)
     repo
   end
 
   defp load_app do
-    start_applications([:logger, :mariaex, :ecto])
-    :ok = Application.load(:caos_tsdb)
+    info "Loading myapp.."
+    # Load the code, but don't start it
+    with :ok <- Application.load(:caos_tsdb) do
+      info "Starting dependencies.."
+      start_applications(@start_apps)
+      :ok
+    else
+      {:error, err} -> {:error, err}
+    end
   end
 
   defp ensure_migrations_path(repo) do
