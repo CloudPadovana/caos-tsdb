@@ -82,7 +82,7 @@ defmodule CaosTsdb.Mixfile do
      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
      {:excoveralls, "~> 0.7", only: :test},
      {:distillery, "~> 1.4.1", runtime: false},
-     {:conform, "~> 2.4.0"}]
+     {:conform, "~> 2.5.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

@@ -45,5 +45,10 @@ end
 release :caos_tsdb do
   set version: System.get_env("CAOS_TSDB_RELEASE_VERSION") || current_version(:caos_tsdb)
 
+  set commands: [
+    "dbcheck": "rel/commands/dbcheck.sh",
+    "migrate": "rel/commands/migrate.sh",
+  ]
+
   plugin Conform.ReleasePlugin
 end
