@@ -28,7 +28,7 @@ docker run -p 8080:80 --name caos-tsdb \
 ```
 
 Check and update the DB with:
-  - `command dbtools check`
-  - `command dbtools migrate`
+  - `dbcheck`
+  - `migrate`
 
 Start the server with `start`.
