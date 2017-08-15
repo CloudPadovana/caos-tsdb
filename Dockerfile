@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-FROM debian:stretch
+FROM elixir:1.4
 
 LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
 
