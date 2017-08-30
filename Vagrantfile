@@ -76,8 +76,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       DEBIAN_FRONTEND=noninteractive apt-get update && \
         apt-get install --no-install-recommends -y \
-          esl-erlang \
-          elixir \
+          esl-erlang=1:20.* \
+          elixir=1.5.* \
           mysql-client
     SCRIPT
 

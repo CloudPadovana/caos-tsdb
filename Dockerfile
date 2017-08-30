@@ -21,7 +21,7 @@
 #
 ################################################################################
 
-FROM elixir:1.4
+FROM elixir:1.5
 
 LABEL maintainer "Fabrizio Chiarello <fabrizio.chiarello@pd.infn.it>"
 
