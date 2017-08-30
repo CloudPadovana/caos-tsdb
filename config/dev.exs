@@ -36,9 +36,7 @@ config :caos_tsdb, CaosTsdb.Endpoint,
   check_origin: false,
   watchers: []
 
-
-# Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, level: :debug, backends: [:console]
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
