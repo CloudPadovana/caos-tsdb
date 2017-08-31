@@ -38,9 +38,30 @@ config :caos_tsdb, CaosTsdb.Endpoint,
   render_errors: [view: CaosTsdb.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+config :logger,
+  level: :info, # Do not print debug messages in production
+  format: "$date $time [$level]$levelpad $metadata $message",
+  metadata: [
+    :request_id,
+    :application,
+    :module,
+    :function,
+    :file,
+    :line,
+  ],
+  backends: [
+    :console,
+    {LoggerFileBackend, :error_log},
+    {LoggerFileBackend, :log},
+  ]
+
+config :logger, :error_log,
+  path: "/var/log/caos.error.log",
+  level: :error
+
+config :logger, :log,
+  path: "/var/log/caos.log",
+  level: :info
 
 # AUTH
 config :caos_tsdb, Auth,

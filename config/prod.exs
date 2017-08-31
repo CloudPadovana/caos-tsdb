@@ -34,9 +34,6 @@ config :caos_tsdb, CaosTsdb.Endpoint,
   http: [port: 80],
   url: [host: "localhost", port: 80]
 
-# Do not print debug messages in production
-config :logger, level: :info
-
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

@@ -84,27 +84,79 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "logger.level"
     ],
-    "logger.console.metadata": [
+    "logger.format": [
+      commented: false,
+      datatype: :binary,
+      default: "$date $time [$level]$levelpad $metadata $message",
+      doc: "Format of log messages.",
+      hidden: false,
+      to: "logger.format"
+    ],
+    "logger.metadata": [
       commented: false,
       datatype: [
         list: :atom
       ],
       default: [
-        :request_id
+        :request_id,
+        :application,
+        :module,
+        :function,
+        :file,
+        :line
       ],
-      doc: "Provide documentation for logger.console.metadata here.",
+      doc: "Provide documentation for logger.metadata here.",
       hidden: true,
-      to: "logger.console.metadata"
+      to: "logger.metadata"
     ],
-    "logger.console.format": [
+    "logger.backends": [
+      commented: false,
+      datatype: [
+        list: [
+          :atom,
+          atom: :atom
+        ]
+      ],
+      default: [
+        :console,
+        "LoggerFileBackend": :error_log,
+        "LoggerFileBackend": :log
+      ],
+      doc: "Provide documentation for logger.backends here.",
+      hidden: true,
+      to: "logger.backends"
+    ],
+    "logger.error_log.path": [
       commented: false,
       datatype: :binary,
-      default: """
-      $time $metadata[$level] $message
-      """,
-      doc: "Provide documentation for logger.console.format here.",
+      default: "/var/log/caos.error.log",
+      doc: "Path for error log.",
+      hidden: false,
+      to: "logger.error_log.path"
+    ],
+    "logger.error_log.level": [
+      commented: false,
+      datatype: :atom,
+      default: :error,
+      doc: "Provide documentation for logger.error_log.level here.",
       hidden: true,
-      to: "logger.console.format"
+      to: "logger.error_log.level"
+    ],
+    "logger.log.path": [
+      commented: false,
+      datatype: :binary,
+      default: "/var/log/caos.log",
+      doc: "Path for log.",
+      hidden: false,
+      to: "logger.log.path"
+    ],
+    "logger.log.level": [
+      commented: false,
+      datatype: :atom,
+      default: :info,
+      doc: "Provide documentation for logger.log.level here.",
+      hidden: true,
+      to: "logger.log.level"
     ],
     "caos_tsdb.ecto_repos": [
       commented: false,
