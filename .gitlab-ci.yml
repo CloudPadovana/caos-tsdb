@@ -110,7 +110,7 @@ credo:
     - mix credo
   allow_failure: true
 
-.release_template: &release_template
+release:
   stage: release
   dependencies:
     - build:prod
@@ -121,25 +121,9 @@ credo:
     - ci-tools/prepare.sh
   script:
     - ci-tools/release-build.sh
-
-release:build:
-  <<: *release_template
   artifacts:
     paths:
       - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
-    expire_in: 1 day
-  except:
-    - master
-    - tags
-
-release:master:
-  <<: *release_template
-  artifacts:
-    paths:
-      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
-  only:
-    - master
-    - tags
 
 .docker_template: &docker_template
   image: docker:stable
@@ -151,6 +135,8 @@ release:master:
   variables: &docker_template_variables
     <<: *variables
     DOCKER_DRIVER: vfs
+  dependencies:
+    - release
   before_script:
     - docker info
     - apk add --no-cache bash git
@@ -161,8 +147,6 @@ docker:build:
   <<: *docker_template
   variables:
     <<: *docker_template_variables
-  dependencies:
-    - release:build
   except:
     - master
     - tags
@@ -172,8 +156,6 @@ docker:master:
   variables:
     <<: *docker_template_variables
     DO_DOCKER_PUSH: "true"
-  dependencies:
-    - release:master
   only:
     - master
     - tags
