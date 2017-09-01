@@ -67,12 +67,13 @@ build:prod:
   dependencies:
     - build:test
   services:
-    - mysql/mysql-server:5.7
+    - name: mysql/mysql-server:5.7
+      alias: db
   variables: &test_template_variables
     <<: *variables
     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     MYSQL_ROOT_HOST: "172.17.0.%"
-    CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
+    CAOS_TSDB_DB_HOSTNAME: "db"
   before_script:
     - DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install --no-install-recommends -y mysql-client
     - ci-tools/prepare.sh
