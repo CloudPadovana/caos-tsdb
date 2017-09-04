@@ -27,7 +27,9 @@ stages:
   - build
   - test
   - release
-  - docker
+  - docker-build
+  - docker-test
+  - docker-release
 
 variables: &variables
   CI_DEBUG_TRACE: "false"
@@ -128,34 +130,42 @@ release:
 
 .docker_template: &docker_template
   image: docker:stable
-  stage: docker
   services:
     - docker:stable-dind
   tags:
     - docker-dind
   variables: &docker_template_variables
     <<: *variables
-  dependencies:
-    - release
+    DO_DOCKER_LOGIN: "true"
   before_script:
     - docker info
     - apk add --no-cache bash git
-  script:
-    - ci-tools/docker-build.sh
 
-docker:build:
+docker-build:
   <<: *docker_template
-  variables:
-    <<: *docker_template_variables
-  except:
-    - master
-    - tags
-
-docker:master:
-  <<: *docker_template
+  stage: docker-build
   variables:
     <<: *docker_template_variables
     DO_DOCKER_PUSH: "true"
+  dependencies:
+    - release
+  script:
+    - ci-tools/docker-build.sh
+
+docker-test:
+  <<: *docker_template
+  stage: docker-test
+  script:
+    - ci-tools/docker-test.sh
+
+docker-release:
+  <<: *docker_template
+  stage: docker-release
+  variables:
+    <<: *docker_template_variables
+    DO_DOCKER_PUSH: "true"
+  script:
+    - ci-tools/docker-release.sh
   only:
     - master
     - tags
