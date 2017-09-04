@@ -135,7 +135,6 @@ release:
     - docker-dind
   variables: &docker_template_variables
     <<: *variables
-    DOCKER_DRIVER: vfs
   dependencies:
     - release
   before_script:
