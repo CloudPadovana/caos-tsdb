@@ -91,7 +91,8 @@ defmodule CaosTsdb.MigrationTest.AssociateTagsToSeriesTest do
             metric_name: s.metric_name,
             project_id: s.project_id,
             period: s.period
-         } end)} end)
+         } end) |> Enum.sort_by(fn s -> s.metric_name end)
+     } end)
 
     assert data == [%{key: "project", value: "id1",
                       series: [
@@ -127,7 +128,8 @@ defmodule CaosTsdb.MigrationTest.AssociateTagsToSeriesTest do
             metric_name: s.metric_name,
             project_id: s.project_id,
             period: s.period
-         } end)} end)
+         } end) |> Enum.sort_by(fn s -> s.project_id end)
+     } end)
 
     assert data == [%{key: "some key", value: "some value",
                       series: [
