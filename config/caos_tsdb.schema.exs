@@ -77,7 +77,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   mappings: [
     "logger.level": [
       env_var: "CAOS_TSDB_LOGGER_LEVEL",
-      commented: false,
+      commented: true,
       datatype: :atom,
       default: :info,
       doc: "Logger level.",
@@ -85,7 +85,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "logger.level"
     ],
     "logger.format": [
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "$date $time [$level]$levelpad $metadata $message",
       doc: "Format of log messages.",
@@ -127,7 +127,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "logger.backends"
     ],
     "logger.error_log.path": [
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "/var/log/caos.error.log",
       doc: "Path for error log.",
@@ -143,7 +143,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "logger.error_log.level"
     ],
     "logger.log.path": [
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "/var/log/caos.log",
       doc: "Path for log.",
@@ -172,7 +172,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "hostname": [
       env_var: "CAOS_TSDB_HOSTNAME",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "localhost",
       doc: "Server hostname.",
@@ -181,7 +181,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "port": [
       env_var: "CAOS_TSDB_PORT",
-      commented: false,
+      commented: true,
       datatype: :integer,
       default: 80,
       doc: "Server port.",
@@ -242,7 +242,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.username": [
       env_var: "CAOS_TSDB_DB_USERNAME",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "caos",
       doc: "DB username.",
@@ -251,7 +251,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.password": [
       env_var: "CAOS_TSDB_DB_PASSWORD",
-      commented: false,
+      commented: true,
       datatype: :binary,
       doc: "DB password.",
       hidden: false,
@@ -259,7 +259,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.name": [
       env_var: "CAOS_TSDB_DB_NAME",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "caos",
       doc: "DB name.",
@@ -268,7 +268,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.hostname": [
       env_var: "CAOS_TSDB_DB_HOSTNAME",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "localhost",
       doc: "DB host.",
@@ -277,7 +277,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.port": [
       env_var: "CAOS_TSDB_DB_PORT",
-      commented: false,
+      commented: true,
       datatype: :integer,
       default: 3306,
       doc: "DB port.",
@@ -286,7 +286,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "db.pool_size": [
       env_var: "CAOS_TSDB_DB_POOL_SIZE",
-      commented: false,
+      commented: true,
       datatype: :integer,
       default: 5,
       doc: "DB connection pool size.",
@@ -295,7 +295,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "auth.token_ttl": [
       env_var: "CAOS_TSDB_AUTH_TOKEN_TTL",
-      commented: false,
+      commented: true,
       datatype: :integer,
       default: 86400,
       doc: "Token TTL in seconds.",
@@ -304,7 +304,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "auth.secret_key": [
       env_var: "CAOS_TSDB_AUTH_SECRET_KEY",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "<secret>",
       doc: "Token secret key.",
@@ -313,7 +313,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "auth.identity.username": [
       env_var: "CAOS_TSDB_AUTH.IDENTITY_USERNAME",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "admin",
       doc: "Username",
@@ -322,7 +322,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     ],
     "auth.identity.password": [
       env_var: "CAOS_TSDB_AUTH.IDENTITY_PASSWORD",
-      commented: false,
+      commented: true,
       datatype: :binary,
       default: "ADMIN_PASS",
       doc: "Password",

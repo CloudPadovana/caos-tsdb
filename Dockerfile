@@ -32,8 +32,13 @@ WORKDIR /caos-tsdb
 
 ENV LANG=C.UTF-8
 
-VOLUME /etc/caos
 ENV CONFORM_CONF_PATH=/etc/caos/caos-tsdb.conf
+
+# Add an empty configuration file
+RUN mkdir /etc/caos
+COPY config/caos_tsdb.conf ${CONFORM_CONF_PATH}
+
+VOLUME /etc/caos
 
 ENTRYPOINT [ "bin/caos_tsdb" ]
 CMD [ "--help" ]
