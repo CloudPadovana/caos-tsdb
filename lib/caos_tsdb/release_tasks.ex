@@ -37,6 +37,7 @@ defmodule CaosTsdb.ReleaseTasks do
 
   @start_apps [
     :logger,
+    :logger_file_backend,
     :crypto,
     :ssl,
     :mariaex,

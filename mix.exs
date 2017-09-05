@@ -50,7 +50,10 @@ defmodule CaosTsdb.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {CaosTsdb, []},
-     extra_applications: [:logger]]
+     extra_applications: [
+       :logger,
+       :logger_file_backend,
+     ]]
   end
 
   # Specifies which paths to compile per environment.

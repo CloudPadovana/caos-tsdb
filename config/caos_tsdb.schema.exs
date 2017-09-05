@@ -109,23 +109,6 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "logger.metadata"
     ],
-    "logger.backends": [
-      commented: false,
-      datatype: [
-        list: [
-          :atom,
-          atom: :atom
-        ]
-      ],
-      default: [
-        :console,
-        "LoggerFileBackend": :error_log,
-        "LoggerFileBackend": :log
-      ],
-      doc: "Provide documentation for logger.backends here.",
-      hidden: true,
-      to: "logger.backends"
-    ],
     "logger.error_log.path": [
       commented: true,
       datatype: :binary,
