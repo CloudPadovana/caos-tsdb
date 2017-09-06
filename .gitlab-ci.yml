@@ -27,7 +27,9 @@ stages:
   - build
   - test
   - release
-  - docker
+  - docker-build
+  - docker-test
+  - docker-release
 
 variables: &variables
   CI_DEBUG_TRACE: "false"
@@ -67,12 +69,13 @@ build:prod:
   dependencies:
     - build:test
   services:
-    - mysql/mysql-server:5.7
+    - name: mysql/mysql-server:5.7
+      alias: db
   variables: &test_template_variables
     <<: *variables
     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     MYSQL_ROOT_HOST: "172.17.0.%"
-    CAOS_TSDB_DB_HOSTNAME: "mysql__mysql-server"
+    CAOS_TSDB_DB_HOSTNAME: "db"
   before_script:
     - DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install --no-install-recommends -y mysql-client
     - ci-tools/prepare.sh
@@ -110,7 +113,7 @@ credo:
     - mix credo
   allow_failure: true
 
-.release_template: &release_template
+release:
   stage: release
   dependencies:
     - build:prod
@@ -121,59 +124,48 @@ credo:
     - ci-tools/prepare.sh
   script:
     - ci-tools/release-build.sh
-
-release:build:
-  <<: *release_template
   artifacts:
     paths:
       - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
-    expire_in: 1 day
-  except:
-    - master
-    - tags
-
-release:master:
-  <<: *release_template
-  artifacts:
-    paths:
-      - releases/caos_tsdb-$(ci-tools/git-semver.sh).tar.gz
-  only:
-    - master
-    - tags
 
 .docker_template: &docker_template
   image: docker:stable
-  stage: docker
   services:
     - docker:stable-dind
   tags:
     - docker-dind
   variables: &docker_template_variables
     <<: *variables
-    DOCKER_DRIVER: vfs
+    DO_DOCKER_LOGIN: "true"
   before_script:
     - docker info
     - apk add --no-cache bash git
-  script:
-    - ci-tools/docker-build.sh
 
-docker:build:
+docker-build:
   <<: *docker_template
-  variables:
-    <<: *docker_template_variables
-  dependencies:
-    - release:build
-  except:
-    - master
-    - tags
-
-docker:master:
-  <<: *docker_template
+  stage: docker-build
   variables:
     <<: *docker_template_variables
     DO_DOCKER_PUSH: "true"
   dependencies:
-    - release:master
+    - release
+  script:
+    - ci-tools/docker-build.sh
+
+docker-test:
+  <<: *docker_template
+  stage: docker-test
+  script:
+    - ci-tools/docker-test.sh
+
+docker-release:
+  <<: *docker_template
+  stage: docker-release
+  variables:
+    <<: *docker_template_variables
+    DO_DOCKER_PUSH: "true"
+  script:
+    - ci-tools/docker-release.sh
   only:
     - master
     - tags
