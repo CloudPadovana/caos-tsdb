@@ -56,11 +56,11 @@ config :logger,
   ]
 
 config :logger, :error_log,
-  path: "/var/log/caos.error.log",
+  path: "/var/log/caos/tsdb.error.log",
   level: :error
 
 config :logger, :log,
-  path: "/var/log/caos.log",
+  path: "/var/log/caos/tsdb.log",
   level: :info
 
 # AUTH

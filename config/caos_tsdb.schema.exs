@@ -112,7 +112,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "logger.error_log.path": [
       commented: true,
       datatype: :binary,
-      default: "/var/log/caos.error.log",
+      default: "/var/log/caos/tsdb.error.log",
       doc: "Path for error log.",
       hidden: false,
       to: "logger.error_log.path"
@@ -128,7 +128,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "logger.log.path": [
       commented: true,
       datatype: :binary,
-      default: "/var/log/caos.log",
+      default: "/var/log/caos/tsdb.log",
       doc: "Path for log.",
       hidden: false,
       to: "logger.log.path"
