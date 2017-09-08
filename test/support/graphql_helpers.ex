@@ -24,6 +24,31 @@
 defmodule CaosTsdb.Test.Support.GraphqHelpers do
   import CaosTsdb.DateTime.Helpers
 
+  import Phoenix.ConnTest, only: [json_response: 2]
+  import ExUnit.Assertions, only: [assert: 1, refute: 1]
+
+  defmacro assert_graphql_errors(conn, status \\ 200) do
+    quote do
+      assert json_response(unquote(conn), unquote(status))["errors"]
+    end
+  end
+
+  defmacro refute_graphql_errors(conn) do
+    quote do
+      refute json_response(unquote(conn), 200)["errors"]
+    end
+  end
+
+  def graphql_data(conn) do
+    refute_graphql_errors(conn)
+    json_response(conn, 200)["data"]
+  end
+
+  def graphql_errors(conn) do
+    assert_graphql_errors(conn)
+    json_response(conn, 200)["errors"]
+  end
+
   def tag_to_json(tag, fields \\ [:id, :key, :value]) do
     %{
       id: %{"id" => "#{tag.id}"},

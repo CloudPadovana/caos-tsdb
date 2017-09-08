@@ -127,7 +127,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "expression with invalid term", %{conn: conn} do
@@ -154,8 +154,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                     }
 
     new_conn = graphql_query conn, @query, query_params
-
-    assert json_response(new_conn, 200)["errors"] |> List.first |> Map.get("message") == "In field \"expression\": Term name `y/z` has invalid format."
+    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "In field \"expression\": Term name `y/z` has invalid format."
   end
 
   test "expression with unknown term", %{conn: conn} do
@@ -183,7 +182,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     new_conn = graphql_query conn, @query, query_params
 
-    assert json_response(new_conn, 200)["errors"] |> List.first |> Map.get("message") == "In field \"expression\": Unknown term name `y`"
+    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "In field \"expression\": Unknown term name `y`"
   end
 
   test "constant addition on a series", %{conn: conn} do
@@ -209,7 +208,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "use special constant", %{conn: conn} do
@@ -239,7 +238,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                        |> samples_to_json([:timestamp, :value])
     }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "sum of two series", %{conn: conn} do
@@ -269,7 +268,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h], "y" => [samples.s2_21_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "ratio of two series", %{conn: conn} do
@@ -299,7 +298,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h], "y" => [samples.s2_21_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "ratio of same series", %{conn: conn} do
@@ -329,7 +328,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h], "y" => [samples.s1_11_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
 
     value = json_response(new_conn, 200)["data"]["expression"]
     |> Enum.map(fn s -> s["value"] end)
@@ -365,7 +364,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h], "y" => [samples.s1_11_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
 
     value = json_response(new_conn, 200)["data"]["expression"]
     |> Enum.map(fn s -> s["value"] end)
@@ -396,7 +395,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     expected_json = %{ "expression" => fixture(:expression, %{"x" => [samples.s1_11_h], "y" => [samples.s1_11_h]}, query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
 
     values = json_response(new_conn, 200)["data"]["expression"]
     |> Enum.map(fn s -> s["value"] end)

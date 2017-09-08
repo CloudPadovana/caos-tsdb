@@ -68,7 +68,8 @@ defmodule CaosTsdb.Graphql.SampleTest do
                         "timestamp" => @a_timestamp |> format_date!,
                         "value" => @a_value}
                        }
-      assert json_response(conn, 200)["data"] == expected_json
+
+      assert graphql_data(conn) == expected_json
     end
   end
 
@@ -107,14 +108,14 @@ defmodule CaosTsdb.Graphql.SampleTest do
       |> put_in([:to], @a_timestamp |> Timex.shift(seconds: series1.period * 200) |> format_date!)
       new_conn = graphql_query conn, @query, query_params
       expected_json = %{"samples" => samples |> samples_to_json() }
-      assert json_response(new_conn, 200)["data"] == expected_json
+      assert graphql_data(new_conn) == expected_json
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
       |> put_in([:from], @a_timestamp |> Timex.shift(seconds: series1.period * 10) |> format_date!)
       new_conn = graphql_query conn, @query, query_params
       expected_json = %{"samples" => samples |> Enum.slice(10..100) |> samples_to_json() }
-      assert json_response(new_conn, 200)["data"] == expected_json
+      assert graphql_data(new_conn) == expected_json
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
@@ -122,7 +123,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
       |> put_in([:to], @a_timestamp |> Timex.shift(seconds: series1.period * 20) |> format_date!)
       new_conn = graphql_query conn, @query, query_params
       expected_json = %{"samples" => samples |> Enum.slice(10..20) |> samples_to_json() }
-      assert json_response(new_conn, 200)["data"] == expected_json
+      assert graphql_data(new_conn) == expected_json
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
@@ -130,7 +131,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
       |> put_in([:to], @a_timestamp |> Timex.shift(seconds: series1.period * 10) |> format_date!)
       new_conn = graphql_query conn, @query, query_params
       expected_json = %{"samples" => []}
-      assert json_response(new_conn, 200)["data"] == expected_json
+      assert graphql_data(new_conn) == expected_json
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
@@ -138,7 +139,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
       |> put_in([:to], @a_timestamp |> Timex.shift(seconds: series1.period * 210) |> format_date!)
       new_conn = graphql_query conn, @query, query_params
       expected_json = %{"samples" => []}
-      assert json_response(new_conn, 200)["data"] == expected_json
+      assert graphql_data(new_conn) == expected_json
     end
   end
 
@@ -177,7 +178,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
                         "timestamp" => @a_timestamp |> format_date!,
                         "value" => @a_value}
                        }
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
 
     test "must fail if already exists", %{conn: conn} do
@@ -196,7 +197,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
       |> put_in([:series, :id], series1.id)
       |> put_in([:value], @a_value + 1)
       conn = graphql_query conn, @query, query_params
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "can be overwritten", %{conn: conn} do
@@ -220,7 +221,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
                         "timestamp" => @a_timestamp |> format_date!,
                         "value" => @a_value + 1}
                        }
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
   end
 end

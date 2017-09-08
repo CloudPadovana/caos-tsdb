@@ -46,7 +46,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       """
 
       conn = graphql_query conn, query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
   end
 
@@ -62,19 +62,19 @@ defmodule CaosTsdb.Graphql.MetricTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should fail when there are no metrics", %{conn: conn} do
       conn = graphql_query conn, @query, %{name: "metric1"}
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "when there is one metric", %{conn: conn} do
       metric1 = fixture(:metric)
 
       conn = graphql_query conn, @query, %{name: metric1.name}
-      assert json_response(conn, 200)["data"] == %{"metric" => metric_to_json(metric1)}
+      assert graphql_data(conn) == %{"metric" => metric_to_json(metric1)}
     end
 
     test "when there are many metrics", %{conn: conn} do
@@ -83,7 +83,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       _metric3 = fixture(:metric, name: "metric3")
 
       conn = graphql_query conn, @query, %{name: metric2.name}
-      assert json_response(conn, 200)["data"] == %{"metric" => metric_to_json(metric2)}
+      assert graphql_data(conn) == %{"metric" => metric_to_json(metric2)}
     end
   end
 
@@ -98,14 +98,14 @@ defmodule CaosTsdb.Graphql.MetricTest do
 
     test "when there are no metrics", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => []}
+      assert graphql_data(conn) == %{"metrics" => []}
     end
 
     test "when there is one metric", %{conn: conn} do
       metric1 = fixture(:metric)
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric1], [:name])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric1], [:name])}
     end
 
     test "when there are many metrics", %{conn: conn} do
@@ -114,7 +114,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       metric3 = fixture(:metric, name: "metric3")
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric1, metric2, metric3], [:name])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric1, metric2, metric3], [:name])}
     end
   end
 
@@ -130,14 +130,14 @@ defmodule CaosTsdb.Graphql.MetricTest do
 
     test "when there are no metrics", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => []}
+      assert graphql_data(conn) == %{"metrics" => []}
     end
 
     test "when there is one metric", %{conn: conn} do
       metric1 = fixture(:metric)
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric1])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric1])}
     end
 
     test "when there are many metrics", %{conn: conn} do
@@ -146,7 +146,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       metric3 = fixture(:metric, name: "metric3")
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric1, metric2, metric3])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric1, metric2, metric3])}
     end
   end
 
@@ -162,12 +162,12 @@ defmodule CaosTsdb.Graphql.MetricTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should not fail when there are no metrics", %{conn: conn} do
       conn = graphql_query conn, @query, %{type: "a type"}
-      assert json_response(conn, 200)["data"] == %{"metrics" => []}
+      assert graphql_data(conn) == %{"metrics" => []}
     end
 
     test "when there is one match", %{conn: conn} do
@@ -179,7 +179,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       metric63 = fixture(:metric, name: "metric6", type: "type3")
 
       conn = graphql_query conn, @query, %{type: "type3"}
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric63])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric63])}
     end
 
     test "when there are many matches", %{conn: conn} do
@@ -191,7 +191,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
       _metric63 = fixture(:metric, name: "metric6", type: "type3")
 
       conn = graphql_query conn, @query, %{type: "type2"}
-      assert json_response(conn, 200)["data"] == %{"metrics" => metrics_to_json([metric42, metric52])}
+      assert graphql_data(conn) == %{"metrics" => metrics_to_json([metric42, metric52])}
     end
   end
 
@@ -223,7 +223,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
                          put_in(metric_to_json(metric2), ["series"], [])]}
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
 
     test "when there are many series", %{conn: conn} do
@@ -246,7 +246,7 @@ defmodule CaosTsdb.Graphql.MetricTest do
                          put_in(metric_to_json(metric2), ["series"], [])]}
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
   end
 
@@ -274,14 +274,14 @@ defmodule CaosTsdb.Graphql.MetricTest do
 
     test "should fail when data is invalid", %{conn: conn} do
       conn = graphql_query conn, @query, @invalid_args
-      assert json_response(conn, 200)["errors"] != []
+      assert graphql_errors(conn)
     end
 
     test "returns already existent metric", %{conn: conn} do
       metric1 = fixture(:metric, name: @valid_args.name, type: @valid_args.type)
       conn = graphql_query conn, @query, @valid_args
 
-      assert json_response(conn, 200)["data"] == %{"create_metric" => metric_to_json(metric1)}
+      assert graphql_data(conn) == %{"create_metric" => metric_to_json(metric1)}
     end
   end
 end

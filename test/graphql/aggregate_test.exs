@@ -64,7 +64,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "daily downsample with one series", %{conn: conn} do
@@ -84,7 +84,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "daily downsample with many series", %{conn: conn} do
@@ -120,7 +120,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "aggregate one series", %{conn: conn} do
@@ -141,7 +141,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "aggregate with many series", %{conn: conn} do
@@ -178,7 +178,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "aggregate over many tags", %{conn: conn} do
@@ -215,7 +215,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1, samples21h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "downsample over many tags", %{conn: conn} do
@@ -256,7 +256,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1, samples21h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "downsample and aggregate over many tags", %{conn: conn} do
@@ -297,7 +297,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1, samples21h1], query_params) |> samples_to_json([:timestamp, :value]) }
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 
   test "aggregate from a tag", %{conn: conn} do
@@ -361,6 +361,6 @@ defmodule CaosTsdb.Graphql.AggregateTest do
     expected_json = %{"tag" => tag_to_json(tag11) }
     |> put_in(["tag", "series"], [%{"aggregate" => fixture(:aggregate, [samples111h1], query_params) |> samples_to_json([:timestamp, :value])}])
 
-    assert json_response(new_conn, 200)["data"] == expected_json
+    assert graphql_data(new_conn) == expected_json
   end
 end
