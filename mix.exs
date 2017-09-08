@@ -27,7 +27,7 @@ defmodule CaosTsdb.Mixfile do
   def project do
     [app: :caos_tsdb,
      version: "0.1.1",
-     elixir: "~> 1.4",
+     elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
      test_paths: test_paths(Mix.env),
      test_coverage: [tool: ExCoveralls],
@@ -70,23 +70,25 @@ defmodule CaosTsdb.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.0"},
-     {:phoenix_ecto, "~> 3.2"},
-     {:mariaex, "~> 0.8"},
-     {:timex, "~> 3.1"},
-     {:tzdata, "~> 0.5.0", override: true},
-     {:timex_ecto, "~> 3.1"},
-     {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
-     {:guardian, "~> 0.14.0"},
-     {:absinthe, "~> 1.3"},
-     {:absinthe_plug, "~> 1.3"},
-     {:abacus, "~> 0.3.2"},
-     {:logger_file_backend, "~> 0.0.10"},
-     {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-     {:excoveralls, "~> 0.7", only: :test},
-     {:distillery, "~> 1.4.1", runtime: false},
-     {:conform, "~> 2.5.0"}]
+    [
+      {:abacus, "~> 0.3.2"},
+      {:absinthe, "~> 1.3.2"},
+      {:absinthe_plug, "~> 1.3.1"},
+      {:conform, "~> 2.5.2"},
+      {:cowboy, "~> 1.1.2"},
+      {:credo, "~> 0.8.6", only: [:dev, :test], runtime: false},
+      {:distillery, "~> 1.5.1", runtime: false},
+      {:excoveralls, "~> 0.7.2", only: :test},
+      {:gettext, "~> 0.13.1"},
+      {:guardian, "~> 0.14.5"},
+      {:logger_file_backend, "~> 0.0.10"},
+      {:mariaex, "~> 0.8.3"},
+      {:phoenix, "~> 1.3.0"},
+      {:phoenix_ecto, "~> 3.2.3"},
+      {:timex, "~> 3.1.24"},
+      {:timex_ecto, "~> 3.1.1"},
+      {:tzdata, "~> 0.5.12", override: true},
+    ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

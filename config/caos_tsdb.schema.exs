@@ -236,6 +236,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       env_var: "CAOS_TSDB_DB_PASSWORD",
       commented: true,
       datatype: :binary,
+      default: "",
       doc: "DB password.",
       hidden: false,
       to: "caos_tsdb.Elixir.CaosTsdb.Repo.password"

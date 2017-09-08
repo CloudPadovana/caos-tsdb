@@ -29,7 +29,7 @@ PROJECT_DIR=$(dirname $(readlink -f $0))
 source ${PROJECT_DIR}/ci-tools/common.sh
 
 GIT_SHA=$(git rev-parse --verify HEAD)
-DOCKER_BUILD_IMAGE="elixir:1.4"
+DOCKER_BUILD_IMAGE="elixir:1.5"
 
 releases_dir=releases
 if [ ! -d ${releases_dir} ] ; then
