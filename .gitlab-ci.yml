@@ -103,9 +103,9 @@ test:migrations:
     - mix test.migrations
 
 credo:
+  <<: *test_template
   stage: test
-  dependencies:
-    - build:test
+  services: []
   variables:
     <<: *variables
     MIX_ENV: test
