@@ -38,8 +38,13 @@ defmodule CaosTsdb.Graphql.SampleTest do
     @query """
     query($series: SeriesPrimary!, $timestamp: Datetime!) {
       sample: sample(series: $series, timestamp: $timestamp) {
+        series {
+          id
+        }
         timestamp
         value
+        updated_at
+        inserted_at
       }
     }
     """
@@ -58,17 +63,13 @@ defmodule CaosTsdb.Graphql.SampleTest do
       _metric2 = fixture(:metric, name: "metric2")
 
       series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
-      _sample1 = fixture(:sample, series: series1, timestamp: @a_timestamp, value: @a_value)
+      sample1 = fixture(:sample, series: series1, timestamp: @a_timestamp, value: @a_value)
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
       conn = graphql_query conn, @query, query_params
 
-      expected_json = %{"sample" => %{
-                        "timestamp" => @a_timestamp |> format_date!,
-                        "value" => @a_value}
-                       }
-
+      expected_json = %{"sample" => sample_to_json(sample1)}
       assert graphql_data(conn) == expected_json
     end
   end
@@ -82,6 +83,8 @@ defmodule CaosTsdb.Graphql.SampleTest do
         }
         timestamp
         value
+        updated_at
+        inserted_at
       }
     }
     """
@@ -146,8 +149,13 @@ defmodule CaosTsdb.Graphql.SampleTest do
     @query """
     mutation($series: SeriesPrimary!, $timestamp: Datetime!, $value: Float!, $overwrite: Boolean) {
       sample: create_sample(series: $series, timestamp: $timestamp, value: $value, overwrite: $overwrite) {
+        series {
+          id
+        }
         timestamp
         value
+        updated_at
+        inserted_at
       }
     }
     """
@@ -177,7 +185,15 @@ defmodule CaosTsdb.Graphql.SampleTest do
                         "timestamp" => @a_timestamp |> format_date!,
                         "value" => @a_value}
                        }
-      assert graphql_data(conn) == expected_json
+
+      assert graphql_data(conn)
+      |> pop_in(["sample", "updated_at"])
+      |> elem(1)
+      |> pop_in(["sample", "inserted_at"])
+      |> elem(1)
+      |> pop_in(["sample", "series"])
+      |> elem(1)
+      == expected_json
     end
 
     test "must fail if already exists", %{conn: conn} do
@@ -209,18 +225,28 @@ defmodule CaosTsdb.Graphql.SampleTest do
 
       series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
 
-      _sample1 = fixture(:sample, series: series1, timestamp: @a_timestamp, value: @a_value)
+      sample1 = fixture(:sample, series: series1, timestamp: @a_timestamp, value: @a_value)
+
+      :timer.sleep(1000)
 
       query_params = @query_params
       |> put_in([:series, :id], series1.id)
       |> put_in([:value], @a_value + 1)
       |> put_in([:overwrite], true)
       conn = graphql_query conn, @query, query_params
-      expected_json = %{"sample" => %{
-                        "timestamp" => @a_timestamp |> format_date!,
-                        "value" => @a_value + 1}
-                       }
-      assert graphql_data(conn) == expected_json
+
+      sample = graphql_data(conn)["sample"]
+
+      assert Timex.after?(
+        sample["updated_at"] |> parse_date!,
+        sample["inserted_at"] |> parse_date!
+      )
+
+      expected_json = sample_to_json(sample1)
+      |> put_in(["value"], @a_value + 1)
+      |> put_in(["updated_at"], sample["updated_at"])
+
+      assert sample == expected_json
     end
   end
 end

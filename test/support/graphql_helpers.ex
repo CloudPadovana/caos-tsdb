@@ -127,17 +127,20 @@ defmodule CaosTsdb.Test.Support.GraphqHelpers do
     |> Enum.map(&(series_to_json(&1, fields)))
   end
 
-  def sample_to_json(sample, fields \\ [:series, :timestamp, :value]) do
+  def sample_to_json(sample, fields \\ [:series, :timestamp, :value, :updated_at, :inserted_at]) do
     %{
-      series: %{"series" => %{"id" => "#{sample.series_id}"}},
-      timestamp: %{"timestamp" => sample.timestamp |> format_date! },
-      value: %{"value" => sample.value},
+      series: fn sample -> %{"series" => %{"id" => "#{sample.series_id}"}} end,
+      timestamp: fn sample -> %{"timestamp" => sample.timestamp |> format_date! } end,
+      value: fn sample -> %{"value" => sample.value} end,
+      updated_at: fn sample -> %{"updated_at" => sample.updated_at |> format_date! } end,
+      inserted_at: fn sample -> %{"inserted_at" => sample.inserted_at |> format_date! } end,
     }
     |> Map.take(fields)
     |> Map.values
+    |> Enum.map(fn f -> f.(sample) end)
     |> Enum.reduce(%{}, fn (map, acc) -> Map.merge(acc, map) end)
   end
-  def samples_to_json(samples, fields \\ [:series, :timestamp, :value]) do
+  def samples_to_json(samples, fields \\ [:series, :timestamp, :value, :updated_at, :inserted_at]) do
     samples
     |> Enum.map(&(sample_to_json(&1, fields)))
   end

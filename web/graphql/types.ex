@@ -280,5 +280,8 @@ defmodule CaosTsdb.Graphql.Types do
         end)
       end
     end
+
+    field :inserted_at, :datetime
+    field :updated_at, :datetime
   end
 end

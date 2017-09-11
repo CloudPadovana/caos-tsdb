@@ -280,6 +280,8 @@ defmodule CaosTsdb.Graphql.SeriesTest do
           series {
             id
           }
+          updated_at
+          inserted_at
         }
       }
     }

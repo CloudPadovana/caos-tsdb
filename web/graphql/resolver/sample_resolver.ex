@@ -63,14 +63,13 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
   def get_one(_args = %{series: series_args, timestamp: timestamp}, context) do
     with {:ok, series} <- SeriesResolver.get_one(series_args, context) do
       try do
-        case Repo.get_by(Sample, series_id: series.id, timestamp: timestamp) do
+        query = Sample
+        |> where([s], s.series_id == ^series.id)
+        |> where([s], s.timestamp == ^timestamp)
+
+        case Repo.one(query) do
           nil -> graphql_error(:not_found, "Sample")
-          sample ->
-            {:ok, %{
-                series: series,
-                timestamp: sample.timestamp,
-                value: sample.value
-             }}
+          sample -> {:ok, %{ sample | series: series }}
         end
       rescue
         Ecto.MultipleResultsError -> graphql_error(:multiple_results)
