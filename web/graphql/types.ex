@@ -38,13 +38,31 @@ defmodule CaosTsdb.Graphql.Types do
   alias CaosTsdb.Sample
   alias CaosTsdb.TagMetadata
 
-  scalar :datetime, description: "ISOz datetime" do
-    parse &Timex.parse(&1.value, "%FT%TZ", :strftime)
+  @spec parse_datetime(Absinthe.Blueprint.Input.String.t) :: {:ok, DateTime.t} | :error
+  @spec parse_datetime(Absinthe.Blueprint.Input.Null.t) :: {:ok, nil}
+  defp parse_datetime(%Absinthe.Blueprint.Input.String{value: value}) do
+    Timex.parse(value, "%FT%TZ", :strftime)
+  end
+  defp parse_datetime(%Absinthe.Blueprint.Input.Null{}), do: {:ok, nil}
+  defp parse_datetime(_), do: :error
+
+  scalar :datetime do
+    description "ISOz datetime"
+    parse &parse_datetime/1
     serialize &Timex.format!(&1, "%FT%TZ", :strftime)
   end
 
-  scalar :unix_timestamp, description: "UNIX timestamp" do
-    parse &Timex.from_unix(&1.value)
+  @spec parse_unix_timestamp(Absinthe.Blueprint.Input.String.t) :: {:ok, DateTime.t} | :error
+  @spec parse_unix_timestamp(Absinthe.Blueprint.Input.Null.t) :: {:ok, nil}
+  defp parse_unix_timestamp(%Absinthe.Blueprint.Input.String{value: value}) do
+    Timex.from_unix(value)
+  end
+  defp parse_unix_timestamp(%Absinthe.Blueprint.Input.Null{}), do: {:ok, nil}
+  defp parse_unix_timestamp(_), do: :error
+
+  scalar :unix_timestamp do
+    description "UNIX timestamp"
+    parse &parse_unix_timestamp/1
     serialize &Timex.to_unix(&1)
   end
 
