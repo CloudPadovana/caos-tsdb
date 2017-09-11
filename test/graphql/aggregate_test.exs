@@ -35,7 +35,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
   end
 
   @query """
-  query($series: SeriesGroup!, $from: Datetime!, $to: Datetime!, $granularity: Int, $function: AggregateFunction, $downsample: AggregateFunction) {
+  query($series: SeriesGroup!, $from: Datetime, $to: Datetime, $granularity: Int, $function: AggregateFunction, $downsample: AggregateFunction) {
     aggregate(series: $series, from: $from, to: $to, granularity: $granularity, function: $function, downsample: $downsample) {
       timestamp
       value
@@ -44,8 +44,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
   """
 
   @query_params %{series: %{metric: %{name: "metric1"}, period: 3600},
-                  granularity: 60*60*24, function: "SUM", downsample: "NONE",
-                  from: nil, to: nil}
+                  granularity: 60*60*24, function: "SUM", downsample: "NONE"}
 
   test "downsample with hourly granularity", %{conn: conn} do
     tag1 = fixture(:tag)

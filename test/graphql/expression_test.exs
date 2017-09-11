@@ -35,7 +35,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
   end
 
   @query """
-  query($from: Datetime!, $to: Datetime!, $granularity: Int, $expression: String!, $terms: [ExpressionTerm]) {
+  query($from: Datetime, $to: Datetime, $granularity: Int, $expression: String!, $terms: [ExpressionTerm]) {
     expression(from: $from, to: $to, granularity: $granularity, expression: $expression, terms: $terms) {
       timestamp
       value
@@ -43,7 +43,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
   }
   """
 
-  @query_params %{granularity: nil, from: nil, to: nil, expression: nil, terms: []}
+  @query_params %{granularity: nil, expression: nil, terms: []}
 
   def my_fixture do
     tags = %{
@@ -111,8 +111,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x",
                       terms: [
@@ -122,6 +120,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -137,8 +137,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "_x + y",
                       terms: [
@@ -152,6 +150,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
     assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "In field \"expression\": Term name `y/z` has invalid format."
@@ -164,8 +164,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "_x + y",
                       terms: [
@@ -179,6 +177,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -192,8 +192,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x+5",
                       terms: [
@@ -203,6 +201,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -218,8 +218,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x + GRANULARITY",
                       terms: [
@@ -229,6 +227,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -248,8 +248,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x+y",
                       terms: [
@@ -263,6 +261,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -278,8 +278,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x/y",
                       terms: [
@@ -293,6 +291,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -308,8 +308,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x/y",
                       terms: [
@@ -323,6 +321,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "NONE"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 
@@ -344,8 +344,6 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     t2 = Timex.shift(t0, hours: 35)
 
     query_params = %{ @query_params |
-                      from: t1 |> format_date!,
-                      to: t2 |> format_date!,
                       granularity: 60*60*2,
                       expression: "x - y",
                       terms: [
@@ -359,6 +357,8 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
                           downsample: "SUM"}
                       ]
                     }
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
 

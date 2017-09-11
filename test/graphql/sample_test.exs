@@ -75,7 +75,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
 
   describe "get samples" do
     @query """
-    query($series: SeriesPrimary!, $from: Datetime!, $to: Datetime!) {
+    query($series: SeriesPrimary!, $from: Datetime, $to: Datetime) {
       samples: samples(series: $series, from: $from, to: $to) {
         series {
           id
@@ -89,8 +89,7 @@ defmodule CaosTsdb.Graphql.SampleTest do
     @a_timestamp fixture(:timestamp) |> Timex.shift(seconds: -100*3600)
     @a_value 322.3
     @query_params %{series: %{id: nil},
-                    from: @a_timestamp |> format_date!,
-                    to: nil}
+                    from: @a_timestamp |> format_date!}
 
     test "with valid arguments", %{conn: conn} do
       tag1 = fixture(:tag, key: "key1", value: "value1")
