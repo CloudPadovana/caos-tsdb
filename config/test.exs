@@ -29,7 +29,7 @@ config :caos_tsdb, CaosTsdb.Endpoint,
   http: [port: 4001],
   server: false
 
-config :logger, level: :debug, backends: [:console]
+config :logger, level: :warn, backends: [:console]
 
 # Configure your database
 config :caos_tsdb, CaosTsdb.Repo,
