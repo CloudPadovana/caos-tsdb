@@ -249,4 +249,162 @@ defmodule CaosTsdb.Graphql.SampleTest do
       assert sample == expected_json
     end
   end
+
+  describe "foreseen sample" do
+    @query """
+    mutation($series: SeriesPrimary!, $timestamp: Datetime!, $value: Float!, $overwrite: Boolean) {
+      sample: create_sample(series: $series, timestamp: $timestamp, value: $value, overwrite: $overwrite) {
+        series {
+          id
+        }
+        timestamp
+        value
+        updated_at
+        inserted_at
+      }
+    }
+    """
+
+    setup do
+      tag1 = fixture(:tag, key: "key1", value: "value1")
+      tag2 = fixture(:tag, key: "key2", value: "value2")
+      tag3 = fixture(:tag, key: "key3", value: "value3")
+
+      metric1 = fixture(:metric, name: "metric1")
+      metric2 = fixture(:metric, name: "metric2")
+
+      series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
+      series2 = fixture(:series, tags: [tag1], metric: metric2, period: 3600)
+
+      fixtures = %{
+        tag1: tag1,
+        tag2: tag2,
+        tag3: tag3,
+
+        metric1: metric1,
+        metric2: metric2,
+
+        series1: series1,
+        series2: series2,
+      }
+
+      query_params = %{series: %{id: series1.id},
+                       timestamp: nil,
+                       value: nil,
+                       overwrite: false}
+
+      {:ok, fixtures: fixtures, query_params: query_params}
+    end
+
+    test "can be updated if it was in the future", %{conn: conn, fixtures: %{series1: series1}, query_params: query_params} do
+      threshold = 1
+      wait = 3
+      foreseen = 2
+
+      Application.put_env(:caos_tsdb, ForeseenSample, [threshold: threshold])
+
+      timestamp = fixture(:timestamp) |> Timex.shift(seconds: foreseen)
+      sample1 = fixture(:sample, series: series1, timestamp: timestamp)
+
+      assert Timex.after?(sample1.timestamp, sample1.updated_at)
+      assert Timex.after?(sample1.timestamp, sample1.inserted_at)
+      assert Timex.after?(sample1.timestamp, Timex.now)
+      assert Timex.diff(sample1.timestamp, sample1.updated_at, :seconds) > threshold
+
+      new_value = fixture(:value)
+      :timer.sleep(:timer.seconds(wait))
+      query_params = %{ query_params | timestamp: timestamp |> format_date!, value: new_value }
+      new_conn = graphql_query conn, @query, query_params
+
+      sample = graphql_data(new_conn)["sample"]
+
+      assert Timex.after?(sample["updated_at"] |> parse_date!, sample["inserted_at"] |> parse_date!)
+      assert Timex.after?(sample["updated_at"] |> parse_date!, timestamp)
+
+      expected_json = sample_to_json(sample1)
+      |> put_in(["value"], new_value)
+      |> put_in(["updated_at"], sample["updated_at"])
+
+      assert sample == expected_json
+    end
+
+    test "can be updated if it is the future", %{conn: conn, fixtures: %{series1: series1}, query_params: query_params} do
+      threshold = 1
+      wait = 3
+      foreseen = 5
+
+      Application.put_env(:caos_tsdb, ForeseenSample, [threshold: threshold])
+
+      timestamp = fixture(:timestamp) |> Timex.shift(seconds: foreseen)
+      sample1 = fixture(:sample, series: series1, timestamp: timestamp)
+
+      assert Timex.after?(sample1.timestamp, sample1.updated_at)
+      assert Timex.after?(sample1.timestamp, sample1.inserted_at)
+      assert Timex.after?(sample1.timestamp, Timex.now)
+      assert Timex.diff(sample1.timestamp, sample1.updated_at, :seconds) > threshold
+
+      new_value = fixture(:value)
+      :timer.sleep(:timer.seconds(wait))
+      query_params = %{ query_params | timestamp: timestamp |> format_date!, value: new_value }
+      new_conn = graphql_query conn, @query, query_params
+
+      sample = graphql_data(new_conn)["sample"]
+
+      assert Timex.after?(sample["updated_at"] |> parse_date!, sample["inserted_at"] |> parse_date!)
+      assert Timex.before?(sample["updated_at"] |> parse_date!, timestamp)
+
+      expected_json = sample_to_json(sample1)
+      |> put_in(["value"], new_value)
+      |> put_in(["updated_at"], sample["updated_at"])
+
+      assert sample == expected_json
+    end
+
+    test "cannot be updated within threshold", %{conn: conn, fixtures: %{series1: series1}, query_params: query_params} do
+      threshold = 2
+      wait = 4
+      foreseen = 3
+
+      Application.put_env(:caos_tsdb, ForeseenSample, [threshold: threshold])
+
+      timestamp = fixture(:timestamp) |> Timex.shift(seconds: foreseen)
+      sample1 = fixture(:sample, series: series1, timestamp: timestamp)
+
+      assert Timex.after?(sample1.timestamp, sample1.updated_at)
+      assert Timex.after?(sample1.timestamp, sample1.inserted_at)
+      assert Timex.after?(sample1.timestamp, Timex.now)
+      assert Timex.diff(sample1.timestamp, sample1.updated_at, :seconds) > threshold
+
+      new_value = fixture(:value)
+      :timer.sleep(:timer.seconds(wait))
+      query_params = %{ query_params | timestamp: timestamp |> format_date!, value: new_value }
+      new_conn = graphql_query conn, @query, query_params
+
+      assert_graphql_errors(new_conn)
+    end
+
+    test "cannot be updated if threshold is not a positive integer", %{conn: conn, fixtures: %{series1: series1}, query_params: query_params} do
+
+      threshold = -1
+      wait = 3
+      foreseen = 2
+
+      Application.put_env(:caos_tsdb, ForeseenSample, [threshold: threshold])
+
+      timestamp = fixture(:timestamp) |> Timex.shift(seconds: foreseen)
+      sample1 = fixture(:sample, series: series1, timestamp: timestamp)
+
+      assert Timex.after?(sample1.timestamp, sample1.updated_at)
+      assert Timex.after?(sample1.timestamp, sample1.inserted_at)
+      assert Timex.after?(sample1.timestamp, Timex.now)
+      assert Timex.diff(sample1.timestamp, sample1.updated_at, :seconds) > threshold
+
+      new_value = fixture(:value)
+      :timer.sleep(:timer.seconds(wait))
+      query_params = %{ query_params | timestamp: timestamp |> format_date!, value: new_value }
+      new_conn = graphql_query conn, @query, query_params
+
+      assert_graphql_errors(new_conn)
+    end
+  end
 end

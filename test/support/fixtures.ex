@@ -44,6 +44,10 @@ defmodule CaosTsdb.Fixtures do
     |> parse_date!
   end
 
+  def fixture(:value, _assoc) do
+    :rand.uniform()
+  end
+
   def fixture(:token, assoc) do
     username = assoc[:username] || "some_user"
     claims = assoc[:claims] || %{}
@@ -131,7 +135,7 @@ defmodule CaosTsdb.Fixtures do
   def fixture(:sample, assoc) do
     series = assoc[:series] || fixture(:series)
     t0 = assoc[:timestamp] || epoch()
-    value = assoc[:value] || :rand.uniform()
+    value = assoc[:value] || fixture(:value)
 
     Repo.insert! %Sample{series_id: series.id,
                          timestamp: t0,

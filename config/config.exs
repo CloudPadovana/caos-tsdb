@@ -67,6 +67,10 @@ config :logger, :log,
 config :caos_tsdb, Auth,
   identity: [username: "admin", password: "ADMIN_PASS"]
 
+# Threshold for foresee updates
+config :caos_tsdb, ForeseenSample,
+  threshold: 20
+
 # Configures Guardian (for JWT auth)
 config :guardian, Guardian,
   allowed_algos: ["HS512"],
