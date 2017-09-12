@@ -126,7 +126,7 @@ defmodule CaosTsdb.Graphql.Schema do
     field :create_series, :series do
       arg :metric, non_null(:metric_primary)
       arg :period, non_null(:integer)
-      arg :tags, non_null(list_of(:tag_primary))
+      arg :tags, non_null(list_of(non_null(:tag_primary)))
       resolve &SeriesResolver.get_or_create/2
     end
 

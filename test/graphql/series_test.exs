@@ -143,7 +143,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
     test "should fail when there are many matches", %{conn: conn} do
       tag1 = fixture(:tag, key: "key1", value: "value1")
       tag2 = fixture(:tag, key: "key2", value: "value2")
-      tag3 = fixture(:tag, key: "key3", value: "value3")
+      tag3 = fixture(:tag, key: "key1", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
       _metric2 = fixture(:metric, name: "metric2")
@@ -152,7 +152,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       _series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
       _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
 
-      conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}]}
+      conn = graphql_query conn, @query, %{@query_params | tags: [%{key: tag1.key}]}
       assert_graphql_errors(conn)
     end
 
