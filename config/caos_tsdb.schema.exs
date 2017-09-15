@@ -329,7 +329,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "guardian.Elixir.Guardian.secret_key"
     ],
     "auth.identity.username": [
-      env_var: "CAOS_TSDB_AUTH.IDENTITY_USERNAME",
+      env_var: "CAOS_TSDB_AUTH_IDENTITY_USERNAME",
       commented: true,
       datatype: :binary,
       default: "admin",
@@ -338,7 +338,7 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       to: "caos_tsdb.Elixir.Auth.identity.username"
     ],
     "auth.identity.password": [
-      env_var: "CAOS_TSDB_AUTH.IDENTITY_PASSWORD",
+      env_var: "CAOS_TSDB_AUTH_IDENTITY_PASSWORD",
       commented: true,
       datatype: :binary,
       default: "ADMIN_PASS",
