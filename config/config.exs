@@ -37,31 +37,39 @@ config :caos_tsdb, CaosTsdb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: CaosTsdb.ErrorView, accepts: ~w(json)]
 
+default_logger_format = "\n$date $time [$level]$levelpad $metadata $message\n"
+default_logger_metadata = [ :request_id, :application ]
+default_logger_utc = true
+
 # Configures Elixir's Logger
 config :logger,
-  level: :info, # Do not print debug messages in production
-  format: "$date $time [$level]$levelpad $metadata $message",
-  metadata: [
-    :request_id,
-    :application,
-    :module,
-    :function,
-    :file,
-    :line,
-  ],
+  level: :info,
   backends: [
     :console,
-    {LoggerFileBackend, :error_log},
-    {LoggerFileBackend, :log},
+    {LoggerFileBackend, :error_file},
+    {LoggerFileBackend, :log_file},
   ]
 
-config :logger, :error_log,
-  path: "/var/log/caos/tsdb.error.log",
-  level: :error
+config :logger, :console,
+  level: :info,
+  utc_log: default_logger_utc,
+  format: default_logger_format,
+  metadata: default_logger_metadata
 
-config :logger, :log,
+config :logger, :error_file,
+  path: "/var/log/caos/tsdb.error.log",
+  level: :error,
+  utc_log: default_logger_utc,
+  format: default_logger_format,
+  metadata: default_logger_metadata
+
+
+config :logger, :log_file,
   path: "/var/log/caos/tsdb.log",
-  level: :info
+  level: :info,
+  utc_log: default_logger_utc,
+  format: default_logger_format,
+  metadata: default_logger_metadata
 
 # AUTH
 config :caos_tsdb, Auth,

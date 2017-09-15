@@ -75,71 +75,104 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   extends: [],
   import: [],
   mappings: [
-    "logger.level": [
-      env_var: "CAOS_TSDB_LOGGER_LEVEL",
+    "logger.console.level": [
+      env_var: "CAOS_TSDB_LOGGER_CONSOLE_LEVEL",
       commented: true,
       datatype: :atom,
       default: :info,
-      doc: "Logger level.",
+      doc: "Console logger level.",
       hidden: false,
-      to: "logger.level"
+      to: "logger.console.level"
     ],
-    "logger.format": [
+    "logger.console.utc": [
+      env_var: "CAOS_TSDB_LOGGER_CONSOLE_UTC",
+      commented: true,
+      datatype: :atom,
+      default: true,
+      doc: "Console logger utc.",
+      hidden: false,
+      to: "logger.console.utc_log"
+    ],
+    "logger.console.format": [
+      env_var: "CAOS_TSDB_LOGGER_CONSOLE_FORMAT",
       commented: true,
       datatype: :binary,
-      default: "$date $time [$level]$levelpad $metadata $message",
-      doc: "Format of log messages.",
+      default: "\n$date $time [$level]$levelpad $metadata $message\n",
+      doc: "Console logger format.",
       hidden: false,
-      to: "logger.format"
+      to: "logger.console.format"
     ],
-    "logger.metadata": [
-      commented: false,
-      datatype: [
-        list: :atom
-      ],
-      default: [
-        :request_id,
-        :application,
-        :module,
-        :function,
-        :file,
-        :line
-      ],
-      doc: "Provide documentation for logger.metadata here.",
-      hidden: true,
-      to: "logger.metadata"
-    ],
-    "logger.error_log.path": [
+    "logger.error_file.path": [
+      env_var: "CAOS_TSDB_LOGGER_ERROR_FILE_PATH",
       commented: true,
       datatype: :binary,
       default: "/var/log/caos/tsdb.error.log",
-      doc: "Path for error log.",
+      doc: "Error file logger path.",
       hidden: false,
-      to: "logger.error_log.path"
+      to: "logger.error_file.path"
     ],
-    "logger.error_log.level": [
-      commented: false,
+    "logger.error_file.level": [
+      env_var: "CAOS_TSDB_LOGGER_ERROR_FILE_LEVEL",
+      commented: true,
       datatype: :atom,
       default: :error,
-      doc: "Provide documentation for logger.error_log.level here.",
-      hidden: true,
-      to: "logger.error_log.level"
+      doc: "Error file logger level.",
+      hidden: false,
+      to: "logger.error_file.level"
     ],
-    "logger.log.path": [
+    "logger.error_file.utc": [
+      env_var: "CAOS_TSDB_LOGGER_ERROR_FILE_UTC",
+      commented: true,
+      datatype: :atom,
+      default: true,
+      doc: "Error file logger utc.",
+      hidden: false,
+      to: "logger.error_file.utc_log"
+    ],
+    "logger.error_file.format": [
+      env_var: "CAOS_TSDB_LOGGER_ERROR_FILE_FORMAT",
+      commented: true,
+      datatype: :binary,
+      default: "\n$date $time [$level]$levelpad $metadata $message\n",
+      doc: "Error file logger path.",
+      hidden: false,
+      to: "logger.error_file.format"
+    ],
+    "logger.log_file.path": [
+      env_var: "CAOS_TSDB_LOGGER_LOG_FILE_PATH",
       commented: true,
       datatype: :binary,
       default: "/var/log/caos/tsdb.log",
-      doc: "Path for log.",
+      doc: "Log file logger path.",
       hidden: false,
-      to: "logger.log.path"
+      to: "logger.log_file.path"
     ],
-    "logger.log.level": [
-      commented: false,
+    "logger.log_file.level": [
+      env_var: "CAOS_TSDB_LOGGER_LOG_FILE_LEVEL",
+      commented: true,
       datatype: :atom,
       default: :info,
-      doc: "Provide documentation for logger.log.level here.",
-      hidden: true,
-      to: "logger.log.level"
+      doc: "Log file logger level.",
+      hidden: false,
+      to: "logger.log_file.level"
+    ],
+    "logger.log_file.utc": [
+      env_var: "CAOS_TSDB_LOGGER_LOG_FILE_UTC",
+      commented: true,
+      datatype: :atom,
+      default: true,
+      doc: "Log file logger utc.",
+      hidden: false,
+      to: "logger.log_file.utc_log"
+    ],
+    "logger.log_file.format": [
+      env_var: "CAOS_TSDB_LOGGER_LOG_FILE_FORMAT",
+      commented: true,
+      datatype: :binary,
+      default: "\n$date $time [$level]$levelpad $metadata $message\n",
+      doc: "Log file logger format.",
+      hidden: false,
+      to: "logger.log_file.format"
     ],
     "caos_tsdb.ecto_repos": [
       commented: false,
