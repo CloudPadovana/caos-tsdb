@@ -55,7 +55,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       """
 
       conn = graphql_query conn, query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
   end
 
@@ -81,14 +81,14 @@ defmodule CaosTsdb.Graphql.SeriesTest do
 
     test "should fail when there are no series", %{conn: conn} do
       conn = graphql_query conn, @query, %{id: -1}
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "when there is one series", %{conn: conn} do
       series1 = fixture(:series)
 
       conn = graphql_query conn, @query, %{id: series1.id}
-      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series1)}
+      assert graphql_data(conn) == %{"series" => series_to_json(series1)}
     end
 
     test "when there are many series and many tags", %{conn: conn} do
@@ -104,7 +104,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       _series3 = fixture(:series, tags: [tag1], metric: metric1, period: 86400)
 
       conn = graphql_query conn, @query, %{id: series2.id}
-      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
+      assert graphql_data(conn) == %{"series" => series_to_json(series2)}
     end
   end
 
@@ -132,18 +132,18 @@ defmodule CaosTsdb.Graphql.SeriesTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should fail when there are no series", %{conn: conn} do
       conn = graphql_query conn, @query, @query_params
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "should fail when there are many matches", %{conn: conn} do
       tag1 = fixture(:tag, key: "key1", value: "value1")
       tag2 = fixture(:tag, key: "key2", value: "value2")
-      tag3 = fixture(:tag, key: "key3", value: "value3")
+      tag3 = fixture(:tag, key: "key1", value: "value3")
 
       metric1 = fixture(:metric, name: "metric1")
       _metric2 = fixture(:metric, name: "metric2")
@@ -152,8 +152,8 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       _series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
       _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
 
-      conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}]}
-      assert json_response(conn, 200)["errors"] != []
+      conn = graphql_query conn, @query, %{@query_params | tags: [%{key: tag1.key}]}
+      assert_graphql_errors(conn)
     end
 
     test "when there is one series", %{conn: conn} do
@@ -167,7 +167,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       series2 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
 
       conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}, %{id: tag2.id}]}
-      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
+      assert graphql_data(conn) == %{"series" => series_to_json(series2)}
     end
 
     test "when there are many series", %{conn: conn} do
@@ -183,7 +183,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       _series3 = fixture(:series, tags: [tag1, tag2, tag3], metric: metric1, period: 86400)
 
       conn = graphql_query conn, @query, %{@query_params | tags: [%{key: tag2.key, value: tag2.value}, %{id: tag1.id}]}
-      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)}
+      assert graphql_data(conn) == %{"series" => series_to_json(series2)}
     end
   end
 
@@ -223,7 +223,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       expected_json = series_to_json(series1)
       |> put_in(["tags"], tags_to_json([tag1, tag3]))
       |> Map.drop(["id"])
-      assert json_response(conn, 200)["data"]["series"] |> Map.drop(["id"]) == expected_json
+      assert graphql_data(conn)["series"] |> Map.drop(["id"]) == expected_json
     end
 
     test "must fail when no tag is given", %{conn: conn} do
@@ -237,7 +237,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       _series1 = fixture(:series, tags: [tag1, tag2], metric: metric1, period: 3600)
 
       conn = graphql_query conn, @query, @query_params
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "returns already existent series", %{conn: conn} do
@@ -254,7 +254,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
 
       conn = graphql_query conn, @query, %{@query_params | tags: [%{id: tag1.id}, %{id: tag3.id}]}
       expected_json = %{"series" => series_to_json(series2)}
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
   end
 
@@ -280,6 +280,8 @@ defmodule CaosTsdb.Graphql.SeriesTest do
           series {
             id
           }
+          updated_at
+          inserted_at
         }
       }
     }
@@ -289,12 +291,12 @@ defmodule CaosTsdb.Graphql.SeriesTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should fail when there are no series", %{conn: conn} do
       conn = graphql_query conn, @query, @query_params
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should not fail when sample is not found", %{conn: conn} do
@@ -320,7 +322,7 @@ defmodule CaosTsdb.Graphql.SeriesTest do
       |> put_in([:timestamp], epoch() |> format_date!)
 
       conn = graphql_query conn, @query, query_params
-      assert json_response(conn, 200)["errors"] != []
+      refute_graphql_errors(conn)
     end
 
     test "when there are many series", %{conn: conn} do
@@ -347,8 +349,8 @@ defmodule CaosTsdb.Graphql.SeriesTest do
 
       conn = graphql_query conn, @query, query_params
 
-      assert json_response(conn, 200)["data"] == %{"series" => series_to_json(series2)
-                                                   |> put_in(["sample"], sample_to_json(samples2 |> Enum.at(0)))}
+      assert graphql_data(conn) == %{"series" => series_to_json(series2)
+                                     |> put_in(["sample"], sample_to_json(samples2 |> Enum.at(0)))}
     end
   end
 end

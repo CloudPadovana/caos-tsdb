@@ -48,7 +48,7 @@ defmodule CaosTsdb.Web do
       import Ecto.Changeset
       import Ecto.Query
 
-      import CaosTsdb.Models.Helpers
+      import CaosTsdb.ValidateImmutable
     end
   end
 

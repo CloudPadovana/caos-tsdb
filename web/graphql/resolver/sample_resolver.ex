@@ -63,14 +63,13 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
   def get_one(_args = %{series: series_args, timestamp: timestamp}, context) do
     with {:ok, series} <- SeriesResolver.get_one(series_args, context) do
       try do
-        case Repo.get_by(Sample, series_id: series.id, timestamp: timestamp) do
+        query = Sample
+        |> where([s], s.series_id == ^series.id)
+        |> where([s], s.timestamp == ^timestamp)
+
+        case Repo.one(query) do
           nil -> graphql_error(:not_found, "Sample")
-          sample ->
-            {:ok, %{
-                series: series,
-                timestamp: sample.timestamp,
-                value: sample.value
-             }}
+          sample -> {:ok, %{ sample | series: series }}
         end
       rescue
         Ecto.MultipleResultsError -> graphql_error(:multiple_results)
@@ -139,6 +138,29 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
     |> Map.new(fn {series_id, samples} -> {series_id, samples |> Enum.at(0, %Sample{})} end)
   end
 
+  defp foreseen_threshold(value) when is_integer(value) and value > 0, do: value
+  defp foreseen_threshold(_), do: 0
+  defp foreseen_threshold() do
+    foreseen_threshold(Application.get_env(:caos_tsdb, ForeseenSample)[:threshold])
+  end
+
+  defp foreseen_enabled(), do: foreseen_threshold() > 0
+
+  @spec get_overwrite_for(Sample.t, boolean) :: boolean
+  defp get_overwrite_for(_sample, _overwrite = true), do: true
+  defp get_overwrite_for(_sample = %Sample{timestamp: nil}, _), do: false
+  defp get_overwrite_for(_sample = %Sample{updated_at: nil}, _), do: false
+  defp get_overwrite_for(_sample = %Sample{timestamp: timestamp, updated_at: updated_at}, _)
+    when updated_at > timestamp, do: false
+  defp get_overwrite_for(_sample = %Sample{timestamp: timestamp, updated_at: updated_at}, _) do
+    cond do
+      not foreseen_enabled() -> false
+      not Timex.before?(timestamp, Timex.now) -> true
+      Timex.diff(Timex.now, timestamp, :seconds) >= foreseen_threshold() -> true
+      true -> false
+    end
+  end
+
   def create(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end
@@ -148,30 +170,36 @@ defmodule CaosTsdb.Graphql.Resolver.SampleResolver do
                        value: value,
                        overwrite: overwrite
                       }, context) do
-    {:ok, series} = SeriesResolver.get_or_create(series_args, context)
+    with {:ok, series} <- SeriesResolver.get_or_create(series_args, context) do
+      sample = Sample
+      |> CaosTsdb.QueryFilter.filter(%Sample{}, %{series_id: series.id, timestamp: timestamp}, [:series_id, :timestamp])
+      |> Repo.one
 
-    sample = Sample
-    |> CaosTsdb.QueryFilter.filter(%Sample{}, %{series_id: series.id, timestamp: timestamp}, [:series_id, :timestamp])
-    |> Repo.one
+      sample = case sample do
+                 nil -> %Sample{}
+                 sample -> sample
+               end
 
-    changeset_args = %{series_id: series.id,
-                       timestamp: timestamp,
-                       value: value,
-                       overwrite: overwrite}
+      changeset_args = %{series_id: series.id,
+                         timestamp: timestamp,
+                         value: value,
+                         overwrite: get_overwrite_for(sample, overwrite)}
 
-    model = case sample do
-                  nil -> %Sample{}
-                  sample -> sample
-                end
+      sample = sample
+      |> Sample.changeset(changeset_args)
 
-    changeset = model
-    |> Sample.changeset(changeset_args)
+      trx = Ecto.Multi.new
+      |> Ecto.Multi.insert_or_update(:sample, sample)
+      |> Ecto.Multi.run(:last_timestamp, fn
+        _changes_so_far -> update_last_timestamp(series.id)
+      end)
 
-    with {:ok, sample} <- Repo.insert_or_update(changeset),
-         {:ok, _} <- update_last_timestamp(sample.series_id) do
-      {:ok, sample}
+      case Repo.transaction(trx) do
+        {:ok, %{sample: sample}} -> {:ok, sample}
+        {:error, _, failed_changeset, _changes_so_far} -> {:error, failed_changeset}
+      end
     end
-    |> changeset_to_graphql
+    |> changeset_to_graphql()
   end
 
   defp update_last_timestamp(series_id) do

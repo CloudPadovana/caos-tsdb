@@ -248,6 +248,15 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: true,
       to: "caos_tsdb.Elixir.CaosTsdb.Endpoint.root"
     ],
+    "foreseen_sample_threshold": [
+      env_var: "CAOS_TSDB_FORESEEN_SAMPLE_THRESHOLD",
+      commented: true,
+      datatype: :integer,
+      default: 20,
+      doc: "Foreseen sample threshold.",
+      hidden: false,
+      to: "caos_tsdb.Elixir.ForeseenSample.threshold"
+    ],
     "caos_tsdb.Elixir.CaosTsdb.Repo.adapter": [
       commented: false,
       datatype: :atom,

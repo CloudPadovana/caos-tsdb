@@ -24,15 +24,17 @@
 defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
   use CaosTsdb.Web, :resolver
 
-  defp find_tags_ids(tags_args) when is_list(tags_args) do
+  defp find_tags(tags_args) when is_list(tags_args) do
     tags_args
-    |> Enum.map(fn args ->
-      TagResolver.find_all(args)
-      |> Enum.map(fn tag -> tag.id end)
-    end)
+    |> Enum.map(fn args -> TagResolver.find_all(args) end)
     |> List.flatten
+    |> Enum.uniq_by(fn tag -> tag.id end)
+  end
+
+  defp find_tags_ids(tags_args) when is_list(tags_args) do
+    find_tags(tags_args)
+    |> Enum.map(fn tag -> tag.id end)
     |> Enum.sort
-    |> Enum.uniq
   end
 
   defp base_query(args) do
@@ -112,34 +114,27 @@ defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
     |> Map.new(&{&1.name, &1.series})
   end
 
-  defp associate_tags_to_series(series, tags) do
-    tags = tags
-    |> Enum.map(fn t ->
-      Repo.get_by(Tag, t)
-    end)
-
-    series
-    |> Repo.preload(:tags)
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:tags, tags)
-    |> Repo.update
-  end
-
   def create(args, _) when args == %{} do
     graphql_error(:no_arguments_given)
   end
 
   def create(_args = %{period: period, metric: %{name: metric_name}, tags: tags}, _) do
     changeset_args = %{period: period, metric_name: metric_name}
+    tags = find_tags(tags)
 
-    changeset = %Series{}
+    series = %Series{}
     |> Series.changeset(changeset_args)
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> Ecto.Changeset.validate_length(:tags, min: 1)
 
-    with {:ok, series} <- Repo.insert(changeset),
-         {:ok, series} <- associate_tags_to_series(series, tags) do
-      {:ok, series}
+    trx = Ecto.Multi.new
+    |> Ecto.Multi.insert(:series, series)
+
+    case Repo.transaction(trx) do
+      {:ok, %{series: series}} -> {:ok, series}
+      {:error, _, failed_changeset, _changes_so_far} -> {:error, failed_changeset}
     end
-    |> changeset_to_graphql
+    |> changeset_to_graphql()
   end
 
   def get_or_create(args, context) do

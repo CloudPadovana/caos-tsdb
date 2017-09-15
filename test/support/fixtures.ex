@@ -22,14 +22,19 @@
 ################################################################################
 
 defmodule CaosTsdb.Fixtures do
+  import Ecto
+  import Ecto.Query
+
   alias CaosTsdb.Repo
   alias CaosTsdb.Tag
   alias CaosTsdb.TagMetadata
   alias CaosTsdb.Sample
   alias CaosTsdb.Series
+  alias CaosTsdb.SeriesTag
   alias CaosTsdb.Metric
   use Timex
   import CaosTsdb.DateTime.Helpers
+  alias CaosTsdb.QueryFilter
 
   def fixture(_, assoc \\ [])
 
@@ -37,6 +42,10 @@ defmodule CaosTsdb.Fixtures do
     Timex.now
     |> format_date!
     |> parse_date!
+  end
+
+  def fixture(:value, _assoc) do
+    :rand.uniform()
   end
 
   def fixture(:token, assoc) do
@@ -96,21 +105,37 @@ defmodule CaosTsdb.Fixtures do
     period = assoc[:period] || 3600
     tags = assoc[:tags] || [fixture(:tag)]
 
-    Series.changeset(%Series{}, %{
-      metric_name: metric.name,
-      period: period
-    })
-    |> Repo.insert!
-    |> Repo.preload(:tags)
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:tags, tags)
-    |> Repo.update!
+    tags_ids = tags |> Enum.map(fn tag -> tag.id end) |> Enum.sort |> Enum.uniq
+    target = tags_ids |> Enum.join(",")
+
+    series_ids = SeriesTag
+    |> group_by([st], st.series_id)
+    |> having([st], fragment("GROUP_CONCAT(? ORDER BY ? ASC SEPARATOR ',') = ?",
+              st.tag_id, st.tag_id, ^target)
+    )
+    |> select([st], [:series_id])
+    |> Repo.all()
+    |> Enum.map(fn s -> s.series_id end)
+
+    query = Series
+    |> QueryFilter.filter(%Series{}, %{period: period, metric: %{name: metric.name}, tags: tags}, [:id, %{metric_name: [:metric, :name]}, :period])
+    |> where([s], s.id in ^series_ids)
+
+    case Repo.one(query) do
+      nil -> %Series{}
+      |> Series.changeset(%{metric_name: metric.name, period: period })
+      |> Ecto.Changeset.put_assoc(:tags, tags)
+      |> Ecto.Changeset.validate_length(:tags, min: 1)
+      |> Repo.insert!
+
+      series -> {:ok, series}
+    end
   end
 
   def fixture(:sample, assoc) do
     series = assoc[:series] || fixture(:series)
     t0 = assoc[:timestamp] || epoch()
-    value = assoc[:value] || :rand.uniform()
+    value = assoc[:value] || fixture(:value)
 
     Repo.insert! %Sample{series_id: series.id,
                          timestamp: t0,

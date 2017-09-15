@@ -24,6 +24,31 @@
 defmodule CaosTsdb.Test.Support.GraphqHelpers do
   import CaosTsdb.DateTime.Helpers
 
+  import Phoenix.ConnTest, only: [json_response: 2]
+  import ExUnit.Assertions, only: [assert: 1, refute: 1]
+
+  defmacro assert_graphql_errors(conn, status \\ 200) do
+    quote do
+      assert json_response(unquote(conn), unquote(status))["errors"]
+    end
+  end
+
+  defmacro refute_graphql_errors(conn) do
+    quote do
+      refute json_response(unquote(conn), 200)["errors"]
+    end
+  end
+
+  def graphql_data(conn) do
+    refute_graphql_errors(conn)
+    json_response(conn, 200)["data"]
+  end
+
+  def graphql_errors(conn) do
+    assert_graphql_errors(conn)
+    json_response(conn, 200)["errors"]
+  end
+
   def tag_to_json(tag, fields \\ [:id, :key, :value]) do
     %{
       id: %{"id" => "#{tag.id}"},
@@ -102,17 +127,20 @@ defmodule CaosTsdb.Test.Support.GraphqHelpers do
     |> Enum.map(&(series_to_json(&1, fields)))
   end
 
-  def sample_to_json(sample, fields \\ [:series, :timestamp, :value]) do
+  def sample_to_json(sample, fields \\ [:series, :timestamp, :value, :updated_at, :inserted_at]) do
     %{
-      series: %{"series" => %{"id" => "#{sample.series_id}"}},
-      timestamp: %{"timestamp" => sample.timestamp |> format_date! },
-      value: %{"value" => sample.value},
+      series: fn sample -> %{"series" => %{"id" => "#{sample.series_id}"}} end,
+      timestamp: fn sample -> %{"timestamp" => sample.timestamp |> format_date! } end,
+      value: fn sample -> %{"value" => sample.value} end,
+      updated_at: fn sample -> %{"updated_at" => sample.updated_at |> format_date! } end,
+      inserted_at: fn sample -> %{"inserted_at" => sample.inserted_at |> format_date! } end,
     }
     |> Map.take(fields)
     |> Map.values
+    |> Enum.map(fn f -> f.(sample) end)
     |> Enum.reduce(%{}, fn (map, acc) -> Map.merge(acc, map) end)
   end
-  def samples_to_json(samples, fields \\ [:series, :timestamp, :value]) do
+  def samples_to_json(samples, fields \\ [:series, :timestamp, :value, :updated_at, :inserted_at]) do
     samples
     |> Enum.map(&(sample_to_json(&1, fields)))
   end

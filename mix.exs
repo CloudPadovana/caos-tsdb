@@ -72,8 +72,8 @@ defmodule CaosTsdb.Mixfile do
   defp deps do
     [
       {:abacus, "~> 0.3.2"},
-      {:absinthe, "~> 1.3.2"},
-      {:absinthe_plug, "~> 1.3.1"},
+      {:absinthe, "~> 1.4.0-rc.0"},
+      {:absinthe_plug, "~> 1.4.0-rc.0"},
       {:conform, "~> 2.5.2"},
       {:cowboy, "~> 1.1.2"},
       {:credo, "~> 0.8.6", only: [:dev, :test], runtime: false},

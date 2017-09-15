@@ -49,7 +49,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       """
 
       conn = graphql_query conn, query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
   end
 
@@ -66,14 +66,14 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "should fail when there are no tags", %{conn: conn} do
       conn = graphql_query conn, @query, %{id: -1}
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn)
     end
 
     test "when there is one tag", %{conn: conn} do
       tag1 = fixture(:tag)
 
       conn = graphql_query conn, @query, %{id: tag1.id}
-      assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag1)}
+      assert graphql_data(conn) == %{"tag" => tag_to_json(tag1)}
     end
 
     test "when there are many tags", %{conn: conn} do
@@ -82,7 +82,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{id: tag2.id}
-      assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
+      assert graphql_data(conn) == %{"tag" => tag_to_json(tag2)}
     end
   end
 
@@ -99,12 +99,12 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should fail when there are no tags", %{conn: conn} do
       conn = graphql_query conn, @query, %{key: "a key"}
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should fail when there are many matches", %{conn: conn} do
@@ -113,14 +113,14 @@ defmodule CaosTsdb.Graphql.TagTest do
       _tag3 = fixture(:tag, key: "key1", value: "value3")
 
       conn = graphql_query conn, @query, %{key: "key1"}
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "when there is one tag", %{conn: conn} do
       tag1 = fixture(:tag)
 
       conn = graphql_query conn, @query, %{key: tag1.key, value: tag1.value}
-      assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag1)}
+      assert graphql_data(conn) == %{"tag" => tag_to_json(tag1)}
     end
 
     test "when there are many tags", %{conn: conn} do
@@ -129,7 +129,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       _tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query, %{key: tag2.key, value: tag2.value}
-      assert json_response(conn, 200)["data"] == %{"tag" => tag_to_json(tag2)}
+      assert graphql_data(conn) == %{"tag" => tag_to_json(tag2)}
     end
   end
 
@@ -144,14 +144,14 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are no tags", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => []}
+      assert graphql_data(conn) == %{"tags" => []}
     end
 
     test "when there is one tag", %{conn: conn} do
       tag1 = fixture(:tag)
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1], [:id])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag1], [:id])}
     end
 
     test "when there are many tags", %{conn: conn} do
@@ -160,7 +160,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       tag3 = fixture(:tag, key: "another_new_key")
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3], [:id])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag1, tag2, tag3], [:id])}
     end
   end
 
@@ -177,14 +177,14 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "when there are no tags", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => []}
+      assert graphql_data(conn) == %{"tags" => []}
     end
 
     test "when there is one tag", %{conn: conn} do
       tag1 = fixture(:tag)
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag1])}
     end
 
     test "when there are many tags", %{conn: conn} do
@@ -193,7 +193,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       tag3 = fixture(:tag, key: "another_new-key")
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag1, tag2, tag3])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag1, tag2, tag3])}
     end
   end
 
@@ -210,12 +210,12 @@ defmodule CaosTsdb.Graphql.TagTest do
 
     test "should fail when there are no parameters", %{conn: conn} do
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["errors"] != []
+      assert_graphql_errors(conn, 400)
     end
 
     test "should not fail when there are no tags", %{conn: conn} do
       conn = graphql_query conn, @query, %{key: "a key"}
-      assert json_response(conn, 200)["data"] == %{"tags" => []}
+      assert graphql_data(conn) == %{"tags" => []}
     end
 
     test "when there is one match", %{conn: conn} do
@@ -227,7 +227,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       tag31 = fixture(:tag, key: "key3", value: "value1")
 
       conn = graphql_query conn, @query, %{key: "key3"}
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag31])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag31])}
     end
 
     test "when there are many matches", %{conn: conn} do
@@ -239,7 +239,7 @@ defmodule CaosTsdb.Graphql.TagTest do
       _tag31 = fixture(:tag, key: "key3", value: "value1")
 
       conn = graphql_query conn, @query, %{key: "key2"}
-      assert json_response(conn, 200)["data"] == %{"tags" => tags_to_json([tag21, tag22])}
+      assert graphql_data(conn) == %{"tags" => tags_to_json([tag21, tag22])}
     end
   end
 
@@ -273,7 +273,7 @@ defmodule CaosTsdb.Graphql.TagTest do
                          put_in(tag_to_json(tag3), ["series"], [])]}
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
 
     test "when there are many series", %{conn: conn} do
@@ -300,7 +300,7 @@ defmodule CaosTsdb.Graphql.TagTest do
                                %{"id" => "#{series3.id}"}])]}
 
       conn = graphql_query conn, @query
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
   end
 
@@ -335,7 +335,7 @@ defmodule CaosTsdb.Graphql.TagTest do
                          |> put_in(["last_metadata"], tag_metadata_to_json(%TagMetadata{}))]}
 
       conn = graphql_query conn, @query, %{from: from, to: to}
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
 
     test "when there are many metadatas", %{conn: conn} do
@@ -369,7 +369,7 @@ defmodule CaosTsdb.Graphql.TagTest do
                        ]}
 
       conn = graphql_query conn, @query, %{from: from, to: to}
-      assert json_response(conn, 200)["data"] == expected_json
+      assert graphql_data(conn) == expected_json
     end
   end
 
@@ -401,7 +401,7 @@ defmodule CaosTsdb.Graphql.TagTest do
         new_conn = graphql_query conn, @query, args
         tag = json_response(new_conn, 200)["data"]["create_tag"] |> json_to_tag
 
-        refute json_response(new_conn, 200)["errors"]
+        refute_graphql_errors(new_conn)
 
         assert Map.take(tag, [:key, :value]) == args
         assert Repo.get_by(Tag, args)
@@ -411,7 +411,7 @@ defmodule CaosTsdb.Graphql.TagTest do
     test "should fail when data is invalid", %{conn: conn} do
       @invalid_args |> Enum.each(fn args ->
         new_conn = graphql_query conn, @query, args
-        assert json_response(new_conn, 200)["errors"] != []
+        assert_graphql_errors(new_conn)
       end)
     end
 
@@ -420,7 +420,7 @@ defmodule CaosTsdb.Graphql.TagTest do
         tag1 = fixture(:tag, key: args.key, value: args.value)
         new_conn = graphql_query conn, @query, args
 
-        assert json_response(new_conn, 200)["data"] == %{"create_tag" => tag_to_json(tag1)}
+        assert graphql_data(new_conn) == %{"create_tag" => tag_to_json(tag1)}
       end)
     end
   end
