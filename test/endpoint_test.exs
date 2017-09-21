@@ -108,4 +108,44 @@ defmodule CaosTsdb.EndpointTest do
       assert json_response(conn2, 200)["data"]["last_sample_timestamp"] == t0
     end
   end
+
+  describe "logging" do
+    import ExUnit.CaptureLog
+    require Logger
+
+    test "assert capture_log on Logger.error" do
+      str = Base.hex_encode32(:crypto.strong_rand_bytes(20), case: :lower)
+
+      assert capture_log(fn -> Logger.error str end) =~ str
+    end
+
+    test "route not found logs a request_id", %{conn: conn} do
+      log = capture_log(fn ->
+        assert_error_sent :not_found, fn ->
+          get conn, "/not-found"
+        end
+      end)
+
+      assert log =~ "request_id="
+      assert log =~ "[error]"
+      assert log =~ "ERROR: ** (Phoenix.Router.NoRouteError) no route found for GET /not-found"
+      assert log =~ "REASON: %Phoenix.Router.NoRouteError{"
+    end
+
+    test "graphql errors generally do not raise", %{conn: conn} do
+      conn = conn
+      |> put_valid_token()
+
+      query = "mutation { FailingThing(type: WITHOUT_MESSAGE) { name } "
+
+      log = capture_log(fn ->
+        graphql_query conn, query
+      end)
+
+      assert log =~ "request_id="
+      refute log =~ "[error]"
+      refute log =~ "ERROR"
+      refute log =~ "REASON"
+    end
+  end
 end

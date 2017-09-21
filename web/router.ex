@@ -24,6 +24,13 @@
 defmodule CaosTsdb.Router do
   use CaosTsdb.Web, :router
   alias CaosTsdb.APIVersion
+  require Logger
+
+  use Plug.ErrorHandler
+
+  defp handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
+    Logger.error "ERROR: #{Exception.format(kind, reason, stack)}\nREASON: #{inspect reason}"
+  end
 
   pipeline :api do
     plug :accepts, ["json"]
