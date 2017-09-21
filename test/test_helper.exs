@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 #
 ################################################################################
 
-ExUnit.start
+ExUnit.start(capture_log: true)
 
 Ecto.Adapters.SQL.Sandbox.mode(CaosTsdb.Repo, :manual)
-

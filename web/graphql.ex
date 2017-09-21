@@ -23,5 +23,5 @@
 
 defmodule CaosTsdb.Graphql.Plug do
   use Plug.Builder
-  plug Absinthe.Plug, schema: CaosTsdb.Graphql.Schema
+  plug Absinthe.Plug, schema: CaosTsdb.Graphql.Schema, log_level: :info
 end

@@ -113,6 +113,17 @@ defmodule CaosTsdb.EndpointTest do
     import ExUnit.CaptureLog
     require Logger
 
+    setup %{conn: conn} do
+      conn = conn
+      |> put_valid_token()
+
+      level = Logger.level
+      Logger.configure level: :info
+      on_exit fn -> Logger.configure level: level end
+
+      {:ok, conn: conn}
+    end
+
     test "assert capture_log on Logger.error" do
       str = Base.hex_encode32(:crypto.strong_rand_bytes(20), case: :lower)
 
@@ -133,9 +144,6 @@ defmodule CaosTsdb.EndpointTest do
     end
 
     test "graphql errors generally do not raise", %{conn: conn} do
-      conn = conn
-      |> put_valid_token()
-
       query = "mutation { FailingThing(type: WITHOUT_MESSAGE) { name } "
 
       log = capture_log(fn ->
@@ -146,6 +154,22 @@ defmodule CaosTsdb.EndpointTest do
       refute log =~ "[error]"
       refute log =~ "ERROR"
       refute log =~ "REASON"
+    end
+
+    test "graphql logs query parameters", %{conn: conn} do
+      query = "query { metrics { name } }"
+
+      log = capture_log(fn ->
+        graphql_query conn, query
+      end)
+
+      assert log =~ "request_id="
+      assert log =~ "[info]"
+      refute log =~ "ERROR"
+      assert log =~ "POST /api/v1/graphql"
+      assert log =~ "application=absinthe"
+      assert log =~ "ABSINTHE"
+      assert log =~ query
     end
   end
 end
