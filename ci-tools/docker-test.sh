@@ -41,10 +41,8 @@ docker run --name mysql_server -d \
        mysql/mysql-server:5.7
 mysql_server_ip=$(docker inspect mysql_server --format '{{ .NetworkSettings.IPAddress }}')
 
-CAOS_TSDB_DOCKER_IMAGE_TAG=${CI_REGISTRY_IMAGE}:${CAOS_TSDB_RELEASE_GIT_VERSION}
-
 say_yellow  "Pulling docker container"
-docker pull ${CAOS_TSDB_DOCKER_IMAGE_TAG}-test
+docker pull ${CAOS_TSDB_DOCKER_IMAGE_TAG}
 
 say_yellow  "Waiting for MySQL"
 RETRIES=0
@@ -59,7 +57,7 @@ docker run --rm \
        -e CAOS_TSDB_DB_HOSTNAME=${mysql_server_ip} \
        -e CAOS_TSDB_DB_NAME=${DB_NAME} \
        -e CAOS_TSDB_DB_USERNAME=root \
-       ${CAOS_TSDB_DOCKER_IMAGE_TAG}-test migrate
+       ${CAOS_TSDB_DOCKER_IMAGE_TAG} migrate
 
 say_yellow  "Running docker container"
 docker run -d --name caos-tsdb-test \
@@ -67,7 +65,7 @@ docker run -d --name caos-tsdb-test \
        -e CAOS_TSDB_DB_HOSTNAME=${mysql_server_ip} \
        -e CAOS_TSDB_DB_NAME=${DB_NAME} \
        -e CAOS_TSDB_DB_USERNAME=root \
-       ${CAOS_TSDB_DOCKER_IMAGE_TAG}-test foreground
+       ${CAOS_TSDB_DOCKER_IMAGE_TAG} foreground
 caos_tsdb_ip=$(docker inspect caos-tsdb-test --format '{{ .NetworkSettings.IPAddress }}')
 
 sleep 10

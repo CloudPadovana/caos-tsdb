@@ -31,8 +31,6 @@ export_version_vars
 
 docker_login
 
-CAOS_TSDB_DOCKER_IMAGE_TAG=${CI_REGISTRY_IMAGE}:${CAOS_TSDB_RELEASE_GIT_VERSION}-test
-
 say_yellow  "Building docker container"
 docker build \
        --tag ${CAOS_TSDB_DOCKER_IMAGE_TAG} \

@@ -31,13 +31,11 @@ export_version_vars
 
 docker_login
 
-CAOS_TSDB_DOCKER_IMAGE_TAG=${CI_REGISTRY_IMAGE}:${CAOS_TSDB_RELEASE_GIT_VERSION}
-
 say_yellow  "Pulling docker container"
-docker pull ${CAOS_TSDB_DOCKER_IMAGE_TAG}-test
+docker pull ${CAOS_TSDB_DOCKER_IMAGE_TAG}
 
 say_yellow  "Tagging docker container"
-docker tag ${CAOS_TSDB_DOCKER_IMAGE_TAG}-test  ${CAOS_TSDB_DOCKER_IMAGE_TAG}
+docker tag ${CAOS_TSDB_DOCKER_IMAGE_TAG} ${CAOS_TSDB_RELEASE_DOCKER_IMAGE_TAG}
 
 say_yellow "Pushing container"
-docker push ${CAOS_TSDB_DOCKER_IMAGE_TAG}
+docker push ${CAOS_TSDB_RELEASE_DOCKER_IMAGE_TAG}
