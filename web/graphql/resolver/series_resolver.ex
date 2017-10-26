@@ -24,17 +24,24 @@
 defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
   use CaosTsdb.Web, :resolver
 
-  defp find_tags(tags_args) when is_list(tags_args) do
+  defp find_tags(tags_args) do
     tags_args
+    |> List.wrap
     |> Enum.map(fn args -> TagResolver.find_all(args) end)
     |> List.flatten
     |> Enum.uniq_by(fn tag -> tag.id end)
   end
 
-  defp find_tags_ids(tags_args) when is_list(tags_args) do
+  defp find_tags_ids(tags_args) do
     find_tags(tags_args)
     |> Enum.map(fn tag -> tag.id end)
     |> Enum.sort
+  end
+
+  defp to_list_of_list(_list = []), do: [[],]
+  defp to_list_of_list(list) do
+    list
+    |> Enum.map(fn item -> List.wrap(item) end)
   end
 
   defp base_query(args) do
@@ -42,30 +49,46 @@ defmodule CaosTsdb.Graphql.Resolver.SeriesResolver do
     |> QueryFilter.filter(%Series{}, args, [:id, %{metric_name: [:metric, :name]}, :period])
   end
 
-  defp query_for(args = %{tags: tags}) do
-    tags_ids = find_tags_ids(tags)
+  defp query_for(args = %{tag: tag, tags: tags}) do
+    or_tags_ids = find_tags_ids(tag) |> to_list_of_list
 
-    target = tags_ids |> Enum.join(",")
+    and_tags_ids = find_tags_ids(tags) |> to_list_of_list
+    targets = or_tags_ids
+    |> Enum.map(fn ids ->
+      ids
+      |> to_list_of_list
+      |> Enum.concat(and_tags_ids)
+      |> List.flatten
+      |> Enum.sort
+      |> Enum.uniq
+      |> Enum.join(",")
+    end)
 
-    series_ids = SeriesTag
-    |> group_by([st], st.series_id)
-    |> having([st], fragment("GROUP_CONCAT(? ORDER BY ? ASC SEPARATOR ',') = ?",
-              st.tag_id, st.tag_id, ^target)
-    )
-    |> select([st], [:series_id])
-    |> Repo.all()
-    |> Enum.map(fn s -> s.series_id end)
-
+    series_ids = targets
+    |> Enum.flat_map(fn target ->
+      SeriesTag
+      |> group_by([st], st.series_id)
+      |> having([st], fragment("GROUP_CONCAT(? ORDER BY ? ASC SEPARATOR ',') = ?",
+                st.tag_id, st.tag_id, ^target)
+      )
+      |> select([st], [:series_id])
+      |> Repo.all()
+      |> Enum.map(fn s -> s.series_id end)
+    end)
     base_query(args)
     |> where([s], s.id in ^series_ids)
   end
 
-  defp query_for(args = %{tag: tag}) do
-    tags_ids = find_tags_ids([tag,])
+  defp query_for(args = %{tags: _tags}) do
+    args
+    |> put_in([:tag], nil)
+    |> query_for()
+  end
 
-    base_query(args)
-    |> join(:inner, [s], t in assoc(s, :tags))
-    |> where([_, t], t.id in ^tags_ids)
+  defp query_for(args = %{tag: _tag}) do
+    args
+    |> put_in([:tags], [])
+    |> query_for()
   end
 
   defp query_for(args) do
