@@ -362,4 +362,56 @@ defmodule CaosTsdb.Graphql.AggregateTest do
 
     assert graphql_data(new_conn) == expected_json
   end
+
+  test "downsample and aggregate with series with many tags", %{conn: conn} do
+    tagA1 = fixture(:tag, key: "keyA", value: "valueA1")
+    tagA2 = fixture(:tag, key: "keyA", value: "valueA2")
+    tagB1 = fixture(:tag, key: "keyB", value: "valueB1")
+    tagB2 = fixture(:tag, key: "keyB", value: "valueB2")
+
+    metric1 = fixture(:metric, name: "metric1")
+    metric2 = fixture(:metric, name: "metric2")
+
+    series1_A1 = fixture(:series, tags: [tagA1], metric: metric1, period: 0)
+    series1_A2 = fixture(:series, tags: [tagA2], metric: metric1, period: 0)
+    series1_A1B1 = fixture(:series, tags: [tagA1, tagB1], metric: metric1, period: 0)
+    series1_A1B2 = fixture(:series, tags: [tagA1, tagB2], metric: metric1, period: 0)
+    series1_A2B1 = fixture(:series, tags: [tagA2, tagB1], metric: metric1, period: 0)
+    series1_A2B2 = fixture(:series, tags: [tagA2, tagB2], metric: metric1, period: 0)
+
+    t0 = "2016-08-08T16:00:00Z" |> parse_date!
+    t1 = "2016-08-08T17:00:00Z" |> parse_date!
+    t2 = "2016-08-23T22:00:00Z" |> parse_date!
+
+    samples1_A1 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 0, series: series1_A1)
+    samples1_A2 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 2, series: series1_A2)
+    samples1_A1B1 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 4, series: series1_A1B1)
+    samples1_A1B2 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 3, series: series1_A1B2)
+    samples1_A2B1 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 6, series: series1_A2B1)
+    samples1_A2B2 = fixture(:samples, from: t0, values: :linear, time_shift: 300, repeat: 10, start_value: 5, series: series1_A2B2)
+
+    base_query_params = @query_params
+    |> put_in([:series, :period], 0)
+    |> put_in([:from], t1 |> format_date!)
+    |> put_in([:to], t2 |> format_date!)
+    |> put_in([:downsample], "AVG")
+    |> put_in([:function], "SUM")
+
+    query_params = base_query_params
+    |> put_in([:series, :tags], [%{key: tagB1.key, value: tagB1.value}])
+    |> put_in([:series, :tag], %{key: tagA1.key})
+
+    new_conn = graphql_query conn, @query, query_params
+    expected_json = %{"aggregate" => fixture(:aggregate, [samples1_A1B1, samples1_A2B1], query_params) |> samples_to_json([:timestamp, :value]) }
+    assert graphql_data(new_conn) == expected_json
+
+
+    query_params = base_query_params
+    |> put_in([:series, :tag], %{key: tagA1.key})
+
+    new_conn = graphql_query conn, @query, query_params
+    expected_json = %{"aggregate" => fixture(:aggregate, [samples1_A1, samples1_A2], query_params) |> samples_to_json([:timestamp, :value]) }
+    assert graphql_data(new_conn) == expected_json
+
+  end
 end

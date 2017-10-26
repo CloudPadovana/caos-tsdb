@@ -148,6 +148,7 @@ defmodule CaosTsdb.Fixtures do
     n = assoc[:repeat] || 1
     n0 = assoc[:start_value] || 0
     value_type = assoc[:values] || :rand
+    time_shift = assoc[:time_shift] || series.period
 
     _samples = Range.new(n0, n-1) |> Enum.map(fn(x) ->
       value = case value_type do
@@ -156,7 +157,7 @@ defmodule CaosTsdb.Fixtures do
               end
       sample = Sample.changeset(%Sample{}, %{
         series_id: series.id,
-        timestamp: t0 |> Timex.shift(seconds: x*series.period),
+        timestamp: t0 |> Timex.shift(seconds: x*time_shift),
         value: value})
       |> Repo.insert!
     end)
