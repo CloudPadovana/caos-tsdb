@@ -154,7 +154,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
     |> put_in([:to], t2 |> format_date!)
 
     new_conn = graphql_query conn, @query, query_params
-    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "In field \"expression\": Term name `y/z` has invalid format."
+    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "Term name `y/z` has invalid format."
   end
 
   test "expression with unknown term", %{conn: conn} do
@@ -182,7 +182,7 @@ defmodule CaosTsdb.Graphql.ExpressionTest do
 
     new_conn = graphql_query conn, @query, query_params
 
-    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "In field \"expression\": Unknown term name `y`"
+    assert graphql_errors(new_conn) |> List.first |> Map.get("message") == "Unknown term name `y`"
   end
 
   test "constant addition on a series", %{conn: conn} do

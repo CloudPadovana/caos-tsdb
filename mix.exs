@@ -72,21 +72,21 @@ defmodule CaosTsdb.Mixfile do
   defp deps do
     [
       {:abacus, "~> 0.3.2"},
-      {:absinthe, "~> 1.4.0-rc.0"},
-      {:absinthe_plug, "~> 1.4.0-rc.0"},
+      {:absinthe, "~> 1.4.0-rc.3"},
+      {:absinthe_plug, "~> 1.4.0-rc.1"},
       {:conform, "~> 2.5.2"},
       {:cowboy, "~> 1.1.2"},
-      {:credo, "~> 0.8.6", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 1.5.1", runtime: false},
-      {:excoveralls, "~> 0.7.2", only: :test},
+      {:credo, "~> 0.8.8", only: [:dev, :test], runtime: false},
+      {:distillery, "~> 1.5.2", runtime: false},
+      {:excoveralls, "~> 0.7.4", only: :test},
       {:gettext, "~> 0.13.1"},
       {:guardian, "~> 0.14.5"},
       {:logger_file_backend, "~> 0.0.10"},
       {:mariaex, "~> 0.8.3"},
       {:phoenix, "~> 1.3.0"},
-      {:phoenix_ecto, "~> 3.2.3"},
+      {:phoenix_ecto, "~> 3.3.0"},
       {:timex, "~> 3.1.24"},
-      {:timex_ecto, "~> 3.1.1"},
+      {:timex_ecto, "~> 3.2.1"},
       {:tzdata, "~> 0.5.12", override: true},
     ]
   end
