@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017, 2018 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ defmodule CaosTsdb.Graphql.AggregateTest do
   end
 
   @query """
-  query($series: SeriesGroup!, $from: Datetime, $to: Datetime, $granularity: Int, $function: AggregateFunction, $downsample: AggregateFunction) {
-    aggregate(series: $series, from: $from, to: $to, granularity: $granularity, function: $function, downsample: $downsample) {
+  query($series: SeriesGroup!, $from: Datetime, $to: Datetime, $granularity: Int, $function: AggregateFunction, $downsample: AggregateFunction, $fill: FillPolicy) {
+    aggregate(series: $series, from: $from, to: $to, granularity: $granularity, function: $function, downsample: $downsample, fill: $fill) {
       timestamp
       value
     }
@@ -44,6 +44,7 @@ defmodule CaosTsdb.Graphql.AggregateTest do
   """
 
   @query_params %{series: %{metric: %{name: "metric1"}, period: 3600},
+                  fill: "NONE",
                   granularity: 60*60*24, function: "SUM", downsample: "NONE"}
 
   test "downsample with hourly granularity", %{conn: conn} do
@@ -135,6 +136,32 @@ defmodule CaosTsdb.Graphql.AggregateTest do
     query_params = @query_params
     |> put_in([:series, :tags], [%{id: tag1.id}])
     |> put_in([:function], "SUM")
+
+    new_conn = graphql_query conn, @query, query_params
+
+    expected_json = %{"aggregate" => fixture(:aggregate, [samples11h1], query_params) |> samples_to_json([:timestamp, :value]) }
+
+    assert graphql_data(new_conn) == expected_json
+  end
+
+  test "aggregate one series with ZERO fill", %{conn: conn} do
+    tag1 = fixture(:tag)
+    metric1 = fixture(:metric)
+    series11 = fixture(:series, tags: [tag1], metric: metric1, period: 3600)
+
+    t0 = "2016-08-08T22:00:00Z" |> parse_date!
+
+    t_from = t0 |> Timex.shift(hours: -24*2)
+    t_to = t0 |> Timex.shift(hours: 24*4)
+
+    samples11h1 = fixture(:samples, from: t0, repeat: 30, series: series11, values: :linear)
+
+    query_params = @query_params
+    |> put_in([:from], t_from |> format_date!)
+    |> put_in([:to], t_to |> format_date!)
+    |> put_in([:series, :tags], [%{id: tag1.id}])
+    |> put_in([:function], "SUM")
+    |> put_in([:fill], "ZERO")
 
     new_conn = graphql_query conn, @query, query_params
 

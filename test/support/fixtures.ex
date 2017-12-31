@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017, 2018 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -208,6 +208,23 @@ defmodule CaosTsdb.Fixtures do
     aggr_function(function, values)
   end
 
+  defp merge_fill(map, fill, from, to, granularity) do
+    timeline_map = case fill do
+                     "NONE" -> []
+                     "ZERO" ->
+                       Timex.Interval.new(from: from, until: to, step: [seconds: granularity], left_open: false, right_open: false)
+                       |> Enum.map(fn ts -> %Sample{timestamp: ts, value: 0} end)
+                       |> Enum.map(fn sample
+                         -> %{ sample | timestamp: timestamp_for_chunk(sample, from, granularity) }
+                       end)
+                     _ -> []
+                   end
+                   |> Enum.group_by(fn s -> s.timestamp end)
+
+    timeline_map
+    |> Map.merge(map)
+  end
+
   def fixture(:aggregate, samples_groups, assoc) do
     from = case assoc[:from] do
              nil -> epoch()
@@ -233,6 +250,7 @@ defmodule CaosTsdb.Fixtures do
     granularity = assoc[:granularity] || Timex.diff(to, from, :seconds)
     function = assoc[:function]
     downsample = assoc[:downsample] || "NONE"
+    fill = assoc[:fill] || "NONE"
 
     where_from = Timex.shift(from, seconds: period)
 
@@ -259,6 +277,7 @@ defmodule CaosTsdb.Fixtures do
       end
     end)
     |> Enum.group_by(fn s -> s.timestamp end)
+    |> merge_fill(fill, from, to, granularity)
     |> Enum.flat_map(fn {timestamp, samples} ->
       if function == "NONE" do
         samples
