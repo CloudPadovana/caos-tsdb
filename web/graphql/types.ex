@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2017, 2018 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ defmodule CaosTsdb.Graphql.Types do
   end
 
   enum :aggregate_function, values: [:none, :avg, :count, :min, :max, :sum, :std, :var]
+  enum :fill_policy, values: [:none, :zero]
 
   input_object :tag_primary do
     field :id, :id
@@ -199,6 +200,7 @@ defmodule CaosTsdb.Graphql.Types do
     field :series, non_null(:series_group)
     field :function, :aggregate_function, default_value: :count
     field :downsample, :aggregate_function, default_value: :none
+    field :fill, :fill_policy, default_value: :none
   end
 
   object :series do
