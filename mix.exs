@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2016, 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2016, 2017, 2018 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,13 +72,13 @@ defmodule CaosTsdb.Mixfile do
   defp deps do
     [
       {:abacus, "~> 0.3.2"},
-      {:absinthe, "~> 1.4.0-rc.3"},
-      {:absinthe_plug, "~> 1.4.0-rc.1"},
+      {:absinthe, "~> 1.4.6"},
+      {:absinthe_plug, "~> 1.4.2"},
       {:conform, "~> 2.5.2"},
       {:cowboy, "~> 1.1.2"},
       {:credo, "~> 0.8.8", only: [:dev, :test], runtime: false},
       {:distillery, "~> 1.5.2", runtime: false},
-      {:excoveralls, "~> 0.7.4", only: :test},
+      {:excoveralls, "~> 0.8.0", only: :test},
       {:gettext, "~> 0.13.1"},
       {:guardian, "~> 0.14.5"},
       {:logger_file_backend, "~> 0.0.10"},
@@ -87,7 +87,7 @@ defmodule CaosTsdb.Mixfile do
       {:phoenix_ecto, "~> 3.3.0"},
       {:timex, "~> 3.1.24"},
       {:timex_ecto, "~> 3.2.1"},
-      {:tzdata, "~> 0.5.12", override: true},
+      {:tzdata, "~> 0.5.15", override: true},
     ]
   end
 
