@@ -2,7 +2,7 @@
 #
 # caos-tsdb - CAOS Time-Series DB
 #
-# Copyright © 2017 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
+# Copyright © 2017, 2018 INFN - Istituto Nazionale di Fisica Nucleare (Italy)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -110,6 +110,26 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
     end
   end
 
+  defp timebase_for(_args = %{fill: :none}), do: []
+  defp timebase_for(_args = %{fill: :zero, from: from, to: to, granularity: granularity}) do
+    Timex.Interval.new(from: from, until: to, step: [seconds: granularity],
+      left_open: false, right_open: false)
+      |> Enum.map(fn ts -> %Sample{timestamp: ts, value: 0} end)
+  end
+  defp timebase_for(_), do: []
+
+  defp merge_fill_policy(samples, args) do
+    with timebase <- timebase_for(args),
+      mapped_samples <- Enum.group_by(samples, fn s -> Timex.to_unix(s.timestamp) end) do
+
+      timebase
+      |> Enum.group_by(fn s -> Timex.to_unix(s.timestamp) end)
+      |> Map.merge(mapped_samples)
+      |> Map.values()
+      |> List.flatten()
+    end
+  end
+
   def aggregate_term(args = %{downsample: downsample_function, function: function}, context) do
     with {:ok, stream} <- build_stream(args, context) do
 
@@ -125,6 +145,7 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
           |> aggregate_chunk(function)
         end)
         |> Enum.to_list()
+        |> merge_fill_policy(args)
       end, timeout: :infinity)
     else
       {:error, error} -> {:error, error}
@@ -135,7 +156,7 @@ defmodule CaosTsdb.Graphql.Resolver.AggregateResolver do
 
   def aggregate(args, context) do
     term_args = args
-    |> Map.take([:series, :function, :downsample])
+    |> Map.take([:series, :function, :downsample, :fill])
     |> put_in([:name], @expression_term_name)
 
     expr_args = args
